@@ -18,7 +18,7 @@ setup(
     description='Preprocessing repo for SMILEs',
     long_description=long_description,
     license='MIT',
-    requirements=[
+    install_requires=[
         # 'requests==2.23.0'
         'pandas>=1.0.1',
         'crc64iso==0.0.2',
