@@ -9,6 +9,6 @@ Repository to apply many preprocessing transformations including stable train/te
 conda create -n data_preprocessor python=3.6
 conda activate data_preprocessor
 pip install pytest 
-pip install rdkit -c rdkit
+conda install rdkit -c rdkit
 pip install -e .
 
