@@ -21,9 +21,9 @@ setup(
     requirements=[
         # 'requests==2.23.0'
         'pandas>=1.0.1',
-        'crc64iso'==0.0.2,
+        'crc64iso==0.0.2',
         'action_sequences @ git+https://{}@github.ibm.com/rxn/action_sequences.git@latest#egg=action_sequences'.format(
-        os.environ['GHE_TOKEN']
+        os.environ['GHE_TOKEN'])
     ],
     classifiers=[
         'Intended Audience :: Developers',
