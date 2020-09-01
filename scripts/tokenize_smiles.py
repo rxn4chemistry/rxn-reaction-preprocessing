@@ -1,4 +1,5 @@
-from action_sequences.chemistry.utils import smi_tokenizer
+from action_sequences.chemistry.utils import *
+import click
 
 @click.command()
 @click.option('--input_file', '-i', required=True, help='Path to smiles file (can be tokenized or not)')
