@@ -7,13 +7,15 @@ from typing import List
 @click.option('--destpath', '-o', required=True, help='Destination path')
 @click.option('--filenames', '-f', required=True, default=['pistachio.cansmi.reduced','pistachio.smi.reduced'],
               help='List of filenames to add to the filtering')
-def main(datapath: str, destpath: str, filenames: List[str]) -> None:
+@click.option('--atom_mapping','-am', required=True, default=False, help='Boolean to set the presence of atom mapped reactions')
+def main(datapath: str, destpath: str, filenames: List[str], atom_mapping : bool) -> None:
 
     print("Data path: ", datapath)
     print("Destination path: ", destpath)
     print("filenames: ", filenames)
+    print("Atom mapping? ", atom_mapping)
 
-    DE = DataExtractionCleaning(datapath, destpath, filenames)
+    DE = DataExtractionCleaning(datapath=datapath, destpath=destpath, filenames=filenames, df=None, atom_mapping=atom_mapping)
     DE.read_data()
     DE.remove_duplicates(['reactions'])
     DE.df.to_csv(DE.destpath + 'dump_step_0.csv')
@@ -46,7 +48,7 @@ def main(datapath: str, destpath: str, filenames: List[str]) -> None:
     # DE = DataExtractionCleaning.from_df(datapath, destpath, df_csv_filename)
     # DE.df['reactions_mixed'] = DE.df.precursors + ">>" + DE.df.products
     # DE.df['tokenized_reactions_mixed'] = DE.df.tokenized_precursors + " >> " + DE.df.tokenized_products
-    DE.generate_training_files()
+    DE.generate_training_files(tipo='stable', split_ratio=0.05)
 
-if __name__ =='__main__':
+if __name__ == "__main__":
     main()

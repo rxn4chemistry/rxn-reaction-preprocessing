@@ -113,14 +113,18 @@ def remove_res_reagents(x):
 
 class DataExtractionCleaning:
 
-    def __init__(self, datapath, destpath, filenames = [], df = None):
+    def __init__(self, datapath, destpath, filenames = [], df = None, atom_mapping = False):
         self.datapath = datapath
         self.destpath = destpath
-        self.filenames = filenames
+        if not isinstance(filenames, list): 
+            self.filenames = [filenames]
+        else:
+            self.filenames = filenames
         self.df = df
+        self.atom_mapping = atom_mapping
 
     @classmethod
-    def from_df(cls, datapath, destpath, df_csv_filename):
+    def from_df(cls, datapath, destpath, df_csv_filename, atom_mapping):
         '''
         Alternative constructor from dataset stored in pkl or csv file
         :param datapath: the path of the file to load
@@ -129,22 +133,23 @@ class DataExtractionCleaning:
         :return:
         '''
         df = pd.read_csv(destpath + df_csv_filename)
-        return cls(datapath, destpath, df=df)
+        return cls(datapath, destpath, df=df, atom_mapping=atom_mapping)
 
 
     def read_data(self):
         print('Loading dataset ...')
-
+        
         for f in self.filenames:
-            new_df = pd.read_csv(self.datapath + f, sep ='\t')
+            new_df = pd.read_csv(self.datapath + f, sep='\t')
+            print(type(self.df))
             self.df = pd.concat([self.df, new_df], axis=1, sort=False)
-
-        self.df.columns = ['reactions', 'classes_long','atom_mapping','classes_long_cp']
-        print(self.df.loc[0].values)
-
-        assert(list(self.df.classes_long.values) == list(self.df.classes_long_cp.values))
-
-        self.df = self.df.drop(columns=['classes_long_cp'])
+        
+        if self.atom_mapping:
+            self.df.columns = ['reactions', 'classes_long','atom_mapping','classes_long_cp']
+            assert(list(self.df.classes_long.values) == list(self.df.classes_long_cp.values))
+            self.df = self.df.drop(columns=['classes_long_cp'])
+        else:
+            self.df.columns = ['reactions', 'classes_long']
 
         print(self.df.loc[0].values)
         print('Finished loading dataset. Dimension: {}'.format(len(self.df)))
@@ -300,11 +305,11 @@ class DataExtractionCleaning:
 
         return train, valid, test
 
-    def generate_training_files(self, type: str = 'stable', split_ratio = 0.05):
+    def generate_training_files(self, tipo: str = 'stable', split_ratio = 0.05):
 
-        if type == 'stable':
+        if tipo == 'stable':
             train, valid, test =  self.generate_training_files_stable(split_ratio)
-        elif type == 'random':
+        elif tipo == 'random':
             train, valid, test =  self.generate_training_files_random(split_ratio)
         else:
             raise ValueError(f'{type} not implemented! ')
@@ -378,9 +383,10 @@ class DataExtractionCleaning:
         print('Generating atom-mapping files ...')
 
     # Save atom mapping
-        train.atom_mapping.to_csv(self.destpath + 'rxn-atom-mapping-train.csv')
-        test.atom_mapping.to_csv(self.destpath + 'rxn-atom-mapping-test.csv')
-        test.atom_mapping.to_csv(self.destpath + 'rxn-atom-mapping-valid.csv')
+        if self.atom_mapping:
+            train.atom_mapping.to_csv(self.destpath + 'rxn-atom-mapping-train.csv')
+            test.atom_mapping.to_csv(self.destpath + 'rxn-atom-mapping-test.csv')
+            test.atom_mapping.to_csv(self.destpath + 'rxn-atom-mapping-valid.csv')
 
         '''
         with open(self.destpath + 'rxn-atom-mapping-train.txt','w') as f:
