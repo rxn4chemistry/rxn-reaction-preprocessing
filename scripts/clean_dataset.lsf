@@ -1,0 +1,12 @@
+#!/bin/bash
+#BSUB -q prod.long
+#BSUB -R "rusage[ngpus_excl_p=1]"
+#BSUB -R "select[hname!='zhcc068']"
+#BSUB -e "/u/ato/jobs/train.stderr.%J"
+#BSUB -o "/u/ato/jobs/train.stdout.%J"
+#BSUB -J "clean_dataset"
+
+source activate preprocessing
+module load RDKit
+
+python filter.py -i /dataG/rxn/data/synthesis/ -o /dataG/rxn/data/synthesis/ -f pistachio.cansmi
