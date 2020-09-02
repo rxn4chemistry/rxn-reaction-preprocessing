@@ -145,6 +145,7 @@ class DataExtractionCleaning:
             self.df = pd.concat([self.df, new_df], axis=1, sort=False)
         
         if self.atom_mapping:
+            print(type(self.atom_mapping))
             self.df.columns = ['reactions', 'classes_long','atom_mapping','classes_long_cp']
             assert(list(self.df.classes_long.values) == list(self.df.classes_long_cp.values))
             self.df = self.df.drop(columns=['classes_long_cp'])
