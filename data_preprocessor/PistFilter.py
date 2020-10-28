@@ -9,9 +9,9 @@ from tqdm import tqdm
 import numpy as np
 import random
 import joblib as jl
-from action_sequences.chemistry.reaction_smiles_extractor import ReactionSmilesExtractor
+from reaction_smiles_extractor import ReactionSmilesExtractor
 from data_preprocessor.reaction_filter import MixedReactionFilter
-from action_sequences.chemistry.utils import smi_tokenizer
+from tokenization import tokenize_smiles
 from rdkit.Chem.MolStandardize import rdMolStandardize
 from rdkit import Chem
 
@@ -237,9 +237,11 @@ class DataExtractionCleaning:
 
     def tokenize(self):
         print("Tokenizing the SMILEs ...")
-        self.df["tokenized_precursors"] = [smi_tokenizer(x) for x in self.df.precursors]
+        self.df["tokenized_precursors"] = [
+            tokenize_smiles(x) for x in self.df.precursors
+        ]
         # self.df.drop(column = ['precursors'])
-        self.df["tokenized_products"] = [smi_tokenizer(x) for x in self.df.products]
+        self.df["tokenized_products"] = [tokenize_smiles(x) for x in self.df.products]
         self.df["tokenized_reactions_mixed"] = (
             self.df.tokenized_precursors + " >> " + self.df.tokenized_products
         )
@@ -255,7 +257,7 @@ class DataExtractionCleaning:
 
         print("Size od dataset: {}".format(len(self.df)))
         self.df["tokenized_largest_fragment_products"] = [
-            smi_tokenizer(x) for x in self.df.largest_fragment_products
+            tokenize_smiles(x) for x in self.df.largest_fragment_products
         ]
         print("Kept largest fragment in product")
         return
