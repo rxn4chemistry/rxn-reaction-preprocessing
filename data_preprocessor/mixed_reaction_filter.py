@@ -31,6 +31,15 @@ class MixedReactionFilter:
         self.tokenizer = SmilesTokenizer()
 
     def validate(self, reaction: Reaction) -> bool:
+        """Validate a reaction using the rules set on the instance of this MixedReactionFilter class.
+
+        Args:
+            reaction (Reaction): The reaction to validate.
+
+        Returns:
+            bool: Whether or not the reaction is valid according to the rules set on the instance of this MixedReactionFilter class.
+        """
+
         return any(
             [
                 self.max_reactants_exceeded(reaction),
@@ -38,9 +47,9 @@ class MixedReactionFilter:
                 self.max_products_exceeded(reaction),
                 self.products_subset_of_reactants(reaction),
                 self.products_single_atoms(reaction),
-                self.max_n_reactant_tokens_exceeded(reaction),
-                self.max_n_agent_tokens_exceeded(reaction),
-                self.max_n_product_tokens_exceeded(reaction),
+                self.max_reactant_tokens_exceeded(reaction),
+                self.max_agent_tokens_exceeded(reaction),
+                self.max_product_tokens_exceeded(reaction),
                 self.formal_charge_exceeded(reaction),
                 self.different_atom_types(reaction),
             ]
@@ -111,7 +120,16 @@ class MixedReactionFilter:
                 return False
         return True
 
-    def max_n_reactant_tokens_exceeded(self, reaction):
+    def max_reactant_tokens_exceeded(self, reaction: Reaction) -> bool:
+        """Check whether the number of reactant tokens exceeds the maximum.
+
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            [type]: Whether the number of reactant tokens exceeds the maximum.
+        """
+
         return (
             len(
                 self.tokenizer.tokenize(
@@ -121,7 +139,16 @@ class MixedReactionFilter:
             > self.max_number_of_precursor_tokens
         )
 
-    def max_n_agent_tokens_exceeded(self, reaction):
+    def max_agent_tokens_exceeded(self, reaction: Reaction) -> bool:
+        """Check whether the number of agent tokens exceeds the maximum.
+
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            [type]: Whether the number of agent tokens exceeds the maximum.
+        """
+
         return (
             len(
                 self.tokenizer.tokenize(
@@ -131,7 +158,16 @@ class MixedReactionFilter:
             > self.max_number_of_agent_tokens
         )
 
-    def max_n_product_tokens_exceeded(self, reaction):
+    def max_product_tokens_exceeded(self, reaction: Reaction) -> bool:
+        """Check whether the number of product tokens exceeds the maximum.
+
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            [type]: Whether the number of product tokens exceeds the maximum.
+        """
+
         return (
             len(
                 self.tokenizer.tokenize(
@@ -142,6 +178,15 @@ class MixedReactionFilter:
         )
 
     def formal_charge_exceeded(self, reaction: Reaction) -> bool:
+        """Check whether the absolute formal charge of the reactants, agents, or products exceeds a maximum.
+
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            bool: Whether the absolute formal charge of the reactants, agents, or products exceeds a maximum.
+        """
+
         # Fragment bonds should, if the user choses to, be dealt with
         # before filtering reactions
         return (
@@ -166,6 +211,15 @@ class MixedReactionFilter:
         )
 
     def different_atom_types(self, reaction: Reaction) -> bool:
+        """Check whether the products contain atom types not found in the agents or reactants.
+
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            bool: Whether the products contain atom types not found in the agents or reactants.
+        """
+
         reactants = rdk.MolFromSmiles(".".join(reaction.get_reactants_as_smiles()))
         agents = rdk.MolFromSmiles(".".join(reaction.get_agents_as_smiles()))
         products = rdk.MolFromSmiles(".".join(reaction.get_products_as_smiles()))
