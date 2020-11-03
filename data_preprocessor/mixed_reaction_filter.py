@@ -1,224 +1,177 @@
-import re
-from rdkit import Chem
-from tokenization import tokenize_smiles
+""" A class encapsulating filtering functionality for chemical reactions """
+
+from typing import List
+from rdkit.Chem import AllChem as rdk
+from .reaction import Reaction
+from .smiles_tokenizer import SmilesTokenizer
 
 
 class MixedReactionFilter:
     def __init__(
         self,
-        rxn,
-        maximum_number_of_precursors=10,
-        maximum_number_of_products=1,
-        maximum_number_of_precursor_tokens=300,
-        maximum_number_of_product_tokens=200,
-        max_absolute_formal_charge=2,
-        filter_single_atom_products=True,
-        filter_purifications=True,
-        filter_alchemy=True,
-        fragment_bond=".",
-    ):  # atoms not in precursors
-        super().__init__()
-        self.precursors_smi, self.product_smi = rxn.split(">>")
-        self.maximum_number_of_products = maximum_number_of_products
-        self.maximum_number_of_precursors = maximum_number_of_precursors
-        self.maximum_number_of_product_tokens = maximum_number_of_product_tokens
-        self.maximum_number_of_precursor_tokens = maximum_number_of_precursor_tokens
+        max_number_of_reactants: int = 10,
+        max_number_of_products: int = 1,
+        max_number_of_agents: int = 0,
+        max_number_of_precursor_tokens: int = 300,
+        max_number_of_agent_tokens: int = 0,
+        max_number_of_product_tokens=200,
+        max_absolute_formal_charge: int = 2,
+        # filter_single_atom_products: bool = True,
+        # filter_purifications: bool = True,
+        # filter_alchemy: bool = True,
+    ):
+        self.max_number_of_products = max_number_of_products
+        self.max_number_of_reactants = max_number_of_reactants
+        self.max_number_of_agents = max_number_of_agents
+        self.max_number_of_product_tokens = max_number_of_product_tokens
+        self.max_number_of_agent_tokens = max_number_of_agent_tokens
+        self.max_number_of_precursor_tokens = max_number_of_precursor_tokens
         self.max_absolute_formal_charge = max_absolute_formal_charge
 
-        self.precursor_mol = None
-        self.product_mol = None
-        self.fragment_bond = fragment_bond
+        self.tokenizer = SmilesTokenizer()
 
-    def apply_max_number_of_products(self):
-        if not self.less_or_equal_N_molecules(
-            self.product_smi, self.maximum_number_of_products
-        ):
-            return False
-        return True
-
-    def apply_max_number_of_precursors(self):
-        if not self.less_or_equal_N_molecules(
-            self.precursors_smi, self.maximum_number_of_precursors
-        ):
-            return False
-        return True
-
-    def apply_all_products_in_precursors(self):
-        if self.all_products_in_precursors():
-            return False
-        return True
-
-    def apply_product_is_single_atom(self):
-        if self.product_is_single_atom():
-            return False
-        return True
-
-    def apply_max_number_of_tokens(self):
-        if (
-            len(tokenize_smiles(self.product_smi))
-            > self.maximum_number_of_product_tokens
-        ):
-            return False
-        elif (
-            len(tokenize_smiles(self.precursors_smi))
-            > self.maximum_number_of_precursor_tokens
-        ):
-            return False
-        return True
-
-    def apply_formal_charge_precursors_and_products(self):
-
-        self.precursor_mol = Chem.MolFromSmiles(
-            self.precursors_smi.replace(self.fragment_bond, ".")
-        )
-        precursor_charge = self.get_charge(self.precursor_mol)
-        if (precursor_charge is None) or (
-            abs(precursor_charge) > self.max_absolute_formal_charge
-        ):
-            return False
-
-        self.product_mol = Chem.MolFromSmiles(
-            self.product_smi.replace(self.fragment_bond, ".")
-        )
-        product_charge = self.get_charge(self.product_mol)
-        if (product_charge is None) or (
-            abs(product_charge) > self.max_absolute_formal_charge
-        ):
-            return False
-        return True
-
-    def apply_same_atom_types(self):
-        if not self.products_and_reactants_same_atom_types():
-            return False
-        return True
-
-    def apply_all_filters(self):
-        """Return True if all filters are passed"""
-
-        reasons = []
-        result = True
-
-        if not self.less_or_equal_N_molecules(
-            self.product_smi, self.maximum_number_of_products
-        ):
-            result = False
-            reasons.append(
-                f"not_less_or_equal_{self.maximum_number_of_products}_products"
-            )
-        if not self.less_or_equal_N_molecules(
-            self.precursors_smi, self.maximum_number_of_precursors
-        ):
-            result = False
-            reasons.append(
-                f"less_or_equal_{self.maximum_number_of_precursors}_precursors"
-            )
-        if self.product_in_precursors():
-            result = False
-            reasons.append(f"product_in_precursors")
-        if self.product_is_single_atom():
-            result = False
-            reasons.append(f"product_is_single_atom")
-        if (
-            len(tokenize_smiles(self.product_smi))
-            > self.maximum_number_of_product_tokens
-        ):
-            result = False
-            reasons.append(
-                f"more_than_{self.maximum_number_of_product_tokens}_product_tokens"
-            )
-        if (
-            len(tokenize_smiles(self.precursors_smi))
-            > self.maximum_number_of_precursor_tokens
-        ):
-            result = False
-            reasons.append(
-                f"more_than_{self.maximum_number_of_precursor_tokens}_precursor_tokens"
-            )
-
-        self.precursor_mol = Chem.MolFromSmiles(
-            self.precursors_smi.replace(self.fragment_bond, ".")
+    def validate(self, reaction: Reaction) -> bool:
+        return any(
+            [
+                self.max_reactants_exceeded(reaction),
+                self.max_agents_exceeded(reaction),
+                self.max_products_exceeded(reaction),
+                self.products_subset_of_reactants(reaction),
+                self.products_single_atoms(reaction),
+                self.max_n_reactant_tokens_exceeded(reaction),
+                self.max_n_agent_tokens_exceeded(reaction),
+                self.max_n_product_tokens_exceeded(reaction),
+                self.formal_charge_exceeded(reaction),
+                self.different_atom_types(reaction),
+            ]
         )
 
-        precursor_charge = self.get_charge(self.precursor_mol)
-        if (precursor_charge is None) or (
-            abs(precursor_charge) > self.max_absolute_formal_charge
-        ):
-            result = False
-            reasons.append(
-                f"precursor_charge_none_or_greater_than_{self.max_absolute_formal_charge}"
-            )
+    def max_reactants_exceeded(self, reaction: Reaction) -> bool:
+        """Checks whether the number of reactants exceeds the maximum.
 
-        self.product_mol = Chem.MolFromSmiles(
-            self.product_smi.replace(self.fragment_bond, ".")
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            bool: Whether the number of reactants exceeds the maximum.
+        """
+
+        return len(reaction.reactants) > self.max_number_of_reactants
+
+    def max_agents_exceeded(self, reaction: Reaction) -> bool:
+        """Checks whether the number of agents exceeds the maximum.
+
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            bool: Whether the number of agents exceeds the maximum.
+        """
+
+        return len(reaction.agents) > self.max_number_of_agents
+
+    def max_products_exceeded(self, reaction: Reaction) -> bool:
+        """Checks whether the number of products exceeds the maximum.
+
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            bool: Whether the number of products exceeds the maximum.
+        """
+
+        return len(reaction.products) > self.max_number_of_products
+
+    def products_subset_of_reactants(self, reaction: Reaction) -> bool:
+        """Checks whether the set of products is a subset of the set of reactants.
+
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            bool: Whether the set of products is a subset of the set of reactants.
+        """
+
+        return set(reaction.get_products_as_smiles()).issubset(
+            set(reaction.get_reactants_as_smiles())
         )
-        product_charge = self.get_charge(self.product_mol)
 
-        if (product_charge is None) or (
-            abs(product_charge) > self.max_absolute_formal_charge
-        ):
-            result = False
-            reasons.append(
-                f"product_charge_none_or_greater_than_{self.max_absolute_formal_charge}"
-            )
+    def products_single_atoms(self, reaction: Reaction) -> bool:
+        """Checks whether the products solely consist of single atoms.
 
-        if not self.products_and_reactants_same_atom_types():
-            result = False
-            reasons.append(f"products_and_reactants_same_atom_types")
+        Args:
+            reaction (Reaction): The reaction to test.
 
-        return (result, reasons)
+        Returns:
+            bool: Whether the products solely consist of single atoms.
+        """
 
-    def less_or_equal_N_molecules(self, smi, N):
-        return len(smi.split(".")) <= N
-
-    def all_products_in_precursors(self):
-        for elem in self.product_smi.split("."):
-            if elem not in self.precursors_smi.split("."):
+        for product in reaction.products:
+            if product.GetNumAtoms() > 1:
                 return False
         return True
 
-    def product_in_precursors(self):
-        return self.product_smi in self.precursors_smi.split(".")
-
-    def product_is_single_atom(self):
-        single_atom_regex = re.compile(r"^\[\w{1,2}[+-]\d?\]$|^\w{1,2}$")
-        match = re.match(single_atom_regex, self.product_smi)
-        if match is not None:
-            return True
-        else:
-            return False
-
-    def get_charge(self, mol):
-        if mol is None:
-            return None
-        try:
-            return Chem.GetFormalCharge(mol)
-        except:
-            return None
-
-    # Check if all product atom types in reactants (+reagents)
-    def products_and_reactants_same_atom_types(self):
-        if self.product_mol is None:
-            self.product_mol = Chem.MolFromSmiles(
-                self.product_smi.replace(self.fragment_bond, ".")
+    def max_n_reactant_tokens_exceeded(self, reaction):
+        return (
+            len(
+                self.tokenizer.tokenize(
+                    ".".join(reaction.get_reactants_as_smiles())
+                ).split(" ")
             )
-        if self.precursor_mol is None:
-            self.precursor_mol = Chem.MolFromSmiles(
-                self.precursors_smi.replace(self.fragment_bond, ".")
+            > self.max_number_of_precursor_tokens
+        )
+
+    def max_n_agent_tokens_exceeded(self, reaction):
+        return (
+            len(
+                self.tokenizer.tokenize(
+                    ".".join(reaction.get_agents_as_smiles())
+                ).split(" ")
             )
+            > self.max_number_of_agent_tokens
+        )
 
-        product_atoms = set([_.GetSymbol() for _ in self.product_mol.GetAtoms()])
-        precursor_atoms = set([_.GetSymbol() for _ in self.precursor_mol.GetAtoms()])
+    def max_n_product_tokens_exceeded(self, reaction):
+        return (
+            len(
+                self.tokenizer.tokenize(
+                    ".".join(reaction.get_products_as_smiles())
+                ).split(" ")
+            )
+            > self.max_number_of_product_tokens
+        )
 
-        product_atoms -= precursor_atoms
+    def formal_charge_exceeded(self, reaction: Reaction) -> bool:
+        # Fragment bonds should, if the user choses to, be dealt with
+        # before filtering reactions
+        return (
+            abs(
+                rdk.GetFormalCharge(
+                    rdk.MolFromSmiles(".".join(reaction.get_reactants_as_smiles()))
+                )
+            )
+            > self.max_absolute_formal_charge
+            or abs(
+                rdk.GetFormalCharge(
+                    rdk.MolFromSmiles(".".join(reaction.get_agents_as_smiles()))
+                )
+            )
+            > self.max_absolute_formal_charge
+            or abs(
+                rdk.GetFormalCharge(
+                    rdk.MolFromSmiles(".".join(reaction.get_products_as_smiles()))
+                )
+            )
+            > self.max_absolute_formal_charge
+        )
 
-        return len(product_atoms) == 0
+    def different_atom_types(self, reaction: Reaction) -> bool:
+        reactants = rdk.MolFromSmiles(".".join(reaction.get_reactants_as_smiles()))
+        agents = rdk.MolFromSmiles(".".join(reaction.get_agents_as_smiles()))
+        products = rdk.MolFromSmiles(".".join(reaction.get_products_as_smiles()))
 
+        products_atoms = set([atom.GetSymbol() for atom in reactants.GetAtoms()])
+        agents_atoms = set([atom.GetSymbol() for atom in agents.GetAtoms()])
+        reactants_atoms = set([atom.GetSymbol() for atom in products.GetAtoms()])
 
-if __name__ == "__main__":
-    rxn = "O=[N+]([O-])c1cc(-c2nc3ccccc3o2)ccc1F.C~C>>Nc1cc(-c2nc3ccccc3o2)ccc1NCC(=O)N1CCOCC1"
-
-    rxn_filter = MixedReactionFilter(rxn, fragment_bond="~")
-
-    passes_filter, _ = rxn_filter.apply_all_filters()
-
-    print(rxn, passes_filter)
+        return len(products_atoms - (reactants_atoms | agents_atoms)) != 0

@@ -11,7 +11,7 @@ import random
 import joblib as jl
 from reaction_smiles_extractor import ReactionSmilesExtractor
 from data_preprocessor.reaction_filter import MixedReactionFilter
-from tokenization import tokenize_smiles
+from .tokenization import tokenize_smiles
 from rdkit.Chem.MolStandardize import rdMolStandardize
 from rdkit import Chem
 
