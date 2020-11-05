@@ -283,6 +283,34 @@ class Reaction:
 
         return self
 
+    def deduplicate(
+        self,
+        deduplicate_reactants=True,
+        deduplicate_agents=True,
+        deduplicate_products=True,
+    ):
+        """Removes duplicates from reactants, agents, or products. E.g. X.X.Y.Z>A.X>A.B.B -> X.Y.Z>A.X>A.B.
+
+        Args:
+            deduplicate_reactants (bool, optional): Whether to deduplicate reactants. Defaults to True.
+            deduplicate_agents (bool, optional): Whether to deduplicate agents. Defaults to True.
+            deduplicate_products (bool, optional): Whether to deduplicate products. Defaults to True.
+
+        Returns:
+            Reaction: Itself deduplicated.
+        """
+
+        if deduplicate_reactants:
+            self.reactants = list(dict.fromkeys(self.reactants))
+
+        if deduplicate_agents:
+            self.agents = list(dict.fromkeys(self.agents))
+
+        if deduplicate_products:
+            self.products = list(dict.fromkeys(self.products))
+
+        return self
+
     #
     # Static Methods
     #

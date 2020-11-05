@@ -22,4 +22,5 @@ class SmilesTokenizer:
         Returns:
             SMILES string after tokenization, for instance 'C C ( C O ) = N >> C C ( C = O ) N'.
         """
+
         return " ".join([token for token in self.regex.findall(smiles)])

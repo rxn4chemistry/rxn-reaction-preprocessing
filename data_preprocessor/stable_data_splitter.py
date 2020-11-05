@@ -1,0 +1,34 @@
+""" A utility class to split data sets in a stable manner. """
+from typing import Tuple
+import pandas as pd
+from xxhash import xxh64_intdigest
+
+
+class StableDataSplitter:
+    @staticmethod
+    def split(
+        data_frame: pd.DataFrame, index_column: str, split_ratio: float = 0.05
+    ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+        """Creates a stable split into training, validation, and test sets.
+
+        Args:
+            data_frame (pd.DataFrame): The pandas DataFrame to be split into training, validation, and test sets.
+            index_column (str): The name of the column used to generate the hash which ensures stable splitting.
+            split_ratio (float, optional): The split ratio. Defaults to 0.05.
+
+        Returns:
+            Tuple[pd.Series, pd.Series, pd.Series]: A tuple of pandas Series containing the indices of the training, validation and testing set rows within the original DataFrame.
+        """
+
+        data_frame["hash"] = data_frame[index_column].apply(
+            lambda value: xxh64_intdigest(value)
+        )
+
+        return (
+            data_frame["hash"].apply(lambda value: value >= split_ratio * 2 * 2 ** 64),
+            data_frame["hash"].apply(
+                lambda value: (split_ratio * 2 ** 64 <= value)
+                and (value < split_ratio * 2 * 2 ** 64)
+            ),
+            data_frame["hash"].apply(lambda value: value < split_ratio * 2 ** 64),
+        )

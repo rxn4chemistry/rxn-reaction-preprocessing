@@ -7,6 +7,11 @@ def reaction():
     return Reaction("[14C]Cl.[Na]O>O>[Na]Cl.[14C]O")
 
 
+@pytest.fixture
+def duplicte_reaction():
+    return Reaction("[14C]Cl.[14C]Cl.[Na]O>O.O>[Na]Cl.[Na]Cl.[14C]O")
+
+
 def test_len(reaction):
     assert len(reaction) == 5
 
@@ -63,3 +68,7 @@ def test_sort_only_reactants(reaction):
         str(reaction.sort(sort_products=False, sort_agents=False))
         == "O[Na].[14C]Cl>O>[Na]Cl.[14C]O"
     )
+
+
+def test_deduplicate(reaction, duplicte_reaction):
+    assert str(reaction.deduplicate()) == "[14C]Cl.O[Na]>O>[Na]Cl.[14C]O"

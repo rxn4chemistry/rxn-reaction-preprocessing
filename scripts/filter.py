@@ -1,5 +1,5 @@
 import click
-from data_preprocessor.PistFilter import *
+from .PistFilter import *
 from typing import List
 
 
