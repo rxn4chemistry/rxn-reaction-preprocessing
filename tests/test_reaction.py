@@ -8,8 +8,19 @@ def reaction():
 
 
 @pytest.fixture
-def duplicte_reaction():
-    return Reaction("[14C]Cl.[14C]Cl.[Na]O>O.O>[Na]Cl.[Na]Cl.[14C]O")
+def duplicate_reaction():
+    return Reaction(
+        "[14C]Cl.[14C]Cl.[Na]O>O.O>[Na]Cl.[Na]Cl.[14C]O", remove_duplicates=True
+    )
+
+
+@pytest.fixture
+def dirty_reaction():
+    return Reaction("[14C]Cl.[Na]O>O>[Na]Cl.[14C]O.O.[14C]Cl")
+
+
+def test_remove_duplicates(reaction, duplicate_reaction):
+    assert reaction == duplicate_reaction
 
 
 def test_len(reaction):
@@ -26,7 +37,7 @@ def test_eq(reaction):
     assert reaction != reaction_reversed
 
 
-def testt_reactant_count(reaction):
+def test_reactant_count(reaction):
     assert len(reaction.reactants) == 2
 
 
@@ -59,6 +70,11 @@ def test_remove(reaction):
     assert len(reaction.reactants) == 1
 
 
+def test_filter(reaction):
+    reaction.filter(([1], [0], [1]))
+    assert len(reaction.reactants) == 1
+
+
 def test_sort(reaction):
     assert str(reaction.sort()) == "O[Na].[14C]Cl>O>[14C]O.[Na]Cl"
 
@@ -70,5 +86,19 @@ def test_sort_only_reactants(reaction):
     )
 
 
-def test_deduplicate(reaction, duplicte_reaction):
-    assert str(reaction.deduplicate()) == "[14C]Cl.O[Na]>O>[Na]Cl.[14C]O"
+def test_remove_precursors_from_products(dirty_reaction):
+    assert (
+        str(dirty_reaction.remove_precursors_from_products())
+        == "[14C]Cl.O[Na]>O>[Na]Cl.[14C]O"
+    )
+
+
+def test_has_none(reaction):
+    assert not reaction.has_none()
+    reaction.products.append(None)
+    assert reaction.has_none()
+
+
+def test_remove_none(reaction):
+    reaction.products.append(None)
+    assert len(reaction.remove_none().products) == 2

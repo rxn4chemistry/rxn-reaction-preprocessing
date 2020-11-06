@@ -1,6 +1,6 @@
 """ A class encapsulating filtering functionality for chemical reactions """
 
-from typing import List
+from typing import List, Tuple
 from rdkit.Chem import AllChem as rdk
 from .reaction import Reaction
 from .smiles_tokenizer import SmilesTokenizer
@@ -12,9 +12,12 @@ class MixedReactionFilter:
         max_reactants: int = 10,
         max_agents: int = 0,
         max_products: int = 1,
+        min_reactants: int = 2,
+        min_agents: int = 0,
+        min_products: int = 1,
         max_reactants_tokens: int = 300,
         max_agents_tokens: int = 0,
-        max_products_tokens=200,
+        max_products_tokens: int = 200,
         max_absolute_formal_charge: int = 2,
         # filter_single_atom_products: bool = True,
         # filter_purifications: bool = True,
@@ -26,14 +29,20 @@ class MixedReactionFilter:
             max_reactants (int, optional): The maximum number of reactant molecules. Defaults to 10.
             max_agents (int, optional): The maximum number of agent molcules. Defaults to 0.
             max_products (int, optional): The maximum number of product molecules. Defaults to 1.
+            min_reactants (int, optional): The minimum number of reactant molecules. Defaults to 2.
+            min_agents (int, optional): The minium number of agent molecules. Defaults to 0.
+            min_products (int, optional): The minimum number of product molecules. Defaults to 1.
             max_reactants_tokens (int, optional): The maximum number of precursor tokens. Defaults to 300.
             max_agents_tokens (int, optional): The maximum number of agent tokens. Defaults to 0.
             max_products_tokens (int, optional): The maximum number of product tokens. Defaults to 200.
             max_absolute_formal_charge (int, optional): The maximum formal charge (for reactants, agents, or products). Defaults to 2.
         """
-        self.max_products = max_products
-        self.max_agents = max_agents
         self.max_reactants = max_reactants
+        self.max_agents = max_agents
+        self.max_products = max_products
+        self.min_reactants = min_reactants
+        self.min_agents = min_agents
+        self.min_products = min_products
         self.max_reactants_tokens = max_reactants_tokens
         self.max_agents_tokens = max_agents_tokens
         self.max_products_tokens = max_products_tokens
@@ -56,6 +65,9 @@ class MixedReactionFilter:
                 self.max_reactants_exceeded(reaction),
                 self.max_agents_exceeded(reaction),
                 self.max_products_exceeded(reaction),
+                self.min_reactants_subceeded(reaction),
+                self.min_agents_subceeded(reaction),
+                self.min_products_subceeded(reaction),
                 self.products_subset_of_reactants(reaction),
                 self.products_single_atoms(reaction),
                 self.max_reactant_tokens_exceeded(reaction),
@@ -65,6 +77,52 @@ class MixedReactionFilter:
                 self.different_atom_types(reaction),
             ]
         )
+
+    def validate_reasons(self, reaction: Reaction) -> Tuple[bool, List[str]]:
+        valid = True
+        reasons = []
+
+        if self.max_reactants_exceeded(reaction):
+            valid = False
+            reasons.append("max_reactants_exceeded")
+        if self.max_agents_exceeded(reaction):
+            valid = False
+            reasons.append("max_agents_exceeded")
+        if self.max_products_exceeded(reaction):
+            valid = False
+            reasons.append("max_products_exceeded")
+        if self.min_reactants_subceeded(reaction):
+            valid = False
+            reasons.append("min_reactants_subceeded")
+        if self.min_agents_subceeded(reaction):
+            valid = False
+            reasons.append("min_agents_subceeded")
+        if self.min_products_subceeded(reaction):
+            valid = False
+            reasons.append("min_products_subceeded")
+        if self.products_subset_of_reactants(reaction):
+            valid = False
+            reasons.append("products_subset_of_reactants")
+        if self.products_single_atoms(reaction):
+            valid = False
+            reasons.append("products_single_atoms")
+        if self.max_reactant_tokens_exceeded(reaction):
+            valid = False
+            reasons.append("max_reactant_tokens_exceeded")
+        if self.max_agent_tokens_exceeded(reaction):
+            valid = False
+            reasons.append("max_agent_tokens_exceeded")
+        if self.max_product_tokens_exceeded(reaction):
+            valid = False
+            reasons.append("max_product_tokens_exceeded")
+        if self.formal_charge_exceeded(reaction):
+            valid = False
+            reasons.append("formal_charge_exceeded")
+        if self.different_atom_types(reaction):
+            valid = False
+            reasons.append("different_atom_types")
+
+        return (valid, reasons)
 
     def max_reactants_exceeded(self, reaction: Reaction) -> bool:
         """Checks whether the number of reactants exceeds the maximum.
@@ -101,6 +159,42 @@ class MixedReactionFilter:
         """
 
         return len(reaction.products) > self.max_products
+
+    def min_reactants_subceeded(self, reaction: Reaction) -> bool:
+        """Checks whether the number of reactants exceeds the maximum.
+
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            bool: Whether the number of reactants exceeds the maximum.
+        """
+
+        return len(reaction.reactants) < self.min_reactants
+
+    def min_agents_subceeded(self, reaction: Reaction) -> bool:
+        """Checks whether the number of agents exceeds the maximum.
+
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            bool: Whether the number of agents exceeds the maximum.
+        """
+
+        return len(reaction.agents) < self.min_agents
+
+    def min_products_subceeded(self, reaction: Reaction) -> bool:
+        """Checks whether the number of products exceeds the maximum.
+
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            bool: Whether the number of products exceeds the maximum.
+        """
+
+        return len(reaction.products) < self.min_products
 
     def products_subset_of_reactants(self, reaction: Reaction) -> bool:
         """Checks whether the set of products is a subset of the set of reactants.

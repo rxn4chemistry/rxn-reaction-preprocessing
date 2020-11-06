@@ -9,6 +9,7 @@ class Reaction:
     def __init__(
         self,
         reaction_smarts: str,
+        remove_duplicates: bool = False,
         remove_isotopes_information: bool = False,
         smiles_to_mol_kwargs: Dict = {"canonical": True},
     ):
@@ -16,10 +17,12 @@ class Reaction:
 
         Args:
             reaction_smarts (str): A reaction smarts
+            remove_duplicates (bool, optional): Whether to remove duplicates from within reactants, agents and products. Defaults to False.
             remove_isotopes_information (bool, optional): Whether to remove isotopes from the reaction SMARTS. Defaults to False.
             smiles_to_mol_kwargs (Dict, optional): Keyword arguments supplied to rdkit MolToSmiles. Defaults to {"canonical": True}.
         """
         self.__reaction_smarts = reaction_smarts
+        self.__remove_duplicates = remove_duplicates
         self.__remove_isotopes_information = remove_isotopes_information
         self.__smiles_to_mol_kwargs = smiles_to_mol_kwargs
         self.reactants, self.agents, self.products = self.__reaction_to_mols(
@@ -126,22 +129,23 @@ class Reaction:
 
         raw_reactants, raw_agents, raw_products = tuple(reaction_smarts.split(">"))
 
+        raw_reactants = raw_reactants.split(".")
+        raw_agents = raw_agents.split(".")
+        raw_products = raw_products.split(".")
+
+        if self.__remove_duplicates:
+            raw_reactants = list(dict.fromkeys(raw_reactants))
+            raw_agents = list(dict.fromkeys(raw_agents))
+            raw_products = list(dict.fromkeys(raw_products))
+
         return (
             [
                 rdk.MolFromSmiles(reactant)
-                for reactant in raw_reactants.split(".")
+                for reactant in raw_reactants
                 if reactant != ""
             ],
-            [
-                rdk.MolFromSmiles(agent)
-                for agent in raw_agents.split(".")
-                if agent != ""
-            ],
-            [
-                rdk.MolFromSmiles(product)
-                for product in raw_products.split(".")
-                if product != ""
-            ],
+            [rdk.MolFromSmiles(agent) for agent in raw_agents if agent != ""],
+            [rdk.MolFromSmiles(product) for product in raw_products if product != ""],
         )
 
     def __mol_to_smiles(self, mol: Mol) -> str:
@@ -211,17 +215,17 @@ class Reaction:
             [
                 i
                 for i, m in enumerate(self.reactants)
-                if len(list(m.GetSubstructMatch(pattern))) > 0
+                if m and len(list(m.GetSubstructMatch(pattern))) > 0
             ],
             [
                 i
                 for i, m in enumerate(self.agents)
-                if len(list(m.GetSubstructMatch(pattern))) > 0
+                if m and len(list(m.GetSubstructMatch(pattern))) > 0
             ],
             [
                 i
                 for i, m in enumerate(self.products)
-                if len(list(m.GetSubstructMatch(pattern))) > 0
+                if m and len(list(m.GetSubstructMatch(pattern))) > 0
             ],
         )
 
@@ -236,16 +240,42 @@ class Reaction:
             Reaction: Itself with changes applied.
         """
         if len(indices) > 0:
-            for idx in indices[0]:
+            for idx in sorted(indices[0], reverse=True):
                 del self.reactants[idx]
 
         if len(indices) > 1:
-            for idx in indices[1]:
+            for idx in sorted(indices[1], reverse=True):
                 del self.agents[idx]
 
         if len(indices) > 2:
-            for idx in indices[2]:
+            for idx in sorted(indices[2], reverse=True):
                 del self.products[idx]
+
+        return self
+
+    def filter(self, indices: Tuple[List[int], List[int], List[int]]):
+        """Filter for reactants, agents and products based on their index within the respective lists.
+
+        Args:
+            indices (Tuple[List[int], List[int], List[int]]): The indices of the molecules to not be removed from the reaction.
+
+        Returns:
+            Reaction: Itself with changes applied.
+        """
+        if len(indices) > 0 and len(indices[0]) > 0:
+            for idx in range(len(self.reactants) - 1, -1, -1):
+                if idx not in indices[0]:
+                    del self.reactants[idx]
+
+        if len(indices) > 1 and len(indices[1]) > 0:
+            for idx in range(len(self.agents) - 1, -1, -1):
+                if idx not in indices[1]:
+                    del self.agents[idx]
+
+        if len(indices) > 2 and len(indices[2]) > 0:
+            for idx in range(len(self.products) - 1, -1, -1):
+                if idx not in indices[2]:
+                    del self.products[idx]
 
         return self
 
@@ -283,31 +313,41 @@ class Reaction:
 
         return self
 
-    def deduplicate(
-        self,
-        deduplicate_reactants=True,
-        deduplicate_agents=True,
-        deduplicate_products=True,
-    ):
-        """Removes duplicates from reactants, agents, or products. E.g. X.X.Y.Z>A.X>A.B.B -> X.Y.Z>A.X>A.B.
-
-        Args:
-            deduplicate_reactants (bool, optional): Whether to deduplicate reactants. Defaults to True.
-            deduplicate_agents (bool, optional): Whether to deduplicate agents. Defaults to True.
-            deduplicate_products (bool, optional): Whether to deduplicate products. Defaults to True.
+    def remove_precursors_from_products(self):
+        """Removes prodcuts that are also found in reactants or agents.
 
         Returns:
-            Reaction: Itself deduplicated.
+            Reaction: Itself with prodcuts occuring as reactants or agents removed.
         """
 
-        if deduplicate_reactants:
-            self.reactants = list(dict.fromkeys(self.reactants))
+        reactants_smiles = self.get_reactants_as_smiles()
+        agents_smiles = self.get_agents_as_smiles()
+        products_smiles = self.get_products_as_smiles()
 
-        if deduplicate_agents:
-            self.agents = list(dict.fromkeys(self.agents))
+        for i, product in reversed(list(enumerate(products_smiles))):
+            if product in reactants_smiles or product in agents_smiles:
+                del self.products[i]
 
-        if deduplicate_products:
-            self.products = list(dict.fromkeys(self.products))
+        return self
+
+    def has_none(self) -> bool:
+        """Checks whether the reactants, agents, or products contain None (usually due to failed rdkit MolFromSmiles).
+
+        Returns:
+            bool: Whether the reactants, agents, or products contain None.
+        """
+
+        return None in self.reactants or None in self.agents or None in self.products
+
+    def remove_none(self):
+        """Removes all None values from the reactants, agents, and products.
+
+        Returns:
+            Reaction: Itself with None values removed.
+        """
+        self.reactants = [m for m in self.reactants if m != None]
+        self.agents = [m for m in self.agents if m != None]
+        self.products = [m for m in self.products if m != None]
 
         return self
 

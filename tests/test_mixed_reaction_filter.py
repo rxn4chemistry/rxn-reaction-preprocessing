@@ -6,8 +6,11 @@ from data_preprocessor import MixedReactionFilter, Reaction
 def filter():
     return MixedReactionFilter(
         max_reactants=5,
-        max_products=1,
         max_agents=0,
+        max_products=1,
+        min_reactants=2,
+        min_agents=0,
+        min_products=1,
         max_reactants_tokens=300,
         max_agents_tokens=0,
         max_products_tokens=200,
@@ -30,15 +33,15 @@ def bad_reaction():
 
 
 @pytest.fixture
+def small_reaction():
+    return Reaction("C>O>")
+
+
+@pytest.fixture
 def big_reaction():
     return Reaction(
         "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC>CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC>CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC"
     )
-
-
-@pytest.fixture
-def alchemic_reaction():
-    return Reaction("C>[Hg]>[Au]")
 
 
 @pytest.fixture
@@ -59,6 +62,20 @@ def test_max_agents_exceeded(filter, good_reaction, bad_reaction):
 def test_max_products_exceeded(filter, good_reaction, bad_reaction):
     assert not filter.max_products_exceeded(good_reaction)
     assert filter.max_products_exceeded(bad_reaction)
+
+
+def test_min_reactants_subceeded(filter, good_reaction, small_reaction):
+    assert not filter.min_reactants_subceeded(good_reaction)
+    assert filter.min_reactants_subceeded(small_reaction)
+
+
+def test_min_agents_subceeded(filter, good_reaction, small_reaction):
+    assert not filter.min_agents_subceeded(good_reaction)
+
+
+def test_min_products_subceeded(filter, good_reaction, small_reaction):
+    assert not filter.min_products_subceeded(good_reaction)
+    assert filter.min_products_subceeded(small_reaction)
 
 
 def test_products_subset_of_reactants(filter, good_reaction, bad_reaction):
