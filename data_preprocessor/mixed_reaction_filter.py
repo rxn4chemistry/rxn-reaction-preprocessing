@@ -60,7 +60,7 @@ class MixedReactionFilter:
             bool: Whether or not the reaction is valid according to the rules set on the instance of this MixedReactionFilter class.
         """
 
-        return any(
+        return not any(
             [
                 self.max_reactants_exceeded(reaction),
                 self.max_agents_exceeded(reaction),
@@ -221,6 +221,9 @@ class MixedReactionFilter:
         """
 
         for product in reaction.products:
+            if not product:
+                continue
+
             if product.GetNumAtoms() > 1:
                 return False
         return True

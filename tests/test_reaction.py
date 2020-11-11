@@ -1,5 +1,5 @@
 import pytest
-from data_preprocessor import Reaction
+from data_preprocessor import Reaction, ReactionPart
 
 
 @pytest.fixture
@@ -63,6 +63,12 @@ def test_get_products(reaction):
 
 def test_find(reaction):
     assert reaction.find("O") == ([1], [0], [1])
+
+
+def test_find_in(reaction):
+    assert reaction.find_in("O", ReactionPart.reactants) == [1]
+    assert reaction.find_in("O", ReactionPart.agents) == [0]
+    assert reaction.find_in("O", ReactionPart.products) == [1]
 
 
 def test_remove(reaction):

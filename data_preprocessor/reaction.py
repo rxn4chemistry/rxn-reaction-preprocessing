@@ -1,8 +1,15 @@
 """ Contains the class Reaction representing unidirectional reactions. """
 import re
+from enum import Enum
 from typing import Tuple, List, Dict
 from rdkit.Chem import AllChem as rdk
 from rdkit.Chem.rdchem import Mol
+
+
+class ReactionPart(Enum):
+    reactants = 1
+    agents = 2
+    products = 3
 
 
 class Reaction:
@@ -10,7 +17,6 @@ class Reaction:
         self,
         reaction_smarts: str,
         remove_duplicates: bool = False,
-        remove_isotopes_information: bool = False,
         smiles_to_mol_kwargs: Dict = {"canonical": True},
     ):
         """Creates a new instance of type Reaction based on a reaction SMARTs.
@@ -18,12 +24,10 @@ class Reaction:
         Args:
             reaction_smarts (str): A reaction smarts
             remove_duplicates (bool, optional): Whether to remove duplicates from within reactants, agents and products. Defaults to False.
-            remove_isotopes_information (bool, optional): Whether to remove isotopes from the reaction SMARTS. Defaults to False.
             smiles_to_mol_kwargs (Dict, optional): Keyword arguments supplied to rdkit MolToSmiles. Defaults to {"canonical": True}.
         """
         self.__reaction_smarts = reaction_smarts
         self.__remove_duplicates = remove_duplicates
-        self.__remove_isotopes_information = remove_isotopes_information
         self.__smiles_to_mol_kwargs = smiles_to_mol_kwargs
         self.reactants, self.agents, self.products = self.__reaction_to_mols(
             self.__reaction_smarts
@@ -52,17 +56,23 @@ class Reaction:
                 [
                     rdk.MolToSmiles(m, **self.__smiles_to_mol_kwargs)
                     for m in self.reactants
+                    if m
                 ]
             )
             + ">"
             + ".".join(
-                [rdk.MolToSmiles(m, **self.__smiles_to_mol_kwargs) for m in self.agents]
+                [
+                    rdk.MolToSmiles(m, **self.__smiles_to_mol_kwargs)
+                    for m in self.agents
+                    if m
+                ]
             )
             + ">"
             + ".".join(
                 [
                     rdk.MolToSmiles(m, **self.__smiles_to_mol_kwargs)
                     for m in self.products
+                    if m
                 ]
             )
         )
@@ -122,11 +132,6 @@ class Reaction:
         if reaction_smarts.count(">") != 2:
             raise ValueError("A valid SMARTS reaction must contain two '>'.")
 
-        if self.__remove_isotopes_information:
-            reaction_smarts = re.sub(
-                r"(?<=\[)([0-9]+)(?=[A-Za-z])", "", reaction_smarts
-            )
-
         raw_reactants, raw_agents, raw_products = tuple(reaction_smarts.split(">"))
 
         raw_reactants = raw_reactants.split(".")
@@ -175,6 +180,7 @@ class Reaction:
         return [
             rdk.MolToSmiles(reactant, **self.__smiles_to_mol_kwargs)
             for reactant in self.reactants
+            if reactant
         ]
 
     def get_agents_as_smiles(self) -> List[str]:
@@ -186,6 +192,7 @@ class Reaction:
         return [
             rdk.MolToSmiles(agent, **self.__smiles_to_mol_kwargs)
             for agent in self.agents
+            if agent
         ]
 
     def get_products_as_smiles(self) -> List[str]:
@@ -197,37 +204,74 @@ class Reaction:
         return [
             rdk.MolToSmiles(product, **self.__smiles_to_mol_kwargs)
             for product in self.products
+            if product
         ]
 
-    def find(self, smarts: str) -> Tuple[List[int], List[int], List[int]]:
+    def find(self, pattern: str) -> Tuple[List[int], List[int], List[int]]:
         """Find the occurences of a SMARTS pattern within the reaction and returns a tuple
            of lists of indices in the reactants, agents, and products.
 
         Args:
-            smarts (str): A SMARTS pattern.
+            pattern (str): A SMARTS pattern.
 
         Returns:
             Tuple[List[int], List[int], List[int]]: A tuple of lists of indices from the lists of reactants, agents, and products.
         """
-        pattern = rdk.MolFromSmarts(smarts)
+        p = rdk.MolFromSmarts(pattern)
 
+        # Avoid three method calls and do it directly
         return (
             [
                 i
                 for i, m in enumerate(self.reactants)
-                if m and len(list(m.GetSubstructMatch(pattern))) > 0
+                if m and len(list(m.GetSubstructMatch(p))) > 0
             ],
             [
                 i
                 for i, m in enumerate(self.agents)
-                if m and len(list(m.GetSubstructMatch(pattern))) > 0
+                if m and len(list(m.GetSubstructMatch(p))) > 0
             ],
             [
                 i
                 for i, m in enumerate(self.products)
-                if m and len(list(m.GetSubstructMatch(pattern))) > 0
+                if m and len(list(m.GetSubstructMatch(p))) > 0
             ],
         )
+
+    def find_in(self, pattern: str, reaction_part: ReactionPart) -> List[int]:
+        """Finds a SMARTS pattern in a part (reactants, agents, products) of the reaction.
+
+        Args:
+            pattern (str): A SMARTS pattern.
+            reaction_part (ReactionPart): The reaction part to search.
+
+        Returns:
+            List[int]: A list of indices from the list of molecules representing the chosen reaction part.
+        """
+        p = rdk.MolFromSmarts(pattern)
+
+        if reaction_part == ReactionPart.reactants:
+            return [
+                i
+                for i, m in enumerate(self.reactants)
+                if m and len(list(m.GetSubstructMatch(p))) > 0
+            ]
+
+        if reaction_part == ReactionPart.agents:
+            return [
+                i
+                for i, m in enumerate(self.agents)
+                if m and len(list(m.GetSubstructMatch(p))) > 0
+            ]
+
+        if reaction_part == ReactionPart.products:
+            return [
+                i
+                for i, m in enumerate(self.products)
+                if m and len(list(m.GetSubstructMatch(p))) > 0
+            ]
+
+        return []
 
     # Annotate the return type as Reaction... Python...
     def remove(self, indices: Tuple[List[int], List[int], List[int]]):
@@ -254,7 +298,7 @@ class Reaction:
         return self
 
     def filter(self, indices: Tuple[List[int], List[int], List[int]]):
-        """Filter for reactants, agents and products based on their index within the respective lists.
+        """Filter for reactants, agents and products based on their index within the respective lists. This is the complement to remove.
 
         Args:
             indices (Tuple[List[int], List[int], List[int]]): The indices of the molecules to not be removed from the reaction.

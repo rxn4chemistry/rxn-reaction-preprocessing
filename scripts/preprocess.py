@@ -23,156 +23,6 @@ DOCKER = os.getenv("RUNNING_IN_DOCKER")
 TOKENIZER = dp.SmilesTokenizer()
 
 
-def to_file(
-    input: Iterable[str],
-    suffix: str,
-    out_path: str,
-    tokenize: bool = True,
-    split: bool = True,
-) -> None:
-    """Save a data set to a file, tokenize and split reactants and products into separate files.
-
-    Args:
-        input (Iterable[str]): The input Iterable.
-        suffix (str): The suffix to apply to the file name (e.g. "train", "valid", or "test").
-        out_path (str): The path to the output directory.
-        tokenize (bool, optional): Whether to tokenize the SMILES. Defaults to True.
-        split (bool, optional): Whether to split the reactants and products into separate files. Defaults to True.
-    """
-    if tokenize:
-        for i in range(len(input)):
-            input[i] = TOKENIZER.tokenize(input[i])
-
-    if split:
-        with open(
-            "{0}/{1}-{2}.txt".format(out_path, "precursors", suffix),
-            "w+",
-        ) as f_r:
-            with open(
-                "{0}/{1}-{2}.txt".format(out_path, "product", suffix),
-                "w+",
-            ) as f_p:
-                for reaction in input:
-                    reaction_split = reaction.split(">>")
-                    f_r.write(reaction_split[0] + "\n")
-                    f_p.write(reaction_split[1] + "\n")
-    else:
-        with open("{0}/{1}.txt".format(out_path, suffix), "w+") as f:
-            for reaction in input:
-                f.write(reaction + "\n")
-
-
-def export_invalids(
-    input: Iterable[Tuple[str, List[str]]], suffix: str, out_path: str
-) -> None:
-    """Save the invalid reactions with the reasons for invalidity to a file.
-
-    Args:
-        input (Iterable[Tuple[str, List[str]]]): The input Iterable.
-        suffix (str): The suffix to apply to the file name (e.g. "train", "valid", or "test").
-        out_path (str): The path to the output directory.
-    """
-    with open("{0}/{1}.txt".format(out_path, suffix), "w+") as f:
-        for reaction, processed_reaction, invalid_reasons in input:
-            f.write(
-                reaction
-                + ","
-                + processed_reaction
-                + ","
-                + '"'
-                + ",".join(invalid_reasons)
-                + '"'
-                "\n"
-            )
-
-
-def summarize_invalids(invalid: Iterable[Tuple[str, str, List[str]]]) -> None:
-    """Prints a table summarazing the results of the process.
-
-    Args:
-        invalid (Iterable[Tuple[str, List[str]]]): The list of invalid reactions with reasons.
-    """
-    reasons = []
-    for inv in invalid:
-        reasons.extend(inv[2])
-
-    print(
-        f"\033[93m- {str(len(invalid))} reactions were removed for the following reasons:"
-    )
-    headers = ["Reason", "Number of Reactions"]
-    print(
-        tabulate(list(Counter(reasons).items()), headers, tablefmt="fancy_grid")
-        + "\033[0m"
-    )
-
-
-def process(lines: Iterable) -> Iterable:
-    """Process the reaction SMARTs. See comments for details.
-
-    Args:
-        lines (Iterable): Lines containing reaction SMARTS (one per line).
-
-    Returns:
-        [Iterable]: A list of processed SMARTS.
-    """
-
-    # The regex removes isotopes
-    lines = [
-        re.sub(
-            r"(?<=\[)([0-9]+)(?=[A-Za-z])",
-            "",
-            line.strip()
-            .replace("(|", "(")  # Hack for bad input data
-            .replace(")|", ")")  # Hack for bad input data
-            .replace("~", ".")
-            .replace("|", ".")
-            .replace("..", ".")
-            .replace(">.", ">")
-            .replace(".>", ">"),
-        )
-        for line in lines
-    ]
-
-    mrf = dp.MixedReactionFilter()
-    invalid_reactions = []
-    processed_reactions = []
-
-    for i in range(len(lines) - 1, -1, -1):
-        invalid_reasons = []
-        reaction = dp.Reaction(lines[i], remove_duplicates=True)
-
-        # If reactions contains None values for molecules, skip it
-        if reaction.has_none():
-            invalid_reasons.append("rdkit_molfromsmiles_failed")
-
-        # Move agents to reactants
-        reaction.reactants.extend(reaction.agents)
-        reaction.agents = []
-
-        reaction.filter(([], [], reaction.find("[S+,s+](*)(*)*")[2]))
-
-        # Remove single atoms
-        reaction.reactants = [
-            m for m in reaction.reactants if m and m.GetNumAtoms() > 1
-        ]
-        reaction.agents = [m for m in reaction.agents if m and m.GetNumAtoms() > 1]
-        reaction.products = [m for m in reaction.products if m and m.GetNumAtoms() > 1]
-
-        # Remove products that are also reactants
-        reaction.remove_precursors_from_products()
-        reaction.sort()
-
-        _, mrf_reasons = mrf.validate_reasons(reaction)
-        invalid_reasons.extend(mrf_reasons)
-
-        if len(invalid_reasons) > 0:
-            invalid_reactions.append((lines[i], str(reaction), invalid_reasons))
-        else:
-            processed_reactions.append(str(reaction))
-
-    return (processed_reactions, invalid_reactions)
-
-
 @click.command()
 @click.argument("input", type=click.File("r"), required=False)
 @click.argument("output", nargs=1, required=False)
@@ -202,56 +52,74 @@ def cli(input: TextIO, output: str, split: bool, tokenize: bool) -> None:
         input = open("/data/input.txt", "r")
         output = "/data/output"
 
-    # Going with multiprocessing rather than numpy vectorization due to the latter's
-    # poor performance on strings
-    result = []
-    n_cores = cpu_count() - 1 or 1
-    with Pool(n_cores) as pool:
-        result = list(
-            pool.map(
-                partial(process),
-                np.array_split(input.readlines(), n_cores),
-            )
+    # This is for the special SMILES extension where agents are separated by pipe.
+    def clean_func(rxn: str) -> str:
+        return re.sub(
+            r"(?<=\[)([0-9]+)(?=[A-Za-z])",  # Remove isotopes
+            "",
+            rxn.strip()
+            .replace("(|", "(")  # Hack for bad input data
+            .replace(")|", ")")  # Hack for bad input data
+            .replace("~", ".")
+            .replace("|", ".")
+            .replace("..", ".")
+            .replace(">.", ">")
+            .replace(".>", ">"),
         )
 
-    valid = []
-    invalid = []
-    for val, inval in result:
-        valid.extend(val)
-        invalid.extend(inval)
+    # This is the function that is applied to each reaction.
+    def apply_func(reaction: dp.Reaction) -> dp.Reaction:
+        # Move agents to reactants
+        reaction.reactants.extend(reaction.agents)
+        reaction.agents = []
+        reaction.filter(
+            ([], [], reaction.find_in("[S+,s+](*)(*)*", dp.ReactionPart.products))
+        )
 
-    valid_len = len(valid)
-    invalid_len = len(invalid)
+        # Remove single atoms
+        reaction.reactants = [
+            m for m in reaction.reactants if m and m.GetNumAtoms() > 1
+        ]
+        reaction.agents = [m for m in reaction.agents if m and m.GetNumAtoms() > 1]
+        reaction.products = [m for m in reaction.products if m and m.GetNumAtoms() > 1]
 
-    # Remove duplicates
-    valid = list(dict.fromkeys(valid))
+        # Remove products that are also reactants
+        reaction.remove_precursors_from_products()
 
-    print(f"- {valid_len + invalid_len} total reactions.")
-    print(f"\033[92m- {len(valid)} valid reactions.\033[0m")
-    print(f"\033[93m- {valid_len - len(valid)} valid duplicates removed.\033[0m")
+        return reaction.sort()
 
-    summarize_invalids(invalid)
-    export_invalids(invalid, "invalid", output)
+    # Create a instance of the mixed reaciton filter with default values.
+    # Make arguments for all properties in script
+    mrf = dp.MixedReactionFilter()
 
-    sdd = dp.StableDataSplitter()
+    pp = dp.Preprocessor.read_csv(input.name, "rxn")
 
-    # # Split and save
-    df = pd.DataFrame({"rxn": valid})
-    train, validation, test = sdd.split(df, index_column="rxn")
-    df_train = df[train]
-    df_validation = df[validation]
-    df_test = df[test]
+    # In a first step, let's clean the data using the cleaning function
+    # defined above
+    pp.df.rxn = pp.df.rxn.apply(clean_func)
 
-    print(f"- Training set size: {len(df_train)}.")
-    print(f"- Validation set size: {len(df_validation)}.")
-    print(f"- Test set size: {len(df_test)}.")
-    print("")
+    # Apply the function above to all reactions, the remove_duplicate_molecules argument
+    # is set to true to remove duplicate molecules within each reaction part
+    pp.apply(apply_func, remove_duplicate_molecules=True)
 
-    to_file(df_train["rxn"].tolist(), "train", output, tokenize=tokenize, split=split)
-    to_file(
-        df_validation["rxn"].tolist(), "valid", output, tokenize=tokenize, split=split
-    )
-    to_file(df_test["rxn"].tolist(), "test", output, tokenize=tokenize, split=split)
+    # Remove duplicate reactions
+    pp.remove_duplicates()
+
+    # Apply the mixed reaction filter instance defined above, enable verbose mode
+    pp.filter(mrf, True)
+
+    # Print the detailed stats
+    pp.print_stats()
+
+    # Drop the invalid ractions
+    pp.remove_invalids()
+
+    # After dropping invalid columns, display stats again (as an example)
+    pp.print_stats()
+
+    # Tokenize the reactions
+    tokenizer = dp.SmilesTokenizer()
+    pp.df.rxn = pp.df.rxn.apply(tokenizer.tokenize)
 
 
 if __name__ == "__main__":

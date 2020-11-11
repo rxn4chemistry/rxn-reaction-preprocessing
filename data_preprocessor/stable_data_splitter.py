@@ -9,7 +9,7 @@ class StableDataSplitter:
     def split(
         df: pd.DataFrame, index_column: str, split_ratio: float = 0.05
     ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-        """Creates a stable split into training, validation, and test sets.
+        """Creates a stable split into training, validation, and test sets. Returns a boolean mask for each set, to not duplicate the DataFrame while preserving the original.
 
         Args:
             df (pd.DataFrame): The pandas DataFrame to be split into training, validation, and test sets.
@@ -17,7 +17,7 @@ class StableDataSplitter:
             split_ratio (float, optional): The split ratio. Defaults to 0.05.
 
         Returns:
-            Tuple[pd.Series, pd.Series, pd.Series]: A tuple of pandas Series containing the indices of the training, validation and testing set rows within the original DataFrame.
+            Tuple[pd.Series, pd.Series, pd.Series]: A tuple of pandas Series containing a boolean mask of the training, validation and testing set rows within the original DataFrame.
         """
 
         df["hash"] = df[index_column].apply(lambda value: xxh64_intdigest(value))
