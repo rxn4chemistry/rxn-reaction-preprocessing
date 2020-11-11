@@ -121,6 +121,12 @@ def cli(input: TextIO, output: str, split: bool, tokenize: bool) -> None:
     tokenizer = dp.SmilesTokenizer()
     pp.df.rxn = pp.df.rxn.apply(tokenizer.tokenize)
 
+    # Split into train, validation, and test sets, but do not export yet
+    train, validation, test = dp.StableDataSplitter.split(pp.df, "rxn")
+
+    # Example of exporting one of the sets
+    # pp.df.rxn[train].to_csv("training.csv")
+
 
 if __name__ == "__main__":
     cli()
