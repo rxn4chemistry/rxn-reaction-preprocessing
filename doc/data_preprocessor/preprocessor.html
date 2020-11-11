@@ -1,0 +1,1029 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.1" />
+<title>data_preprocessor.preprocessor API documentation</title>
+<meta name="description" content="The preprocessor class abstracts the workflow for preprocessing reaction data sets." />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>data_preprocessor.preprocessor</code></h1>
+</header>
+<section id="section-intro">
+<p>The preprocessor class abstracts the workflow for preprocessing reaction data sets.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34; The preprocessor class abstracts the workflow for preprocessing reaction data sets. &#34;&#34;&#34;
+from typing import Callable, Dict, List, Tuple
+from collections import Counter
+import numpy as np
+import pandas as pd
+from tabulate import tabulate
+from .reaction import Reaction, ReactionPart
+from .mixed_reaction_filter import MixedReactionFilter
+from .stable_data_splitter import StableDataSplitter
+
+
+class Preprocessor:
+    def __init__(
+        self,
+        df: pd.DataFrame,
+        reaction_column_name: str,
+        valid_column: str = &#34;_rxn_valid&#34;,
+        valid_message_column: str = &#34;_rxn_valid_messages&#34;,
+        clean_data=True,
+    ):
+        &#34;&#34;&#34;Creates a new instance of the Preprocessor class.
+
+        Args:
+            df (pd.DataFrame): A pandas DataFrame containing the reaction SMARTS.
+            reaction_column_name (str): The name of the DataFrame column containing the reaction SMARTS.
+            valid_column (str, optional): The name of the column to write the validation results to (will be created if it doesn&#39;t exist). Defaults to &#34;_rxn_valid&#34;.
+            valid_message_column (str, optional): The name of the column to write the validation messages to in verbose mode (will be created if it doesn&#39;t exist). Defaults to &#34;_rxn_valid_messages&#34;.
+            clean_data (bool, optional): Whether to run a simple pre-cleaning of the input data (naive check for valid SMARTS reactions based on the number of greater-thans in the string). Defaults to True.
+        &#34;&#34;&#34;
+        self.df = df
+        self.__reaction_column_name = reaction_column_name
+        self.__valid_column = valid_column
+        self.__valid_message_column = valid_message_column
+
+        if clean_data:
+            self.__clean_data()
+
+    #
+    # Private Methods
+    #
+    def __clean_data(self):
+        &#34;&#34;&#34;Drops records from the internal pandas DataFrame that do not contain valid reaction SMARTS (WARNING: Very naive, just checks for two greater-thans)&#34;&#34;&#34;
+        self.df.drop(
+            self.df[self.df[self.__reaction_column_name].str.count(&#34;&gt;&#34;) != 2].index,
+            inplace=True,
+        )
+
+    def __filter_func(
+        self,
+        reaction: Reaction,
+        filter: MixedReactionFilter,
+        invalidate_nones: bool = True,
+    ) -&gt; bool:
+        &#34;&#34;&#34;The default filter function.
+
+        Args:
+            reaction (Reaction): An input reaction.
+            filter (MixedReactionFilter): An instance of MixedReactionFilter to test the reaction against.
+            invalidate_nones (bool, optional): Whether to mark reactions that contain non-valid molecules as invalid. Defaults to True.
+
+        Returns:
+            bool: A boolean indicating whether or not the reaction is valid according to the supplied parameters.
+        &#34;&#34;&#34;
+        # If reactions contains *any* None values for molecules
+        if invalidate_nones and reaction.has_none():
+            return False
+
+        return filter.validate(reaction)
+
+    def __filter_func_verbose(
+        self,
+        reaction: Reaction,
+        filter: MixedReactionFilter,
+        invalidate_nones: bool = True,
+    ) -&gt; List[str]:
+        &#34;&#34;&#34;The default verbose filter function.
+
+        Args:
+            reaction (Reaction): An input reaction.
+            filter (MixedReactionFilter): An instance of MixedReactionFilter to test the reaction against.
+            invalidate_nones (bool, optional): Whether to mark reactions that contain non-valid molecules as invalid. Defaults to True.
+
+        Returns:
+            List[str]: A list of reasons for an invalid reaction. An empty list for a valid reaction.
+        &#34;&#34;&#34;
+        invalid_reasons = []
+
+        # If reactions contains *any* None values for molecules
+        if invalidate_nones and reaction.has_none():
+            invalid_reasons.append(&#34;rdkit_molfromsmiles_failed&#34;)
+
+        _, filter_reasons = filter.validate_reasons(reaction)
+        invalid_reasons.extend(filter_reasons)
+
+        return invalid_reasons
+
+    #
+    # Public Methods
+    #
+    def filter(
+        self,
+        filter: MixedReactionFilter,
+        verbose: bool = False,
+        filter_func: Callable[[Reaction], bool] = None,
+        filter_func_verbose: Callable[[Reaction], List[str]] = None,
+    ):
+        &#34;&#34;&#34;Applies filter functions to the reaction. Alternatives for the default filter functions can be supplied.
+
+        Args:
+            filter (MixedReactionFilter): An instance of MixedReactionFilter to be applied to each reaction.
+            verbose (bool, optional): Whether or not to report the reasons for a reaction being deemed invalid. Defaults to False.
+            filter_func (Callable[[Reaction], bool], optional): A custom filter function. Defaults to None.
+            filter_func_verbose (Callable[[Reaction], List[str]], optional): A custom verbose filter function. Defaults to None.
+
+        Returns:
+            Preprocessor: Itself.
+        &#34;&#34;&#34;
+        if filter_func == None:
+            filter_func = self.__filter_func
+
+        if filter_func_verbose == None:
+            filter_func_verbose = self.__filter_func_verbose
+
+        if self.__valid_column not in self.df.columns:
+            self.df[self.__valid_column] = True
+
+        if verbose:
+            if self.__valid_message_column not in self.df.columns:
+                self.df[self.__valid_message_column] = np.empty(
+                    (len(self.df), 0)
+                ).tolist()
+
+            self.df[self.__valid_message_column] += self.df.apply(
+                lambda row: self.__filter_func_verbose(
+                    Reaction(row[self.__reaction_column_name]), filter
+                ),
+                axis=1,
+            )
+
+            self.df[self.__valid_column] = np.logical_and(
+                np.where(self.df[self.__valid_message_column], False, True),
+                self.df[self.__valid_column],
+            )
+        else:
+            self.df[self.__valid_column] = np.logical_and(
+                self.df.apply(
+                    lambda row: self.__filter_func(
+                        Reaction(row[self.__reaction_column_name]), filter
+                    ),
+                    axis=1,
+                ),
+                self.df[self.__valid_column],
+            )
+
+        return self
+
+    def filter_smarts(
+        self,
+        pattern: str,
+        reaction_part: ReactionPart,
+        keep: bool = False,
+        verbose: bool = False,
+    ):
+        &#34;&#34;&#34;Filter based on a SMARTS pattern. Unless keep is set to True, filters out reaction where the supplied pattern was found.
+
+        Args:
+            pattern (str): A valid SMARTS pattern.
+            reaction_part (ReactionPart): Which part of reaction to apply the SMARTS pattern to.
+            keep (bool, optional): Whether to mark non-matches as invalid. Defaults to False.
+            verbose (bool, optional): Whether to report the reason for why a reaction is deemed invalid. Defaults to False.
+
+        Returns:
+            Preprocessor: Itself.
+        &#34;&#34;&#34;
+        if self.__valid_column not in self.df.columns:
+            self.df[self.__valid_column] = True
+
+        tmp = np.logical_and(
+            self.df.apply(
+                lambda row: not (
+                    (
+                        len(
+                            Reaction(row[self.__reaction_column_name]).find_in(
+                                pattern, reaction_part
+                            )
+                        )
+                        &gt; 0
+                    )
+                    != keep
+                ),
+                axis=1,
+            ),
+            self.df[self.__valid_column],
+        )
+
+        self.df[self.__valid_column] = np.logical_and(tmp, self.df[self.__valid_column])
+
+        if verbose:
+            if self.__valid_message_column not in self.df.columns:
+                self.df[self.__valid_message_column] = np.empty(
+                    (len(self.df), 0)
+                ).tolist()
+
+            if keep:
+                tmp = ~tmp
+
+            self.df.loc[tmp, self.__valid_message_column] = self.df.loc[
+                tmp, self.__valid_message_column
+            ].apply(lambda c: c + [&#34;pattern_&#34; + pattern])
+
+        return self
+
+    def apply(
+        self,
+        func: Callable[[Reaction], Reaction],
+        remove_duplicates: bool = False,
+        smiles_to_mol_kwargs: Dict = {&#34;canonical&#34;: True},
+    ):
+        &#34;&#34;&#34;Applies the supplied function to each reaction.
+
+        Args:
+            func (Callable[[Reaction], Reaction]): A function which is applied to each reaction.
+            remove_duplicates (bool, optional): Whether to remove duplicate molecules when a reaction instance is created from a reaction SMARTS. Defaults to False.
+            smiles_to_mol_kwargs (Dict, optional): Additional parameters for the rdkit method MolFromSmiles. Defaults to {&#34;canonical&#34;: True}.
+
+        Returns:
+            Preprocessor: Itself.
+        &#34;&#34;&#34;
+        self.df[self.__reaction_column_name] = self.df[
+            self.__reaction_column_name
+        ].apply(
+            lambda rxn: str(
+                func(
+                    Reaction(
+                        rxn,
+                        remove_duplicates=remove_duplicates,
+                        smiles_to_mol_kwargs=smiles_to_mol_kwargs,
+                    )
+                )
+            )
+        )
+
+        return self
+
+    def remove_duplicates(self):
+        &#34;&#34;&#34;A wrapper around Pandas&#39; drop_duplicates with the argument subset set to the reaction column name.
+
+        Returns:
+            Preprocessor: Itself.
+        &#34;&#34;&#34;
+        self.df.drop_duplicates(subset=[self.__reaction_column_name], inplace=True)
+        return self
+
+    def print_stats(self):
+        &#34;&#34;&#34;Prints statistics of the filtration to stdout.
+
+        Returns:
+            Preprocessor: Itself.
+        &#34;&#34;&#34;
+        print(f&#34;- {len(self.df)} total reactions.&#34;)
+        if self.__valid_column in self.df.columns:
+            counts = self.df[self.__valid_column].value_counts()
+            print(f&#34;\033[92m- {counts[True]} valid reactions.\033[0m&#34;)
+            print(f&#34;\033[93m- {counts[False]} invalid reactions removed.\033[0m&#34;)
+
+        if self.__valid_message_column in self.df.columns:
+            reasons = Counter()
+            for _, value in self.df[self.__valid_message_column].items():
+                reasons.update(value)
+
+            print(
+                f&#34;\033[93m- The {counts[False]} reactions were removed for the following reasons:&#34;
+            )
+            headers = [&#34;Reason&#34;, &#34;Number of Reactions&#34;]
+            print(
+                tabulate(list(Counter(reasons).items()), headers, tablefmt=&#34;fancy_grid&#34;)
+                + &#34;\033[0m&#34;
+            )
+
+        return self
+
+    #
+    # Static Methods
+    #
+    @staticmethod
+    def read_csv(filepath: str, reaction_column_name: str, kwargs={}):
+        &#34;&#34;&#34;A helper function to read a list or csv of reactions.
+
+        Args:
+            filepath (str): The path to the text file containing the reactions.
+            reaction_column_name (str): The name of the reaction column (or the name that wil be given to the reaction column if the input file has no headers).
+            kwargs (dict, optional): Additional arguments to supply to the internal Pandas read_csv method. Defaults to {}.
+
+        Returns:
+            Preprocessor: A new preprocessor instance.
+        &#34;&#34;&#34;
+        df = pd.read_csv(filepath, **kwargs)
+        if len(df.columns) == 1:
+            df.rename(columns={df.columns[0]: reaction_column_name}, inplace=True)
+
+        return Preprocessor(df, reaction_column_name)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="data_preprocessor.preprocessor.Preprocessor"><code class="flex name class">
+<span>class <span class="ident">Preprocessor</span></span>
+<span>(</span><span>df: pandas.core.frame.DataFrame, reaction_column_name: str, valid_column: str = '_rxn_valid', valid_message_column: str = '_rxn_valid_messages', clean_data=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Creates a new instance of the Preprocessor class.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>pd.DataFrame</code></dt>
+<dd>A pandas DataFrame containing the reaction SMARTS.</dd>
+<dt><strong><code>reaction_column_name</code></strong> :&ensp;<code>str</code></dt>
+<dd>The name of the DataFrame column containing the reaction SMARTS.</dd>
+<dt><strong><code>valid_column</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>The name of the column to write the validation results to (will be created if it doesn't exist). Defaults to "_rxn_valid".</dd>
+<dt><strong><code>valid_message_column</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>The name of the column to write the validation messages to in verbose mode (will be created if it doesn't exist). Defaults to "_rxn_valid_messages".</dd>
+<dt><strong><code>clean_data</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>Whether to run a simple pre-cleaning of the input data (naive check for valid SMARTS reactions based on the number of greater-thans in the string). Defaults to True.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Preprocessor:
+    def __init__(
+        self,
+        df: pd.DataFrame,
+        reaction_column_name: str,
+        valid_column: str = &#34;_rxn_valid&#34;,
+        valid_message_column: str = &#34;_rxn_valid_messages&#34;,
+        clean_data=True,
+    ):
+        &#34;&#34;&#34;Creates a new instance of the Preprocessor class.
+
+        Args:
+            df (pd.DataFrame): A pandas DataFrame containing the reaction SMARTS.
+            reaction_column_name (str): The name of the DataFrame column containing the reaction SMARTS.
+            valid_column (str, optional): The name of the column to write the validation results to (will be created if it doesn&#39;t exist). Defaults to &#34;_rxn_valid&#34;.
+            valid_message_column (str, optional): The name of the column to write the validation messages to in verbose mode (will be created if it doesn&#39;t exist). Defaults to &#34;_rxn_valid_messages&#34;.
+            clean_data (bool, optional): Whether to run a simple pre-cleaning of the input data (naive check for valid SMARTS reactions based on the number of greater-thans in the string). Defaults to True.
+        &#34;&#34;&#34;
+        self.df = df
+        self.__reaction_column_name = reaction_column_name
+        self.__valid_column = valid_column
+        self.__valid_message_column = valid_message_column
+
+        if clean_data:
+            self.__clean_data()
+
+    #
+    # Private Methods
+    #
+    def __clean_data(self):
+        &#34;&#34;&#34;Drops records from the internal pandas DataFrame that do not contain valid reaction SMARTS (WARNING: Very naive, just checks for two greater-thans)&#34;&#34;&#34;
+        self.df.drop(
+            self.df[self.df[self.__reaction_column_name].str.count(&#34;&gt;&#34;) != 2].index,
+            inplace=True,
+        )
+
+    def __filter_func(
+        self,
+        reaction: Reaction,
+        filter: MixedReactionFilter,
+        invalidate_nones: bool = True,
+    ) -&gt; bool:
+        &#34;&#34;&#34;The default filter function.
+
+        Args:
+            reaction (Reaction): An input reaction.
+            filter (MixedReactionFilter): An instance of MixedReactionFilter to test the reaction against.
+            invalidate_nones (bool, optional): Whether to mark reactions that contain non-valid molecules as invalid. Defaults to True.
+
+        Returns:
+            bool: A boolean indicating whether or not the reaction is valid according to the supplied parameters.
+        &#34;&#34;&#34;
+        # If reactions contains *any* None values for molecules
+        if invalidate_nones and reaction.has_none():
+            return False
+
+        return filter.validate(reaction)
+
+    def __filter_func_verbose(
+        self,
+        reaction: Reaction,
+        filter: MixedReactionFilter,
+        invalidate_nones: bool = True,
+    ) -&gt; List[str]:
+        &#34;&#34;&#34;The default verbose filter function.
+
+        Args:
+            reaction (Reaction): An input reaction.
+            filter (MixedReactionFilter): An instance of MixedReactionFilter to test the reaction against.
+            invalidate_nones (bool, optional): Whether to mark reactions that contain non-valid molecules as invalid. Defaults to True.
+
+        Returns:
+            List[str]: A list of reasons for an invalid reaction. An empty list for a valid reaction.
+        &#34;&#34;&#34;
+        invalid_reasons = []
+
+        # If reactions contains *any* None values for molecules
+        if invalidate_nones and reaction.has_none():
+            invalid_reasons.append(&#34;rdkit_molfromsmiles_failed&#34;)
+
+        _, filter_reasons = filter.validate_reasons(reaction)
+        invalid_reasons.extend(filter_reasons)
+
+        return invalid_reasons
+
+    #
+    # Public Methods
+    #
+    def filter(
+        self,
+        filter: MixedReactionFilter,
+        verbose: bool = False,
+        filter_func: Callable[[Reaction], bool] = None,
+        filter_func_verbose: Callable[[Reaction], List[str]] = None,
+    ):
+        &#34;&#34;&#34;Applies filter functions to the reaction. Alternatives for the default filter functions can be supplied.
+
+        Args:
+            filter (MixedReactionFilter): An instance of MixedReactionFilter to be applied to each reaction.
+            verbose (bool, optional): Whether or not to report the reasons for a reaction being deemed invalid. Defaults to False.
+            filter_func (Callable[[Reaction], bool], optional): A custom filter function. Defaults to None.
+            filter_func_verbose (Callable[[Reaction], List[str]], optional): A custom verbose filter function. Defaults to None.
+
+        Returns:
+            Preprocessor: Itself.
+        &#34;&#34;&#34;
+        if filter_func == None:
+            filter_func = self.__filter_func
+
+        if filter_func_verbose == None:
+            filter_func_verbose = self.__filter_func_verbose
+
+        if self.__valid_column not in self.df.columns:
+            self.df[self.__valid_column] = True
+
+        if verbose:
+            if self.__valid_message_column not in self.df.columns:
+                self.df[self.__valid_message_column] = np.empty(
+                    (len(self.df), 0)
+                ).tolist()
+
+            self.df[self.__valid_message_column] += self.df.apply(
+                lambda row: self.__filter_func_verbose(
+                    Reaction(row[self.__reaction_column_name]), filter
+                ),
+                axis=1,
+            )
+
+            self.df[self.__valid_column] = np.logical_and(
+                np.where(self.df[self.__valid_message_column], False, True),
+                self.df[self.__valid_column],
+            )
+        else:
+            self.df[self.__valid_column] = np.logical_and(
+                self.df.apply(
+                    lambda row: self.__filter_func(
+                        Reaction(row[self.__reaction_column_name]), filter
+                    ),
+                    axis=1,
+                ),
+                self.df[self.__valid_column],
+            )
+
+        return self
+
+    def filter_smarts(
+        self,
+        pattern: str,
+        reaction_part: ReactionPart,
+        keep: bool = False,
+        verbose: bool = False,
+    ):
+        &#34;&#34;&#34;Filter based on a SMARTS pattern. Unless keep is set to True, filters out reaction where the supplied pattern was found.
+
+        Args:
+            pattern (str): A valid SMARTS pattern.
+            reaction_part (ReactionPart): Which part of reaction to apply the SMARTS pattern to.
+            keep (bool, optional): Whether to mark non-matches as invalid. Defaults to False.
+            verbose (bool, optional): Whether to report the reason for why a reaction is deemed invalid. Defaults to False.
+
+        Returns:
+            Preprocessor: Itself.
+        &#34;&#34;&#34;
+        if self.__valid_column not in self.df.columns:
+            self.df[self.__valid_column] = True
+
+        tmp = np.logical_and(
+            self.df.apply(
+                lambda row: not (
+                    (
+                        len(
+                            Reaction(row[self.__reaction_column_name]).find_in(
+                                pattern, reaction_part
+                            )
+                        )
+                        &gt; 0
+                    )
+                    != keep
+                ),
+                axis=1,
+            ),
+            self.df[self.__valid_column],
+        )
+
+        self.df[self.__valid_column] = np.logical_and(tmp, self.df[self.__valid_column])
+
+        if verbose:
+            if self.__valid_message_column not in self.df.columns:
+                self.df[self.__valid_message_column] = np.empty(
+                    (len(self.df), 0)
+                ).tolist()
+
+            if keep:
+                tmp = ~tmp
+
+            self.df.loc[tmp, self.__valid_message_column] = self.df.loc[
+                tmp, self.__valid_message_column
+            ].apply(lambda c: c + [&#34;pattern_&#34; + pattern])
+
+        return self
+
+    def apply(
+        self,
+        func: Callable[[Reaction], Reaction],
+        remove_duplicates: bool = False,
+        smiles_to_mol_kwargs: Dict = {&#34;canonical&#34;: True},
+    ):
+        &#34;&#34;&#34;Applies the supplied function to each reaction.
+
+        Args:
+            func (Callable[[Reaction], Reaction]): A function which is applied to each reaction.
+            remove_duplicates (bool, optional): Whether to remove duplicate molecules when a reaction instance is created from a reaction SMARTS. Defaults to False.
+            smiles_to_mol_kwargs (Dict, optional): Additional parameters for the rdkit method MolFromSmiles. Defaults to {&#34;canonical&#34;: True}.
+
+        Returns:
+            Preprocessor: Itself.
+        &#34;&#34;&#34;
+        self.df[self.__reaction_column_name] = self.df[
+            self.__reaction_column_name
+        ].apply(
+            lambda rxn: str(
+                func(
+                    Reaction(
+                        rxn,
+                        remove_duplicates=remove_duplicates,
+                        smiles_to_mol_kwargs=smiles_to_mol_kwargs,
+                    )
+                )
+            )
+        )
+
+        return self
+
+    def remove_duplicates(self):
+        &#34;&#34;&#34;A wrapper around Pandas&#39; drop_duplicates with the argument subset set to the reaction column name.
+
+        Returns:
+            Preprocessor: Itself.
+        &#34;&#34;&#34;
+        self.df.drop_duplicates(subset=[self.__reaction_column_name], inplace=True)
+        return self
+
+    def print_stats(self):
+        &#34;&#34;&#34;Prints statistics of the filtration to stdout.
+
+        Returns:
+            Preprocessor: Itself.
+        &#34;&#34;&#34;
+        print(f&#34;- {len(self.df)} total reactions.&#34;)
+        if self.__valid_column in self.df.columns:
+            counts = self.df[self.__valid_column].value_counts()
+            print(f&#34;\033[92m- {counts[True]} valid reactions.\033[0m&#34;)
+            print(f&#34;\033[93m- {counts[False]} invalid reactions removed.\033[0m&#34;)
+
+        if self.__valid_message_column in self.df.columns:
+            reasons = Counter()
+            for _, value in self.df[self.__valid_message_column].items():
+                reasons.update(value)
+
+            print(
+                f&#34;\033[93m- The {counts[False]} reactions were removed for the following reasons:&#34;
+            )
+            headers = [&#34;Reason&#34;, &#34;Number of Reactions&#34;]
+            print(
+                tabulate(list(Counter(reasons).items()), headers, tablefmt=&#34;fancy_grid&#34;)
+                + &#34;\033[0m&#34;
+            )
+
+        return self
+
+    #
+    # Static Methods
+    #
+    @staticmethod
+    def read_csv(filepath: str, reaction_column_name: str, kwargs={}):
+        &#34;&#34;&#34;A helper function to read a list or csv of reactions.
+
+        Args:
+            filepath (str): The path to the text file containing the reactions.
+            reaction_column_name (str): The name of the reaction column (or the name that wil be given to the reaction column if the input file has no headers).
+            kwargs (dict, optional): Additional arguments to supply to the internal Pandas read_csv method. Defaults to {}.
+
+        Returns:
+            Preprocessor: A new preprocessor instance.
+        &#34;&#34;&#34;
+        df = pd.read_csv(filepath, **kwargs)
+        if len(df.columns) == 1:
+            df.rename(columns={df.columns[0]: reaction_column_name}, inplace=True)
+
+        return Preprocessor(df, reaction_column_name)</code></pre>
+</details>
+<h3>Static methods</h3>
+<dl>
+<dt id="data_preprocessor.preprocessor.Preprocessor.read_csv"><code class="name flex">
+<span>def <span class="ident">read_csv</span></span>(<span>filepath: str, reaction_column_name: str, kwargs={})</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A helper function to read a list or csv of reactions.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>str</code></dt>
+<dd>The path to the text file containing the reactions.</dd>
+<dt><strong><code>reaction_column_name</code></strong> :&ensp;<code>str</code></dt>
+<dd>The name of the reaction column (or the name that wil be given to the reaction column if the input file has no headers).</dd>
+<dt><strong><code>kwargs</code></strong> :&ensp;<code>dict</code>, optional</dt>
+<dd>Additional arguments to supply to the internal Pandas read_csv method. Defaults to {}.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code><a title="data_preprocessor.preprocessor.Preprocessor" href="#data_preprocessor.preprocessor.Preprocessor">Preprocessor</a></code></dt>
+<dd>A new preprocessor instance.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def read_csv(filepath: str, reaction_column_name: str, kwargs={}):
+    &#34;&#34;&#34;A helper function to read a list or csv of reactions.
+
+    Args:
+        filepath (str): The path to the text file containing the reactions.
+        reaction_column_name (str): The name of the reaction column (or the name that wil be given to the reaction column if the input file has no headers).
+        kwargs (dict, optional): Additional arguments to supply to the internal Pandas read_csv method. Defaults to {}.
+
+    Returns:
+        Preprocessor: A new preprocessor instance.
+    &#34;&#34;&#34;
+    df = pd.read_csv(filepath, **kwargs)
+    if len(df.columns) == 1:
+        df.rename(columns={df.columns[0]: reaction_column_name}, inplace=True)
+
+    return Preprocessor(df, reaction_column_name)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="data_preprocessor.preprocessor.Preprocessor.apply"><code class="name flex">
+<span>def <span class="ident">apply</span></span>(<span>self, func: Callable[[<a title="data_preprocessor.reaction.Reaction" href="reaction.html#data_preprocessor.reaction.Reaction">Reaction</a>], <a title="data_preprocessor.reaction.Reaction" href="reaction.html#data_preprocessor.reaction.Reaction">Reaction</a>], remove_duplicates: bool = False, smiles_to_mol_kwargs: Dict = {'canonical': True})</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Applies the supplied function to each reaction.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>func</code></strong> :&ensp;<code>Callable[[Reaction], Reaction]</code></dt>
+<dd>A function which is applied to each reaction.</dd>
+<dt><strong><code>remove_duplicates</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>Whether to remove duplicate molecules when a reaction instance is created from a reaction SMARTS. Defaults to False.</dd>
+<dt><strong><code>smiles_to_mol_kwargs</code></strong> :&ensp;<code>Dict</code>, optional</dt>
+<dd>Additional parameters for the rdkit method MolFromSmiles. Defaults to {"canonical": True}.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code><a title="data_preprocessor.preprocessor.Preprocessor" href="#data_preprocessor.preprocessor.Preprocessor">Preprocessor</a></code></dt>
+<dd>Itself.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def apply(
+    self,
+    func: Callable[[Reaction], Reaction],
+    remove_duplicates: bool = False,
+    smiles_to_mol_kwargs: Dict = {&#34;canonical&#34;: True},
+):
+    &#34;&#34;&#34;Applies the supplied function to each reaction.
+
+    Args:
+        func (Callable[[Reaction], Reaction]): A function which is applied to each reaction.
+        remove_duplicates (bool, optional): Whether to remove duplicate molecules when a reaction instance is created from a reaction SMARTS. Defaults to False.
+        smiles_to_mol_kwargs (Dict, optional): Additional parameters for the rdkit method MolFromSmiles. Defaults to {&#34;canonical&#34;: True}.
+
+    Returns:
+        Preprocessor: Itself.
+    &#34;&#34;&#34;
+    self.df[self.__reaction_column_name] = self.df[
+        self.__reaction_column_name
+    ].apply(
+        lambda rxn: str(
+            func(
+                Reaction(
+                    rxn,
+                    remove_duplicates=remove_duplicates,
+                    smiles_to_mol_kwargs=smiles_to_mol_kwargs,
+                )
+            )
+        )
+    )
+
+    return self</code></pre>
+</details>
+</dd>
+<dt id="data_preprocessor.preprocessor.Preprocessor.filter"><code class="name flex">
+<span>def <span class="ident">filter</span></span>(<span>self, filter: <a title="data_preprocessor.mixed_reaction_filter.MixedReactionFilter" href="mixed_reaction_filter.html#data_preprocessor.mixed_reaction_filter.MixedReactionFilter">MixedReactionFilter</a>, verbose: bool = False, filter_func: Callable[[<a title="data_preprocessor.reaction.Reaction" href="reaction.html#data_preprocessor.reaction.Reaction">Reaction</a>], bool] = None, filter_func_verbose: Callable[[<a title="data_preprocessor.reaction.Reaction" href="reaction.html#data_preprocessor.reaction.Reaction">Reaction</a>], List[str]] = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Applies filter functions to the reaction. Alternatives for the default filter functions can be supplied.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>filter</code></strong> :&ensp;<code>MixedReactionFilter</code></dt>
+<dd>An instance of MixedReactionFilter to be applied to each reaction.</dd>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>Whether or not to report the reasons for a reaction being deemed invalid. Defaults to False.</dd>
+<dt><strong><code>filter_func</code></strong> :&ensp;<code>Callable[[Reaction], bool]</code>, optional</dt>
+<dd>A custom filter function. Defaults to None.</dd>
+<dt><strong><code>filter_func_verbose</code></strong> :&ensp;<code>Callable[[Reaction], List[str]]</code>, optional</dt>
+<dd>A custom verbose filter function. Defaults to None.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code><a title="data_preprocessor.preprocessor.Preprocessor" href="#data_preprocessor.preprocessor.Preprocessor">Preprocessor</a></code></dt>
+<dd>Itself.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def filter(
+    self,
+    filter: MixedReactionFilter,
+    verbose: bool = False,
+    filter_func: Callable[[Reaction], bool] = None,
+    filter_func_verbose: Callable[[Reaction], List[str]] = None,
+):
+    &#34;&#34;&#34;Applies filter functions to the reaction. Alternatives for the default filter functions can be supplied.
+
+    Args:
+        filter (MixedReactionFilter): An instance of MixedReactionFilter to be applied to each reaction.
+        verbose (bool, optional): Whether or not to report the reasons for a reaction being deemed invalid. Defaults to False.
+        filter_func (Callable[[Reaction], bool], optional): A custom filter function. Defaults to None.
+        filter_func_verbose (Callable[[Reaction], List[str]], optional): A custom verbose filter function. Defaults to None.
+
+    Returns:
+        Preprocessor: Itself.
+    &#34;&#34;&#34;
+    if filter_func == None:
+        filter_func = self.__filter_func
+
+    if filter_func_verbose == None:
+        filter_func_verbose = self.__filter_func_verbose
+
+    if self.__valid_column not in self.df.columns:
+        self.df[self.__valid_column] = True
+
+    if verbose:
+        if self.__valid_message_column not in self.df.columns:
+            self.df[self.__valid_message_column] = np.empty(
+                (len(self.df), 0)
+            ).tolist()
+
+        self.df[self.__valid_message_column] += self.df.apply(
+            lambda row: self.__filter_func_verbose(
+                Reaction(row[self.__reaction_column_name]), filter
+            ),
+            axis=1,
+        )
+
+        self.df[self.__valid_column] = np.logical_and(
+            np.where(self.df[self.__valid_message_column], False, True),
+            self.df[self.__valid_column],
+        )
+    else:
+        self.df[self.__valid_column] = np.logical_and(
+            self.df.apply(
+                lambda row: self.__filter_func(
+                    Reaction(row[self.__reaction_column_name]), filter
+                ),
+                axis=1,
+            ),
+            self.df[self.__valid_column],
+        )
+
+    return self</code></pre>
+</details>
+</dd>
+<dt id="data_preprocessor.preprocessor.Preprocessor.filter_smarts"><code class="name flex">
+<span>def <span class="ident">filter_smarts</span></span>(<span>self, pattern: str, reaction_part: <a title="data_preprocessor.reaction.ReactionPart" href="reaction.html#data_preprocessor.reaction.ReactionPart">ReactionPart</a>, keep: bool = False, verbose: bool = False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Filter based on a SMARTS pattern. Unless keep is set to True, filters out reaction where the supplied pattern was found.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>pattern</code></strong> :&ensp;<code>str</code></dt>
+<dd>A valid SMARTS pattern.</dd>
+<dt><strong><code>reaction_part</code></strong> :&ensp;<code>ReactionPart</code></dt>
+<dd>Which part of reaction to apply the SMARTS pattern to.</dd>
+<dt><strong><code>keep</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>Whether to mark non-matches as invalid. Defaults to False.</dd>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>Whether to report the reason for why a reaction is deemed invalid. Defaults to False.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code><a title="data_preprocessor.preprocessor.Preprocessor" href="#data_preprocessor.preprocessor.Preprocessor">Preprocessor</a></code></dt>
+<dd>Itself.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def filter_smarts(
+    self,
+    pattern: str,
+    reaction_part: ReactionPart,
+    keep: bool = False,
+    verbose: bool = False,
+):
+    &#34;&#34;&#34;Filter based on a SMARTS pattern. Unless keep is set to True, filters out reaction where the supplied pattern was found.
+
+    Args:
+        pattern (str): A valid SMARTS pattern.
+        reaction_part (ReactionPart): Which part of reaction to apply the SMARTS pattern to.
+        keep (bool, optional): Whether to mark non-matches as invalid. Defaults to False.
+        verbose (bool, optional): Whether to report the reason for why a reaction is deemed invalid. Defaults to False.
+
+    Returns:
+        Preprocessor: Itself.
+    &#34;&#34;&#34;
+    if self.__valid_column not in self.df.columns:
+        self.df[self.__valid_column] = True
+
+    tmp = np.logical_and(
+        self.df.apply(
+            lambda row: not (
+                (
+                    len(
+                        Reaction(row[self.__reaction_column_name]).find_in(
+                            pattern, reaction_part
+                        )
+                    )
+                    &gt; 0
+                )
+                != keep
+            ),
+            axis=1,
+        ),
+        self.df[self.__valid_column],
+    )
+
+    self.df[self.__valid_column] = np.logical_and(tmp, self.df[self.__valid_column])
+
+    if verbose:
+        if self.__valid_message_column not in self.df.columns:
+            self.df[self.__valid_message_column] = np.empty(
+                (len(self.df), 0)
+            ).tolist()
+
+        if keep:
+            tmp = ~tmp
+
+        self.df.loc[tmp, self.__valid_message_column] = self.df.loc[
+            tmp, self.__valid_message_column
+        ].apply(lambda c: c + [&#34;pattern_&#34; + pattern])
+
+    return self</code></pre>
+</details>
+</dd>
+<dt id="data_preprocessor.preprocessor.Preprocessor.print_stats"><code class="name flex">
+<span>def <span class="ident">print_stats</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Prints statistics of the filtration to stdout.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code><a title="data_preprocessor.preprocessor.Preprocessor" href="#data_preprocessor.preprocessor.Preprocessor">Preprocessor</a></code></dt>
+<dd>Itself.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def print_stats(self):
+    &#34;&#34;&#34;Prints statistics of the filtration to stdout.
+
+    Returns:
+        Preprocessor: Itself.
+    &#34;&#34;&#34;
+    print(f&#34;- {len(self.df)} total reactions.&#34;)
+    if self.__valid_column in self.df.columns:
+        counts = self.df[self.__valid_column].value_counts()
+        print(f&#34;\033[92m- {counts[True]} valid reactions.\033[0m&#34;)
+        print(f&#34;\033[93m- {counts[False]} invalid reactions removed.\033[0m&#34;)
+
+    if self.__valid_message_column in self.df.columns:
+        reasons = Counter()
+        for _, value in self.df[self.__valid_message_column].items():
+            reasons.update(value)
+
+        print(
+            f&#34;\033[93m- The {counts[False]} reactions were removed for the following reasons:&#34;
+        )
+        headers = [&#34;Reason&#34;, &#34;Number of Reactions&#34;]
+        print(
+            tabulate(list(Counter(reasons).items()), headers, tablefmt=&#34;fancy_grid&#34;)
+            + &#34;\033[0m&#34;
+        )
+
+    return self</code></pre>
+</details>
+</dd>
+<dt id="data_preprocessor.preprocessor.Preprocessor.remove_duplicates"><code class="name flex">
+<span>def <span class="ident">remove_duplicates</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A wrapper around Pandas' drop_duplicates with the argument subset set to the reaction column name.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code><a title="data_preprocessor.preprocessor.Preprocessor" href="#data_preprocessor.preprocessor.Preprocessor">Preprocessor</a></code></dt>
+<dd>Itself.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def remove_duplicates(self):
+    &#34;&#34;&#34;A wrapper around Pandas&#39; drop_duplicates with the argument subset set to the reaction column name.
+
+    Returns:
+        Preprocessor: Itself.
+    &#34;&#34;&#34;
+    self.df.drop_duplicates(subset=[self.__reaction_column_name], inplace=True)
+    return self</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="data_preprocessor" href="index.html">data_preprocessor</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="data_preprocessor.preprocessor.Preprocessor" href="#data_preprocessor.preprocessor.Preprocessor">Preprocessor</a></code></h4>
+<ul class="two-column">
+<li><code><a title="data_preprocessor.preprocessor.Preprocessor.apply" href="#data_preprocessor.preprocessor.Preprocessor.apply">apply</a></code></li>
+<li><code><a title="data_preprocessor.preprocessor.Preprocessor.filter" href="#data_preprocessor.preprocessor.Preprocessor.filter">filter</a></code></li>
+<li><code><a title="data_preprocessor.preprocessor.Preprocessor.filter_smarts" href="#data_preprocessor.preprocessor.Preprocessor.filter_smarts">filter_smarts</a></code></li>
+<li><code><a title="data_preprocessor.preprocessor.Preprocessor.print_stats" href="#data_preprocessor.preprocessor.Preprocessor.print_stats">print_stats</a></code></li>
+<li><code><a title="data_preprocessor.preprocessor.Preprocessor.read_csv" href="#data_preprocessor.preprocessor.Preprocessor.read_csv">read_csv</a></code></li>
+<li><code><a title="data_preprocessor.preprocessor.Preprocessor.remove_duplicates" href="#data_preprocessor.preprocessor.Preprocessor.remove_duplicates">remove_duplicates</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.1</a>.</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,1387 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.1" />
+<title>data_preprocessor.mixed_reaction_filter API documentation</title>
+<meta name="description" content="A class encapsulating filtering functionality for chemical reactions" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>data_preprocessor.mixed_reaction_filter</code></h1>
+</header>
+<section id="section-intro">
+<p>A class encapsulating filtering functionality for chemical reactions</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34; A class encapsulating filtering functionality for chemical reactions &#34;&#34;&#34;
+
+from typing import List, Tuple
+from rdkit.Chem import AllChem as rdk
+from .reaction import Reaction
+from .smiles_tokenizer import SmilesTokenizer
+
+
+class MixedReactionFilter:
+    def __init__(
+        self,
+        max_reactants: int = 10,
+        max_agents: int = 0,
+        max_products: int = 1,
+        min_reactants: int = 2,
+        min_agents: int = 0,
+        min_products: int = 1,
+        max_reactants_tokens: int = 300,
+        max_agents_tokens: int = 0,
+        max_products_tokens: int = 200,
+        max_absolute_formal_charge: int = 2,
+        # filter_single_atom_products: bool = True,
+        # filter_purifications: bool = True,
+        # filter_alchemy: bool = True,
+    ):
+        &#34;&#34;&#34;Creates a new instance of the type MixedReactionFilter.
+
+        Args:
+            max_reactants (int, optional): The maximum number of reactant molecules. Defaults to 10.
+            max_agents (int, optional): The maximum number of agent molcules. Defaults to 0.
+            max_products (int, optional): The maximum number of product molecules. Defaults to 1.
+            min_reactants (int, optional): The minimum number of reactant molecules. Defaults to 2.
+            min_agents (int, optional): The minium number of agent molecules. Defaults to 0.
+            min_products (int, optional): The minimum number of product molecules. Defaults to 1.
+            max_reactants_tokens (int, optional): The maximum number of precursor tokens. Defaults to 300.
+            max_agents_tokens (int, optional): The maximum number of agent tokens. Defaults to 0.
+            max_products_tokens (int, optional): The maximum number of product tokens. Defaults to 200.
+            max_absolute_formal_charge (int, optional): The maximum formal charge (for reactants, agents, or products). Defaults to 2.
+        &#34;&#34;&#34;
+        self.max_reactants = max_reactants
+        self.max_agents = max_agents
+        self.max_products = max_products
+        self.min_reactants = min_reactants
+        self.min_agents = min_agents
+        self.min_products = min_products
+        self.max_reactants_tokens = max_reactants_tokens
+        self.max_agents_tokens = max_agents_tokens
+        self.max_products_tokens = max_products_tokens
+        self.max_absolute_formal_charge = max_absolute_formal_charge
+
+        self.tokenizer = SmilesTokenizer()
+
+    def validate(self, reaction: Reaction) -&gt; bool:
+        &#34;&#34;&#34;Validate a reaction using the rules set on the instance of this MixedReactionFilter class.
+
+        Args:
+            reaction (Reaction): The reaction to validate.
+
+        Returns:
+            bool: Whether or not the reaction is valid according to the rules set on the instance of this MixedReactionFilter class.
+        &#34;&#34;&#34;
+
+        return not any(
+            [
+                self.max_reactants_exceeded(reaction),
+                self.max_agents_exceeded(reaction),
+                self.max_products_exceeded(reaction),
+                self.min_reactants_subceeded(reaction),
+                self.min_agents_subceeded(reaction),
+                self.min_products_subceeded(reaction),
+                self.products_subset_of_reactants(reaction),
+                self.products_single_atoms(reaction),
+                self.max_reactant_tokens_exceeded(reaction),
+                self.max_agent_tokens_exceeded(reaction),
+                self.max_product_tokens_exceeded(reaction),
+                self.formal_charge_exceeded(reaction),
+                self.different_atom_types(reaction),
+            ]
+        )
+
+    def validate_reasons(self, reaction: Reaction) -&gt; Tuple[bool, List[str]]:
+        valid = True
+        reasons = []
+
+        if self.max_reactants_exceeded(reaction):
+            valid = False
+            reasons.append(&#34;max_reactants_exceeded&#34;)
+        if self.max_agents_exceeded(reaction):
+            valid = False
+            reasons.append(&#34;max_agents_exceeded&#34;)
+        if self.max_products_exceeded(reaction):
+            valid = False
+            reasons.append(&#34;max_products_exceeded&#34;)
+        if self.min_reactants_subceeded(reaction):
+            valid = False
+            reasons.append(&#34;min_reactants_subceeded&#34;)
+        if self.min_agents_subceeded(reaction):
+            valid = False
+            reasons.append(&#34;min_agents_subceeded&#34;)
+        if self.min_products_subceeded(reaction):
+            valid = False
+            reasons.append(&#34;min_products_subceeded&#34;)
+        if self.products_subset_of_reactants(reaction):
+            valid = False
+            reasons.append(&#34;products_subset_of_reactants&#34;)
+        if self.products_single_atoms(reaction):
+            valid = False
+            reasons.append(&#34;products_single_atoms&#34;)
+        if self.max_reactant_tokens_exceeded(reaction):
+            valid = False
+            reasons.append(&#34;max_reactant_tokens_exceeded&#34;)
+        if self.max_agent_tokens_exceeded(reaction):
+            valid = False
+            reasons.append(&#34;max_agent_tokens_exceeded&#34;)
+        if self.max_product_tokens_exceeded(reaction):
+            valid = False
+            reasons.append(&#34;max_product_tokens_exceeded&#34;)
+        if self.formal_charge_exceeded(reaction):
+            valid = False
+            reasons.append(&#34;formal_charge_exceeded&#34;)
+        if self.different_atom_types(reaction):
+            valid = False
+            reasons.append(&#34;different_atom_types&#34;)
+
+        return (valid, reasons)
+
+    def max_reactants_exceeded(self, reaction: Reaction) -&gt; bool:
+        &#34;&#34;&#34;Checks whether the number of reactants exceeds the maximum.
+
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            bool: Whether the number of reactants exceeds the maximum.
+        &#34;&#34;&#34;
+
+        return len(reaction.reactants) &gt; self.max_reactants
+
+    def max_agents_exceeded(self, reaction: Reaction) -&gt; bool:
+        &#34;&#34;&#34;Checks whether the number of agents exceeds the maximum.
+
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            bool: Whether the number of agents exceeds the maximum.
+        &#34;&#34;&#34;
+
+        return len(reaction.agents) &gt; self.max_agents
+
+    def max_products_exceeded(self, reaction: Reaction) -&gt; bool:
+        &#34;&#34;&#34;Checks whether the number of products exceeds the maximum.
+
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            bool: Whether the number of products exceeds the maximum.
+        &#34;&#34;&#34;
+
+        return len(reaction.products) &gt; self.max_products
+
+    def min_reactants_subceeded(self, reaction: Reaction) -&gt; bool:
+        &#34;&#34;&#34;Checks whether the number of reactants exceeds the maximum.
+
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            bool: Whether the number of reactants exceeds the maximum.
+        &#34;&#34;&#34;
+
+        return len(reaction.reactants) &lt; self.min_reactants
+
+    def min_agents_subceeded(self, reaction: Reaction) -&gt; bool:
+        &#34;&#34;&#34;Checks whether the number of agents exceeds the maximum.
+
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            bool: Whether the number of agents exceeds the maximum.
+        &#34;&#34;&#34;
+
+        return len(reaction.agents) &lt; self.min_agents
+
+    def min_products_subceeded(self, reaction: Reaction) -&gt; bool:
+        &#34;&#34;&#34;Checks whether the number of products exceeds the maximum.
+
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            bool: Whether the number of products exceeds the maximum.
+        &#34;&#34;&#34;
+
+        return len(reaction.products) &lt; self.min_products
+
+    def products_subset_of_reactants(self, reaction: Reaction) -&gt; bool:
+        &#34;&#34;&#34;Checks whether the set of products is a subset of the set of reactants.
+
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            bool: Whether the set of products is a subset of the set of reactants.
+        &#34;&#34;&#34;
+
+        return set(reaction.get_products_as_smiles()).issubset(
+            set(reaction.get_reactants_as_smiles())
+        )
+
+    def products_single_atoms(self, reaction: Reaction) -&gt; bool:
+        &#34;&#34;&#34;Checks whether the products solely consist of single atoms.
+
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            bool: Whether the products solely consist of single atoms.
+        &#34;&#34;&#34;
+
+        for product in reaction.products:
+            if not product:
+                continue
+
+            if product.GetNumAtoms() &gt; 1:
+                return False
+        return True
+
+    def max_reactant_tokens_exceeded(self, reaction: Reaction) -&gt; bool:
+        &#34;&#34;&#34;Check whether the number of reactant tokens exceeds the maximum.
+
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            [type]: Whether the number of reactant tokens exceeds the maximum.
+        &#34;&#34;&#34;
+
+        smiles = reaction.get_reactants_as_smiles()
+
+        if len(smiles) &gt; self.max_reactants_tokens:
+            return True
+
+        return (
+            len(self.tokenizer.tokenize(&#34;.&#34;.join(smiles)).split(&#34; &#34;))
+            &gt; self.max_reactants_tokens
+        )
+
+    def max_agent_tokens_exceeded(self, reaction: Reaction) -&gt; bool:
+        &#34;&#34;&#34;Check whether the number of agent tokens exceeds the maximum.
+
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            [type]: Whether the number of agent tokens exceeds the maximum.
+        &#34;&#34;&#34;
+
+        smiles = reaction.get_agents_as_smiles()
+
+        # In this and the other token counting methods, this is done to capture
+        # the empty set, which will not be empty when joined
+        if len(smiles) &lt;= self.max_agents_tokens:
+            return False
+
+        return (
+            len(self.tokenizer.tokenize(&#34;.&#34;.join(smiles)).split(&#34; &#34;))
+            &gt; self.max_agents_tokens
+        )
+
+    def max_product_tokens_exceeded(self, reaction: Reaction) -&gt; bool:
+        &#34;&#34;&#34;Check whether the number of product tokens exceeds the maximum.
+
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            [type]: Whether the number of product tokens exceeds the maximum.
+        &#34;&#34;&#34;
+
+        smiles = reaction.get_products_as_smiles()
+
+        if len(smiles) &gt; self.max_products_tokens:
+            return True
+
+        return (
+            len(self.tokenizer.tokenize(&#34;.&#34;.join(smiles)).split(&#34; &#34;))
+            &gt; self.max_products_tokens
+        )
+
+    def formal_charge_exceeded(self, reaction: Reaction) -&gt; bool:
+        &#34;&#34;&#34;Check whether the absolute formal charge of the reactants, agents, or products exceeds a maximum.
+
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            bool: Whether the absolute formal charge of the reactants, agents, or products exceeds a maximum.
+        &#34;&#34;&#34;
+
+        # Fragment bonds should, if the user choses to, be dealt with
+        # before filtering reactions
+        return (
+            abs(
+                rdk.GetFormalCharge(
+                    rdk.MolFromSmiles(&#34;.&#34;.join(reaction.get_reactants_as_smiles()))
+                )
+            )
+            &gt; self.max_absolute_formal_charge
+            or abs(
+                rdk.GetFormalCharge(
+                    rdk.MolFromSmiles(&#34;.&#34;.join(reaction.get_agents_as_smiles()))
+                )
+            )
+            &gt; self.max_absolute_formal_charge
+            or abs(
+                rdk.GetFormalCharge(
+                    rdk.MolFromSmiles(&#34;.&#34;.join(reaction.get_products_as_smiles()))
+                )
+            )
+            &gt; self.max_absolute_formal_charge
+        )
+
+    def different_atom_types(self, reaction: Reaction) -&gt; bool:
+        &#34;&#34;&#34;Check whether the products contain atom types not found in the agents or reactants.
+
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            bool: Whether the products contain atom types not found in the agents or reactants.
+        &#34;&#34;&#34;
+
+        reactants = rdk.MolFromSmiles(&#34;.&#34;.join(reaction.get_reactants_as_smiles()))
+        agents = rdk.MolFromSmiles(&#34;.&#34;.join(reaction.get_agents_as_smiles()))
+        products = rdk.MolFromSmiles(&#34;.&#34;.join(reaction.get_products_as_smiles()))
+
+        products_atoms = set([atom.GetSymbol() for atom in products.GetAtoms()])
+        agents_atoms = set([atom.GetSymbol() for atom in agents.GetAtoms()])
+        reactants_atoms = set([atom.GetSymbol() for atom in reactants.GetAtoms()])
+
+        return len(products_atoms - (reactants_atoms | agents_atoms)) != 0</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="data_preprocessor.mixed_reaction_filter.MixedReactionFilter"><code class="flex name class">
+<span>class <span class="ident">MixedReactionFilter</span></span>
+<span>(</span><span>max_reactants: int = 10, max_agents: int = 0, max_products: int = 1, min_reactants: int = 2, min_agents: int = 0, min_products: int = 1, max_reactants_tokens: int = 300, max_agents_tokens: int = 0, max_products_tokens: int = 200, max_absolute_formal_charge: int = 2)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Creates a new instance of the type MixedReactionFilter.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>max_reactants</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>The maximum number of reactant molecules. Defaults to 10.</dd>
+<dt><strong><code>max_agents</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>The maximum number of agent molcules. Defaults to 0.</dd>
+<dt><strong><code>max_products</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>The maximum number of product molecules. Defaults to 1.</dd>
+<dt><strong><code>min_reactants</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>The minimum number of reactant molecules. Defaults to 2.</dd>
+<dt><strong><code>min_agents</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>The minium number of agent molecules. Defaults to 0.</dd>
+<dt><strong><code>min_products</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>The minimum number of product molecules. Defaults to 1.</dd>
+<dt><strong><code>max_reactants_tokens</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>The maximum number of precursor tokens. Defaults to 300.</dd>
+<dt><strong><code>max_agents_tokens</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>The maximum number of agent tokens. Defaults to 0.</dd>
+<dt><strong><code>max_products_tokens</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>The maximum number of product tokens. Defaults to 200.</dd>
+<dt><strong><code>max_absolute_formal_charge</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>The maximum formal charge (for reactants, agents, or products). Defaults to 2.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MixedReactionFilter:
+    def __init__(
+        self,
+        max_reactants: int = 10,
+        max_agents: int = 0,
+        max_products: int = 1,
+        min_reactants: int = 2,
+        min_agents: int = 0,
+        min_products: int = 1,
+        max_reactants_tokens: int = 300,
+        max_agents_tokens: int = 0,
+        max_products_tokens: int = 200,
+        max_absolute_formal_charge: int = 2,
+        # filter_single_atom_products: bool = True,
+        # filter_purifications: bool = True,
+        # filter_alchemy: bool = True,
+    ):
+        &#34;&#34;&#34;Creates a new instance of the type MixedReactionFilter.
+
+        Args:
+            max_reactants (int, optional): The maximum number of reactant molecules. Defaults to 10.
+            max_agents (int, optional): The maximum number of agent molcules. Defaults to 0.
+            max_products (int, optional): The maximum number of product molecules. Defaults to 1.
+            min_reactants (int, optional): The minimum number of reactant molecules. Defaults to 2.
+            min_agents (int, optional): The minium number of agent molecules. Defaults to 0.
+            min_products (int, optional): The minimum number of product molecules. Defaults to 1.
+            max_reactants_tokens (int, optional): The maximum number of precursor tokens. Defaults to 300.
+            max_agents_tokens (int, optional): The maximum number of agent tokens. Defaults to 0.
+            max_products_tokens (int, optional): The maximum number of product tokens. Defaults to 200.
+            max_absolute_formal_charge (int, optional): The maximum formal charge (for reactants, agents, or products). Defaults to 2.
+        &#34;&#34;&#34;
+        self.max_reactants = max_reactants
+        self.max_agents = max_agents
+        self.max_products = max_products
+        self.min_reactants = min_reactants
+        self.min_agents = min_agents
+        self.min_products = min_products
+        self.max_reactants_tokens = max_reactants_tokens
+        self.max_agents_tokens = max_agents_tokens
+        self.max_products_tokens = max_products_tokens
+        self.max_absolute_formal_charge = max_absolute_formal_charge
+
+        self.tokenizer = SmilesTokenizer()
+
+    def validate(self, reaction: Reaction) -&gt; bool:
+        &#34;&#34;&#34;Validate a reaction using the rules set on the instance of this MixedReactionFilter class.
+
+        Args:
+            reaction (Reaction): The reaction to validate.
+
+        Returns:
+            bool: Whether or not the reaction is valid according to the rules set on the instance of this MixedReactionFilter class.
+        &#34;&#34;&#34;
+
+        return not any(
+            [
+                self.max_reactants_exceeded(reaction),
+                self.max_agents_exceeded(reaction),
+                self.max_products_exceeded(reaction),
+                self.min_reactants_subceeded(reaction),
+                self.min_agents_subceeded(reaction),
+                self.min_products_subceeded(reaction),
+                self.products_subset_of_reactants(reaction),
+                self.products_single_atoms(reaction),
+                self.max_reactant_tokens_exceeded(reaction),
+                self.max_agent_tokens_exceeded(reaction),
+                self.max_product_tokens_exceeded(reaction),
+                self.formal_charge_exceeded(reaction),
+                self.different_atom_types(reaction),
+            ]
+        )
+
+    def validate_reasons(self, reaction: Reaction) -&gt; Tuple[bool, List[str]]:
+        valid = True
+        reasons = []
+
+        if self.max_reactants_exceeded(reaction):
+            valid = False
+            reasons.append(&#34;max_reactants_exceeded&#34;)
+        if self.max_agents_exceeded(reaction):
+            valid = False
+            reasons.append(&#34;max_agents_exceeded&#34;)
+        if self.max_products_exceeded(reaction):
+            valid = False
+            reasons.append(&#34;max_products_exceeded&#34;)
+        if self.min_reactants_subceeded(reaction):
+            valid = False
+            reasons.append(&#34;min_reactants_subceeded&#34;)
+        if self.min_agents_subceeded(reaction):
+            valid = False
+            reasons.append(&#34;min_agents_subceeded&#34;)
+        if self.min_products_subceeded(reaction):
+            valid = False
+            reasons.append(&#34;min_products_subceeded&#34;)
+        if self.products_subset_of_reactants(reaction):
+            valid = False
+            reasons.append(&#34;products_subset_of_reactants&#34;)
+        if self.products_single_atoms(reaction):
+            valid = False
+            reasons.append(&#34;products_single_atoms&#34;)
+        if self.max_reactant_tokens_exceeded(reaction):
+            valid = False
+            reasons.append(&#34;max_reactant_tokens_exceeded&#34;)
+        if self.max_agent_tokens_exceeded(reaction):
+            valid = False
+            reasons.append(&#34;max_agent_tokens_exceeded&#34;)
+        if self.max_product_tokens_exceeded(reaction):
+            valid = False
+            reasons.append(&#34;max_product_tokens_exceeded&#34;)
+        if self.formal_charge_exceeded(reaction):
+            valid = False
+            reasons.append(&#34;formal_charge_exceeded&#34;)
+        if self.different_atom_types(reaction):
+            valid = False
+            reasons.append(&#34;different_atom_types&#34;)
+
+        return (valid, reasons)
+
+    def max_reactants_exceeded(self, reaction: Reaction) -&gt; bool:
+        &#34;&#34;&#34;Checks whether the number of reactants exceeds the maximum.
+
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            bool: Whether the number of reactants exceeds the maximum.
+        &#34;&#34;&#34;
+
+        return len(reaction.reactants) &gt; self.max_reactants
+
+    def max_agents_exceeded(self, reaction: Reaction) -&gt; bool:
+        &#34;&#34;&#34;Checks whether the number of agents exceeds the maximum.
+
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            bool: Whether the number of agents exceeds the maximum.
+        &#34;&#34;&#34;
+
+        return len(reaction.agents) &gt; self.max_agents
+
+    def max_products_exceeded(self, reaction: Reaction) -&gt; bool:
+        &#34;&#34;&#34;Checks whether the number of products exceeds the maximum.
+
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            bool: Whether the number of products exceeds the maximum.
+        &#34;&#34;&#34;
+
+        return len(reaction.products) &gt; self.max_products
+
+    def min_reactants_subceeded(self, reaction: Reaction) -&gt; bool:
+        &#34;&#34;&#34;Checks whether the number of reactants exceeds the maximum.
+
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            bool: Whether the number of reactants exceeds the maximum.
+        &#34;&#34;&#34;
+
+        return len(reaction.reactants) &lt; self.min_reactants
+
+    def min_agents_subceeded(self, reaction: Reaction) -&gt; bool:
+        &#34;&#34;&#34;Checks whether the number of agents exceeds the maximum.
+
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            bool: Whether the number of agents exceeds the maximum.
+        &#34;&#34;&#34;
+
+        return len(reaction.agents) &lt; self.min_agents
+
+    def min_products_subceeded(self, reaction: Reaction) -&gt; bool:
+        &#34;&#34;&#34;Checks whether the number of products exceeds the maximum.
+
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            bool: Whether the number of products exceeds the maximum.
+        &#34;&#34;&#34;
+
+        return len(reaction.products) &lt; self.min_products
+
+    def products_subset_of_reactants(self, reaction: Reaction) -&gt; bool:
+        &#34;&#34;&#34;Checks whether the set of products is a subset of the set of reactants.
+
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            bool: Whether the set of products is a subset of the set of reactants.
+        &#34;&#34;&#34;
+
+        return set(reaction.get_products_as_smiles()).issubset(
+            set(reaction.get_reactants_as_smiles())
+        )
+
+    def products_single_atoms(self, reaction: Reaction) -&gt; bool:
+        &#34;&#34;&#34;Checks whether the products solely consist of single atoms.
+
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            bool: Whether the products solely consist of single atoms.
+        &#34;&#34;&#34;
+
+        for product in reaction.products:
+            if not product:
+                continue
+
+            if product.GetNumAtoms() &gt; 1:
+                return False
+        return True
+
+    def max_reactant_tokens_exceeded(self, reaction: Reaction) -&gt; bool:
+        &#34;&#34;&#34;Check whether the number of reactant tokens exceeds the maximum.
+
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            [type]: Whether the number of reactant tokens exceeds the maximum.
+        &#34;&#34;&#34;
+
+        smiles = reaction.get_reactants_as_smiles()
+
+        if len(smiles) &gt; self.max_reactants_tokens:
+            return True
+
+        return (
+            len(self.tokenizer.tokenize(&#34;.&#34;.join(smiles)).split(&#34; &#34;))
+            &gt; self.max_reactants_tokens
+        )
+
+    def max_agent_tokens_exceeded(self, reaction: Reaction) -&gt; bool:
+        &#34;&#34;&#34;Check whether the number of agent tokens exceeds the maximum.
+
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            [type]: Whether the number of agent tokens exceeds the maximum.
+        &#34;&#34;&#34;
+
+        smiles = reaction.get_agents_as_smiles()
+
+        # In this and the other token counting methods, this is done to capture
+        # the empty set, which will not be empty when joined
+        if len(smiles) &lt;= self.max_agents_tokens:
+            return False
+
+        return (
+            len(self.tokenizer.tokenize(&#34;.&#34;.join(smiles)).split(&#34; &#34;))
+            &gt; self.max_agents_tokens
+        )
+
+    def max_product_tokens_exceeded(self, reaction: Reaction) -&gt; bool:
+        &#34;&#34;&#34;Check whether the number of product tokens exceeds the maximum.
+
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            [type]: Whether the number of product tokens exceeds the maximum.
+        &#34;&#34;&#34;
+
+        smiles = reaction.get_products_as_smiles()
+
+        if len(smiles) &gt; self.max_products_tokens:
+            return True
+
+        return (
+            len(self.tokenizer.tokenize(&#34;.&#34;.join(smiles)).split(&#34; &#34;))
+            &gt; self.max_products_tokens
+        )
+
+    def formal_charge_exceeded(self, reaction: Reaction) -&gt; bool:
+        &#34;&#34;&#34;Check whether the absolute formal charge of the reactants, agents, or products exceeds a maximum.
+
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            bool: Whether the absolute formal charge of the reactants, agents, or products exceeds a maximum.
+        &#34;&#34;&#34;
+
+        # Fragment bonds should, if the user choses to, be dealt with
+        # before filtering reactions
+        return (
+            abs(
+                rdk.GetFormalCharge(
+                    rdk.MolFromSmiles(&#34;.&#34;.join(reaction.get_reactants_as_smiles()))
+                )
+            )
+            &gt; self.max_absolute_formal_charge
+            or abs(
+                rdk.GetFormalCharge(
+                    rdk.MolFromSmiles(&#34;.&#34;.join(reaction.get_agents_as_smiles()))
+                )
+            )
+            &gt; self.max_absolute_formal_charge
+            or abs(
+                rdk.GetFormalCharge(
+                    rdk.MolFromSmiles(&#34;.&#34;.join(reaction.get_products_as_smiles()))
+                )
+            )
+            &gt; self.max_absolute_formal_charge
+        )
+
+    def different_atom_types(self, reaction: Reaction) -&gt; bool:
+        &#34;&#34;&#34;Check whether the products contain atom types not found in the agents or reactants.
+
+        Args:
+            reaction (Reaction): The reaction to test.
+
+        Returns:
+            bool: Whether the products contain atom types not found in the agents or reactants.
+        &#34;&#34;&#34;
+
+        reactants = rdk.MolFromSmiles(&#34;.&#34;.join(reaction.get_reactants_as_smiles()))
+        agents = rdk.MolFromSmiles(&#34;.&#34;.join(reaction.get_agents_as_smiles()))
+        products = rdk.MolFromSmiles(&#34;.&#34;.join(reaction.get_products_as_smiles()))
+
+        products_atoms = set([atom.GetSymbol() for atom in products.GetAtoms()])
+        agents_atoms = set([atom.GetSymbol() for atom in agents.GetAtoms()])
+        reactants_atoms = set([atom.GetSymbol() for atom in reactants.GetAtoms()])
+
+        return len(products_atoms - (reactants_atoms | agents_atoms)) != 0</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="data_preprocessor.mixed_reaction_filter.MixedReactionFilter.different_atom_types"><code class="name flex">
+<span>def <span class="ident">different_atom_types</span></span>(<span>self, reaction: <a title="data_preprocessor.reaction.Reaction" href="reaction.html#data_preprocessor.reaction.Reaction">Reaction</a>) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Check whether the products contain atom types not found in the agents or reactants.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>reaction</code></strong> :&ensp;<code>Reaction</code></dt>
+<dd>The reaction to test.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>bool</code></dt>
+<dd>Whether the products contain atom types not found in the agents or reactants.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def different_atom_types(self, reaction: Reaction) -&gt; bool:
+    &#34;&#34;&#34;Check whether the products contain atom types not found in the agents or reactants.
+
+    Args:
+        reaction (Reaction): The reaction to test.
+
+    Returns:
+        bool: Whether the products contain atom types not found in the agents or reactants.
+    &#34;&#34;&#34;
+
+    reactants = rdk.MolFromSmiles(&#34;.&#34;.join(reaction.get_reactants_as_smiles()))
+    agents = rdk.MolFromSmiles(&#34;.&#34;.join(reaction.get_agents_as_smiles()))
+    products = rdk.MolFromSmiles(&#34;.&#34;.join(reaction.get_products_as_smiles()))
+
+    products_atoms = set([atom.GetSymbol() for atom in products.GetAtoms()])
+    agents_atoms = set([atom.GetSymbol() for atom in agents.GetAtoms()])
+    reactants_atoms = set([atom.GetSymbol() for atom in reactants.GetAtoms()])
+
+    return len(products_atoms - (reactants_atoms | agents_atoms)) != 0</code></pre>
+</details>
+</dd>
+<dt id="data_preprocessor.mixed_reaction_filter.MixedReactionFilter.formal_charge_exceeded"><code class="name flex">
+<span>def <span class="ident">formal_charge_exceeded</span></span>(<span>self, reaction: <a title="data_preprocessor.reaction.Reaction" href="reaction.html#data_preprocessor.reaction.Reaction">Reaction</a>) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Check whether the absolute formal charge of the reactants, agents, or products exceeds a maximum.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>reaction</code></strong> :&ensp;<code>Reaction</code></dt>
+<dd>The reaction to test.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>bool</code></dt>
+<dd>Whether the absolute formal charge of the reactants, agents, or products exceeds a maximum.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def formal_charge_exceeded(self, reaction: Reaction) -&gt; bool:
+    &#34;&#34;&#34;Check whether the absolute formal charge of the reactants, agents, or products exceeds a maximum.
+
+    Args:
+        reaction (Reaction): The reaction to test.
+
+    Returns:
+        bool: Whether the absolute formal charge of the reactants, agents, or products exceeds a maximum.
+    &#34;&#34;&#34;
+
+    # Fragment bonds should, if the user choses to, be dealt with
+    # before filtering reactions
+    return (
+        abs(
+            rdk.GetFormalCharge(
+                rdk.MolFromSmiles(&#34;.&#34;.join(reaction.get_reactants_as_smiles()))
+            )
+        )
+        &gt; self.max_absolute_formal_charge
+        or abs(
+            rdk.GetFormalCharge(
+                rdk.MolFromSmiles(&#34;.&#34;.join(reaction.get_agents_as_smiles()))
+            )
+        )
+        &gt; self.max_absolute_formal_charge
+        or abs(
+            rdk.GetFormalCharge(
+                rdk.MolFromSmiles(&#34;.&#34;.join(reaction.get_products_as_smiles()))
+            )
+        )
+        &gt; self.max_absolute_formal_charge
+    )</code></pre>
+</details>
+</dd>
+<dt id="data_preprocessor.mixed_reaction_filter.MixedReactionFilter.max_agent_tokens_exceeded"><code class="name flex">
+<span>def <span class="ident">max_agent_tokens_exceeded</span></span>(<span>self, reaction: <a title="data_preprocessor.reaction.Reaction" href="reaction.html#data_preprocessor.reaction.Reaction">Reaction</a>) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Check whether the number of agent tokens exceeds the maximum.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>reaction</code></strong> :&ensp;<code>Reaction</code></dt>
+<dd>The reaction to test.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>[type]</code></dt>
+<dd>Whether the number of agent tokens exceeds the maximum.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def max_agent_tokens_exceeded(self, reaction: Reaction) -&gt; bool:
+    &#34;&#34;&#34;Check whether the number of agent tokens exceeds the maximum.
+
+    Args:
+        reaction (Reaction): The reaction to test.
+
+    Returns:
+        [type]: Whether the number of agent tokens exceeds the maximum.
+    &#34;&#34;&#34;
+
+    smiles = reaction.get_agents_as_smiles()
+
+    # In this and the other token counting methods, this is done to capture
+    # the empty set, which will not be empty when joined
+    if len(smiles) &lt;= self.max_agents_tokens:
+        return False
+
+    return (
+        len(self.tokenizer.tokenize(&#34;.&#34;.join(smiles)).split(&#34; &#34;))
+        &gt; self.max_agents_tokens
+    )</code></pre>
+</details>
+</dd>
+<dt id="data_preprocessor.mixed_reaction_filter.MixedReactionFilter.max_agents_exceeded"><code class="name flex">
+<span>def <span class="ident">max_agents_exceeded</span></span>(<span>self, reaction: <a title="data_preprocessor.reaction.Reaction" href="reaction.html#data_preprocessor.reaction.Reaction">Reaction</a>) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Checks whether the number of agents exceeds the maximum.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>reaction</code></strong> :&ensp;<code>Reaction</code></dt>
+<dd>The reaction to test.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>bool</code></dt>
+<dd>Whether the number of agents exceeds the maximum.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def max_agents_exceeded(self, reaction: Reaction) -&gt; bool:
+    &#34;&#34;&#34;Checks whether the number of agents exceeds the maximum.
+
+    Args:
+        reaction (Reaction): The reaction to test.
+
+    Returns:
+        bool: Whether the number of agents exceeds the maximum.
+    &#34;&#34;&#34;
+
+    return len(reaction.agents) &gt; self.max_agents</code></pre>
+</details>
+</dd>
+<dt id="data_preprocessor.mixed_reaction_filter.MixedReactionFilter.max_product_tokens_exceeded"><code class="name flex">
+<span>def <span class="ident">max_product_tokens_exceeded</span></span>(<span>self, reaction: <a title="data_preprocessor.reaction.Reaction" href="reaction.html#data_preprocessor.reaction.Reaction">Reaction</a>) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Check whether the number of product tokens exceeds the maximum.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>reaction</code></strong> :&ensp;<code>Reaction</code></dt>
+<dd>The reaction to test.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>[type]</code></dt>
+<dd>Whether the number of product tokens exceeds the maximum.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def max_product_tokens_exceeded(self, reaction: Reaction) -&gt; bool:
+    &#34;&#34;&#34;Check whether the number of product tokens exceeds the maximum.
+
+    Args:
+        reaction (Reaction): The reaction to test.
+
+    Returns:
+        [type]: Whether the number of product tokens exceeds the maximum.
+    &#34;&#34;&#34;
+
+    smiles = reaction.get_products_as_smiles()
+
+    if len(smiles) &gt; self.max_products_tokens:
+        return True
+
+    return (
+        len(self.tokenizer.tokenize(&#34;.&#34;.join(smiles)).split(&#34; &#34;))
+        &gt; self.max_products_tokens
+    )</code></pre>
+</details>
+</dd>
+<dt id="data_preprocessor.mixed_reaction_filter.MixedReactionFilter.max_products_exceeded"><code class="name flex">
+<span>def <span class="ident">max_products_exceeded</span></span>(<span>self, reaction: <a title="data_preprocessor.reaction.Reaction" href="reaction.html#data_preprocessor.reaction.Reaction">Reaction</a>) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Checks whether the number of products exceeds the maximum.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>reaction</code></strong> :&ensp;<code>Reaction</code></dt>
+<dd>The reaction to test.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>bool</code></dt>
+<dd>Whether the number of products exceeds the maximum.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def max_products_exceeded(self, reaction: Reaction) -&gt; bool:
+    &#34;&#34;&#34;Checks whether the number of products exceeds the maximum.
+
+    Args:
+        reaction (Reaction): The reaction to test.
+
+    Returns:
+        bool: Whether the number of products exceeds the maximum.
+    &#34;&#34;&#34;
+
+    return len(reaction.products) &gt; self.max_products</code></pre>
+</details>
+</dd>
+<dt id="data_preprocessor.mixed_reaction_filter.MixedReactionFilter.max_reactant_tokens_exceeded"><code class="name flex">
+<span>def <span class="ident">max_reactant_tokens_exceeded</span></span>(<span>self, reaction: <a title="data_preprocessor.reaction.Reaction" href="reaction.html#data_preprocessor.reaction.Reaction">Reaction</a>) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Check whether the number of reactant tokens exceeds the maximum.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>reaction</code></strong> :&ensp;<code>Reaction</code></dt>
+<dd>The reaction to test.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>[type]</code></dt>
+<dd>Whether the number of reactant tokens exceeds the maximum.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def max_reactant_tokens_exceeded(self, reaction: Reaction) -&gt; bool:
+    &#34;&#34;&#34;Check whether the number of reactant tokens exceeds the maximum.
+
+    Args:
+        reaction (Reaction): The reaction to test.
+
+    Returns:
+        [type]: Whether the number of reactant tokens exceeds the maximum.
+    &#34;&#34;&#34;
+
+    smiles = reaction.get_reactants_as_smiles()
+
+    if len(smiles) &gt; self.max_reactants_tokens:
+        return True
+
+    return (
+        len(self.tokenizer.tokenize(&#34;.&#34;.join(smiles)).split(&#34; &#34;))
+        &gt; self.max_reactants_tokens
+    )</code></pre>
+</details>
+</dd>
+<dt id="data_preprocessor.mixed_reaction_filter.MixedReactionFilter.max_reactants_exceeded"><code class="name flex">
+<span>def <span class="ident">max_reactants_exceeded</span></span>(<span>self, reaction: <a title="data_preprocessor.reaction.Reaction" href="reaction.html#data_preprocessor.reaction.Reaction">Reaction</a>) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Checks whether the number of reactants exceeds the maximum.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>reaction</code></strong> :&ensp;<code>Reaction</code></dt>
+<dd>The reaction to test.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>bool</code></dt>
+<dd>Whether the number of reactants exceeds the maximum.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def max_reactants_exceeded(self, reaction: Reaction) -&gt; bool:
+    &#34;&#34;&#34;Checks whether the number of reactants exceeds the maximum.
+
+    Args:
+        reaction (Reaction): The reaction to test.
+
+    Returns:
+        bool: Whether the number of reactants exceeds the maximum.
+    &#34;&#34;&#34;
+
+    return len(reaction.reactants) &gt; self.max_reactants</code></pre>
+</details>
+</dd>
+<dt id="data_preprocessor.mixed_reaction_filter.MixedReactionFilter.min_agents_subceeded"><code class="name flex">
+<span>def <span class="ident">min_agents_subceeded</span></span>(<span>self, reaction: <a title="data_preprocessor.reaction.Reaction" href="reaction.html#data_preprocessor.reaction.Reaction">Reaction</a>) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Checks whether the number of agents exceeds the maximum.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>reaction</code></strong> :&ensp;<code>Reaction</code></dt>
+<dd>The reaction to test.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>bool</code></dt>
+<dd>Whether the number of agents exceeds the maximum.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def min_agents_subceeded(self, reaction: Reaction) -&gt; bool:
+    &#34;&#34;&#34;Checks whether the number of agents exceeds the maximum.
+
+    Args:
+        reaction (Reaction): The reaction to test.
+
+    Returns:
+        bool: Whether the number of agents exceeds the maximum.
+    &#34;&#34;&#34;
+
+    return len(reaction.agents) &lt; self.min_agents</code></pre>
+</details>
+</dd>
+<dt id="data_preprocessor.mixed_reaction_filter.MixedReactionFilter.min_products_subceeded"><code class="name flex">
+<span>def <span class="ident">min_products_subceeded</span></span>(<span>self, reaction: <a title="data_preprocessor.reaction.Reaction" href="reaction.html#data_preprocessor.reaction.Reaction">Reaction</a>) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Checks whether the number of products exceeds the maximum.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>reaction</code></strong> :&ensp;<code>Reaction</code></dt>
+<dd>The reaction to test.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>bool</code></dt>
+<dd>Whether the number of products exceeds the maximum.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def min_products_subceeded(self, reaction: Reaction) -&gt; bool:
+    &#34;&#34;&#34;Checks whether the number of products exceeds the maximum.
+
+    Args:
+        reaction (Reaction): The reaction to test.
+
+    Returns:
+        bool: Whether the number of products exceeds the maximum.
+    &#34;&#34;&#34;
+
+    return len(reaction.products) &lt; self.min_products</code></pre>
+</details>
+</dd>
+<dt id="data_preprocessor.mixed_reaction_filter.MixedReactionFilter.min_reactants_subceeded"><code class="name flex">
+<span>def <span class="ident">min_reactants_subceeded</span></span>(<span>self, reaction: <a title="data_preprocessor.reaction.Reaction" href="reaction.html#data_preprocessor.reaction.Reaction">Reaction</a>) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Checks whether the number of reactants exceeds the maximum.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>reaction</code></strong> :&ensp;<code>Reaction</code></dt>
+<dd>The reaction to test.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>bool</code></dt>
+<dd>Whether the number of reactants exceeds the maximum.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def min_reactants_subceeded(self, reaction: Reaction) -&gt; bool:
+    &#34;&#34;&#34;Checks whether the number of reactants exceeds the maximum.
+
+    Args:
+        reaction (Reaction): The reaction to test.
+
+    Returns:
+        bool: Whether the number of reactants exceeds the maximum.
+    &#34;&#34;&#34;
+
+    return len(reaction.reactants) &lt; self.min_reactants</code></pre>
+</details>
+</dd>
+<dt id="data_preprocessor.mixed_reaction_filter.MixedReactionFilter.products_single_atoms"><code class="name flex">
+<span>def <span class="ident">products_single_atoms</span></span>(<span>self, reaction: <a title="data_preprocessor.reaction.Reaction" href="reaction.html#data_preprocessor.reaction.Reaction">Reaction</a>) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Checks whether the products solely consist of single atoms.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>reaction</code></strong> :&ensp;<code>Reaction</code></dt>
+<dd>The reaction to test.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>bool</code></dt>
+<dd>Whether the products solely consist of single atoms.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def products_single_atoms(self, reaction: Reaction) -&gt; bool:
+    &#34;&#34;&#34;Checks whether the products solely consist of single atoms.
+
+    Args:
+        reaction (Reaction): The reaction to test.
+
+    Returns:
+        bool: Whether the products solely consist of single atoms.
+    &#34;&#34;&#34;
+
+    for product in reaction.products:
+        if not product:
+            continue
+
+        if product.GetNumAtoms() &gt; 1:
+            return False
+    return True</code></pre>
+</details>
+</dd>
+<dt id="data_preprocessor.mixed_reaction_filter.MixedReactionFilter.products_subset_of_reactants"><code class="name flex">
+<span>def <span class="ident">products_subset_of_reactants</span></span>(<span>self, reaction: <a title="data_preprocessor.reaction.Reaction" href="reaction.html#data_preprocessor.reaction.Reaction">Reaction</a>) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Checks whether the set of products is a subset of the set of reactants.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>reaction</code></strong> :&ensp;<code>Reaction</code></dt>
+<dd>The reaction to test.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>bool</code></dt>
+<dd>Whether the set of products is a subset of the set of reactants.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def products_subset_of_reactants(self, reaction: Reaction) -&gt; bool:
+    &#34;&#34;&#34;Checks whether the set of products is a subset of the set of reactants.
+
+    Args:
+        reaction (Reaction): The reaction to test.
+
+    Returns:
+        bool: Whether the set of products is a subset of the set of reactants.
+    &#34;&#34;&#34;
+
+    return set(reaction.get_products_as_smiles()).issubset(
+        set(reaction.get_reactants_as_smiles())
+    )</code></pre>
+</details>
+</dd>
+<dt id="data_preprocessor.mixed_reaction_filter.MixedReactionFilter.validate"><code class="name flex">
+<span>def <span class="ident">validate</span></span>(<span>self, reaction: <a title="data_preprocessor.reaction.Reaction" href="reaction.html#data_preprocessor.reaction.Reaction">Reaction</a>) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Validate a reaction using the rules set on the instance of this MixedReactionFilter class.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>reaction</code></strong> :&ensp;<code>Reaction</code></dt>
+<dd>The reaction to validate.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>bool</code></dt>
+<dd>Whether or not the reaction is valid according to the rules set on the instance of this MixedReactionFilter class.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def validate(self, reaction: Reaction) -&gt; bool:
+    &#34;&#34;&#34;Validate a reaction using the rules set on the instance of this MixedReactionFilter class.
+
+    Args:
+        reaction (Reaction): The reaction to validate.
+
+    Returns:
+        bool: Whether or not the reaction is valid according to the rules set on the instance of this MixedReactionFilter class.
+    &#34;&#34;&#34;
+
+    return not any(
+        [
+            self.max_reactants_exceeded(reaction),
+            self.max_agents_exceeded(reaction),
+            self.max_products_exceeded(reaction),
+            self.min_reactants_subceeded(reaction),
+            self.min_agents_subceeded(reaction),
+            self.min_products_subceeded(reaction),
+            self.products_subset_of_reactants(reaction),
+            self.products_single_atoms(reaction),
+            self.max_reactant_tokens_exceeded(reaction),
+            self.max_agent_tokens_exceeded(reaction),
+            self.max_product_tokens_exceeded(reaction),
+            self.formal_charge_exceeded(reaction),
+            self.different_atom_types(reaction),
+        ]
+    )</code></pre>
+</details>
+</dd>
+<dt id="data_preprocessor.mixed_reaction_filter.MixedReactionFilter.validate_reasons"><code class="name flex">
+<span>def <span class="ident">validate_reasons</span></span>(<span>self, reaction: <a title="data_preprocessor.reaction.Reaction" href="reaction.html#data_preprocessor.reaction.Reaction">Reaction</a>) ‑> Tuple[bool, List[str]]</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def validate_reasons(self, reaction: Reaction) -&gt; Tuple[bool, List[str]]:
+    valid = True
+    reasons = []
+
+    if self.max_reactants_exceeded(reaction):
+        valid = False
+        reasons.append(&#34;max_reactants_exceeded&#34;)
+    if self.max_agents_exceeded(reaction):
+        valid = False
+        reasons.append(&#34;max_agents_exceeded&#34;)
+    if self.max_products_exceeded(reaction):
+        valid = False
+        reasons.append(&#34;max_products_exceeded&#34;)
+    if self.min_reactants_subceeded(reaction):
+        valid = False
+        reasons.append(&#34;min_reactants_subceeded&#34;)
+    if self.min_agents_subceeded(reaction):
+        valid = False
+        reasons.append(&#34;min_agents_subceeded&#34;)
+    if self.min_products_subceeded(reaction):
+        valid = False
+        reasons.append(&#34;min_products_subceeded&#34;)
+    if self.products_subset_of_reactants(reaction):
+        valid = False
+        reasons.append(&#34;products_subset_of_reactants&#34;)
+    if self.products_single_atoms(reaction):
+        valid = False
+        reasons.append(&#34;products_single_atoms&#34;)
+    if self.max_reactant_tokens_exceeded(reaction):
+        valid = False
+        reasons.append(&#34;max_reactant_tokens_exceeded&#34;)
+    if self.max_agent_tokens_exceeded(reaction):
+        valid = False
+        reasons.append(&#34;max_agent_tokens_exceeded&#34;)
+    if self.max_product_tokens_exceeded(reaction):
+        valid = False
+        reasons.append(&#34;max_product_tokens_exceeded&#34;)
+    if self.formal_charge_exceeded(reaction):
+        valid = False
+        reasons.append(&#34;formal_charge_exceeded&#34;)
+    if self.different_atom_types(reaction):
+        valid = False
+        reasons.append(&#34;different_atom_types&#34;)
+
+    return (valid, reasons)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="data_preprocessor" href="index.html">data_preprocessor</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="data_preprocessor.mixed_reaction_filter.MixedReactionFilter" href="#data_preprocessor.mixed_reaction_filter.MixedReactionFilter">MixedReactionFilter</a></code></h4>
+<ul class="">
+<li><code><a title="data_preprocessor.mixed_reaction_filter.MixedReactionFilter.different_atom_types" href="#data_preprocessor.mixed_reaction_filter.MixedReactionFilter.different_atom_types">different_atom_types</a></code></li>
+<li><code><a title="data_preprocessor.mixed_reaction_filter.MixedReactionFilter.formal_charge_exceeded" href="#data_preprocessor.mixed_reaction_filter.MixedReactionFilter.formal_charge_exceeded">formal_charge_exceeded</a></code></li>
+<li><code><a title="data_preprocessor.mixed_reaction_filter.MixedReactionFilter.max_agent_tokens_exceeded" href="#data_preprocessor.mixed_reaction_filter.MixedReactionFilter.max_agent_tokens_exceeded">max_agent_tokens_exceeded</a></code></li>
+<li><code><a title="data_preprocessor.mixed_reaction_filter.MixedReactionFilter.max_agents_exceeded" href="#data_preprocessor.mixed_reaction_filter.MixedReactionFilter.max_agents_exceeded">max_agents_exceeded</a></code></li>
+<li><code><a title="data_preprocessor.mixed_reaction_filter.MixedReactionFilter.max_product_tokens_exceeded" href="#data_preprocessor.mixed_reaction_filter.MixedReactionFilter.max_product_tokens_exceeded">max_product_tokens_exceeded</a></code></li>
+<li><code><a title="data_preprocessor.mixed_reaction_filter.MixedReactionFilter.max_products_exceeded" href="#data_preprocessor.mixed_reaction_filter.MixedReactionFilter.max_products_exceeded">max_products_exceeded</a></code></li>
+<li><code><a title="data_preprocessor.mixed_reaction_filter.MixedReactionFilter.max_reactant_tokens_exceeded" href="#data_preprocessor.mixed_reaction_filter.MixedReactionFilter.max_reactant_tokens_exceeded">max_reactant_tokens_exceeded</a></code></li>
+<li><code><a title="data_preprocessor.mixed_reaction_filter.MixedReactionFilter.max_reactants_exceeded" href="#data_preprocessor.mixed_reaction_filter.MixedReactionFilter.max_reactants_exceeded">max_reactants_exceeded</a></code></li>
+<li><code><a title="data_preprocessor.mixed_reaction_filter.MixedReactionFilter.min_agents_subceeded" href="#data_preprocessor.mixed_reaction_filter.MixedReactionFilter.min_agents_subceeded">min_agents_subceeded</a></code></li>
+<li><code><a title="data_preprocessor.mixed_reaction_filter.MixedReactionFilter.min_products_subceeded" href="#data_preprocessor.mixed_reaction_filter.MixedReactionFilter.min_products_subceeded">min_products_subceeded</a></code></li>
+<li><code><a title="data_preprocessor.mixed_reaction_filter.MixedReactionFilter.min_reactants_subceeded" href="#data_preprocessor.mixed_reaction_filter.MixedReactionFilter.min_reactants_subceeded">min_reactants_subceeded</a></code></li>
+<li><code><a title="data_preprocessor.mixed_reaction_filter.MixedReactionFilter.products_single_atoms" href="#data_preprocessor.mixed_reaction_filter.MixedReactionFilter.products_single_atoms">products_single_atoms</a></code></li>
+<li><code><a title="data_preprocessor.mixed_reaction_filter.MixedReactionFilter.products_subset_of_reactants" href="#data_preprocessor.mixed_reaction_filter.MixedReactionFilter.products_subset_of_reactants">products_subset_of_reactants</a></code></li>
+<li><code><a title="data_preprocessor.mixed_reaction_filter.MixedReactionFilter.validate" href="#data_preprocessor.mixed_reaction_filter.MixedReactionFilter.validate">validate</a></code></li>
+<li><code><a title="data_preprocessor.mixed_reaction_filter.MixedReactionFilter.validate_reasons" href="#data_preprocessor.mixed_reaction_filter.MixedReactionFilter.validate_reasons">validate_reasons</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.1</a>.</p>
+</footer>
+</body>
+</html>
