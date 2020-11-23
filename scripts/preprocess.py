@@ -26,16 +26,12 @@ TOKENIZER = dp.SmilesTokenizer()
 @click.command()
 @click.argument("input", type=click.File("r"), required=False)
 @click.argument("output", nargs=1, required=False)
-@click.option("--split/--no-split", default=True)
-@click.option("--tokenize/--no-tokenize", default=True)
-def cli(input: TextIO, output: str, split: bool, tokenize: bool) -> None:
+def cli(input: TextIO, output: str) -> None:
     """The entry point for this cli script.
 
     Args:
         input (TextIO):  The input file (one reaction SMARTS per line).
         output (TextIO): The output file (one reaction SMARTS per line).
-        split (bool): Whether to split the reaction into two separate reactants and products files.
-        tokenize (bool): Whether to tokenize the files.
     """
 
     # If not running in docker, require intput and output file.
@@ -125,7 +121,9 @@ def cli(input: TextIO, output: str, split: bool, tokenize: bool) -> None:
     train, validation, test = dp.StableDataSplitter.split(pp.df, "rxn")
 
     # Example of exporting one of the sets
-    # pp.df.rxn[train].to_csv("training.csv")
+    pp.df.rxn[train].to_csv(os.path.join(output, "training.csv"))
+    pp.df.rxn[validation].to_csv(os.path.join(output, "validation.csv"))
+    pp.df.rxn[test].to_csv(os.path.join(output, "test.csv"))
 
 
 if __name__ == "__main__":
