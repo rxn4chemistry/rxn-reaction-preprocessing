@@ -219,13 +219,8 @@ class MixedReactionFilter:
         Returns:
             bool: Whether the products solely consist of single atoms.
         """
-
-        for product in reaction.products:
-            if not product:
-                continue
-
-            if product.GetNumAtoms() > 1:
-                return False
+        if not all([product.GetNumAtoms() == 1 for product in reaction.products]):
+            return False
         return True
 
     def max_reactant_tokens_exceeded(self, reaction: Reaction) -> bool:
