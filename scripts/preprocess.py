@@ -72,13 +72,6 @@ def cli(input: TextIO, output: str) -> None:
             ([], [], reaction.find_in("[S+,s+](*)(*)*", dp.ReactionPart.products))
         )
 
-        # Remove single atoms
-        reaction.reactants = [
-            m for m in reaction.reactants if m and m.GetNumAtoms() > 1
-        ]
-        reaction.agents = [m for m in reaction.agents if m and m.GetNumAtoms() > 1]
-        reaction.products = [m for m in reaction.products if m and m.GetNumAtoms() > 1]
-
         # Remove products that are also reactants
         reaction.remove_precursors_from_products()
 
@@ -89,6 +82,9 @@ def cli(input: TextIO, output: str) -> None:
     mrf = dp.MixedReactionFilter()
 
     pp = dp.Preprocessor.read_csv(input.name, "rxn")
+
+    # Remove duplicate reactions (useful for large dataset, this step is repeated later)
+    pp.remove_duplicates()
 
     # In a first step, let's clean the data using the cleaning function
     # defined above
