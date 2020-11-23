@@ -12,5 +12,9 @@ COPY . ./
 RUN conda env create -f environment.yml
 ENV PATH /opt/conda/envs/${conda_env}/bin:$PATH
 RUN /bin/bash -c "source activate ${conda_env}"
+RUN mv ./scripts/preprocess.py ./preprocess.py
 
-ENTRYPOINT ["python", "./scripts/preprocess.py"]
+RUN pip install pytest
+RUN python -m pytest
+
+ENTRYPOINT ["python", "./preprocess.py"]
