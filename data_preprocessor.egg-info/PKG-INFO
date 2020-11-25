@@ -10,11 +10,33 @@ Description: # data_preprocessor
         
         Repository to apply many preprocessing transformations including stable train/test/validation splits.
         
-        ## Installation
+        ## Building
         Create a conda environment using the environment file.
         ```bash
         conda env create -f environment.yml
         ```
+        
+        Running tests
+        ```bash
+        python -m pytest
+        ```
+        
+        Packaging / installation
+        ```bash
+        python setup.py install
+        ```
+        
+        ## Usage
+        The following command line scripts are installed with the package
+        
+        ### rxn-preprocess
+        Usage:
+        
+        ### rxn-split
+        Usage:
+        
+        ### rxn-tokenize
+        Usage:
         
 Platform: UNKNOWN
 Classifier: Intended Audience :: Developers

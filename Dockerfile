@@ -16,4 +16,4 @@ RUN pip install pytest
 RUN python -m pytest
 RUN python setup.py install
 
-ENTRYPOINT ["python", "./scripts/preprocess.py"]
+WORKDIR /

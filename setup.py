@@ -26,5 +26,5 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     packages=find_packages(),
-    scripts=["bin/rxn-preprocess"],
+    scripts=["bin/rxn-preprocess", "bin/rxn-split", "bin/rxn-tokenize"],
 )

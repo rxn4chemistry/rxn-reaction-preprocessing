@@ -11,8 +11,8 @@ RDLogger.DisableLog("rdApp.*")
 
 
 @click.command()
-@click.argument("input", type=click.File("r"), required=True)
-@click.argument("output", type=click.File("w+"), required=True)
+@click.argument("input", type=click.Path(exists=True), required=True)
+@click.argument("output", type=click.Path(), required=True)
 @click.option("--max-reactants", default=10)
 @click.option("--max-agents", default=0)
 @click.option("--max-products", default=1)
@@ -24,8 +24,8 @@ RDLogger.DisableLog("rdApp.*")
 @click.option("--max-products-tokens", default=200)
 @click.option("--max-absolute-formal-charge", default=2)
 def cli(
-    input: TextIO,
-    output: TextIO,
+    input: str,
+    output: str,
     max_reactants: int,
     max_agents: int,
     max_products: int,
@@ -40,8 +40,8 @@ def cli(
     """The entry point for this cli script.
 
     Args:
-        input (TextIO):  The input file (one reaction SMARTS per line).
-        output (TextIO): The output file (one reaction SMARTS per line).
+        input (str):  The input file path (one reaction SMARTS per line).
+        output (str): The output file path.
     """
 
     # This is for the special SMILES extension where agents are separated by pipe.
@@ -86,7 +86,7 @@ def cli(
         max_absolute_formal_charge=max_absolute_formal_charge,
     )
 
-    pp = dp.Preprocessor.read_csv(input.name, "rxn")
+    pp = dp.Preprocessor.read_csv(input, "rxn")
 
     # Remove duplicate reactions (useful for large dataset, this step is repeated later)
     pp.remove_duplicates()
@@ -112,9 +112,7 @@ def cli(
     pp.remove_invalids()
 
     # After dropping invalid columns, display stats again (as an example)
-    pp.print_stats()
-    output.write("Test")
-    # pp.df.rxn.to_csv(output)
+    pp.df.rxn.to_csv(output)
 
 
 if __name__ == "__main__":
