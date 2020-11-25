@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import os
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 if os.path.exists("README.md"):
@@ -11,19 +11,12 @@ else:
 
 setup(
     name="data_preprocessor",
-    version="0.1.0",
-    author="Alessandra Toniato @ IBM",
+    version="0.2.0",
+    author="Alessandra Toniato, Daniel Probst @ IBM",
     author_email="ato@zurich.ibm.com",
-    py_modules=["data_preprocessor"],
-    description="Preprocessing repo for SMILEs",
+    description="Preprocessing package for RXN Reactions",
     long_description=long_description,
     license="MIT",
-    install_requires=[
-        # 'requests==2.23.0'
-        "pandas>=1.0.1",
-        "crc64iso==0.0.2",
-        "click==7.1.2",
-    ],
     classifiers=[
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
@@ -32,4 +25,6 @@ setup(
         "Programming Language :: Python :: 3.7",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
+    packages=find_packages(),
+    scripts=["bin/rxn-preprocess"],
 )

@@ -1,3 +1,0 @@
-pandas>=1.0.1
-crc64iso==0.0.2
-click==7.1.2

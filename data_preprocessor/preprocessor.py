@@ -49,20 +49,18 @@ class Preprocessor:
         self,
         reaction: Reaction,
         filter: MixedReactionFilter,
-        invalidate_nones: bool = True,
     ) -> bool:
         """The default filter function.
 
         Args:
             reaction (Reaction): An input reaction.
             filter (MixedReactionFilter): An instance of MixedReactionFilter to test the reaction against.
-            invalidate_nones (bool, optional): Whether to mark reactions that contain non-valid molecules as invalid. Defaults to True.
 
         Returns:
             bool: A boolean indicating whether or not the reaction is valid according to the supplied parameters.
         """
         # If reactions contains *any* None values for molecules
-        if invalidate_nones and reaction.has_none():
+        if reaction.has_none():
             return False
 
         return filter.validate(reaction)
@@ -71,14 +69,12 @@ class Preprocessor:
         self,
         reaction: Reaction,
         filter: MixedReactionFilter,
-        invalidate_nones: bool = True,
     ) -> List[str]:
         """The default verbose filter function.
 
         Args:
             reaction (Reaction): An input reaction.
             filter (MixedReactionFilter): An instance of MixedReactionFilter to test the reaction against.
-            invalidate_nones (bool, optional): Whether to mark reactions that contain non-valid molecules as invalid. Defaults to True.
 
         Returns:
             List[str]: A list of reasons for an invalid reaction. An empty list for a valid reaction.
@@ -86,7 +82,7 @@ class Preprocessor:
         invalid_reasons = []
 
         # If reactions contains *any* None values for molecules
-        if invalidate_nones and reaction.has_none():
+        if reaction.has_none():
             invalid_reasons.append("rdkit_molfromsmiles_failed")
 
         _, filter_reasons = filter.validate_reasons(reaction)
@@ -104,7 +100,7 @@ class Preprocessor:
         filter_func: Callable[[Reaction], bool] = None,
         filter_func_verbose: Callable[[Reaction], List[str]] = None,
     ):
-        """Applies filter functions to the reaction. Alternatives for the default filter functions can be supplied.
+        """Applies filter functions to the reaction. Alternatives for the default filter functions can be supplied. The default filters remove reactions containing molecules that could not be parse by rdkit's MolFromSmiles.
 
         Args:
             filter (MixedReactionFilter): An instance of MixedReactionFilter to be applied to each reaction.

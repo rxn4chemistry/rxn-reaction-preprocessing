@@ -1,9 +1,9 @@
 Metadata-Version: 1.1
 Name: data-preprocessor
-Version: 0.1.0
-Summary: Preprocessing repo for SMILEs
+Version: 0.2.0
+Summary: Preprocessing package for RXN Reactions
 Home-page: UNKNOWN
-Author: Alessandra Toniato @ IBM
+Author: Alessandra Toniato, Daniel Probst @ IBM
 Author-email: ato@zurich.ibm.com
 License: MIT
 Description: # data_preprocessor

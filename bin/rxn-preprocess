@@ -1,0 +1,121 @@
+#!/usr/bin/env python
+
+import re
+import click
+import data_preprocessor as dp
+from typing import TextIO
+from rdkit import RDLogger
+from tabulate import tabulate
+
+RDLogger.DisableLog("rdApp.*")
+
+
+@click.command()
+@click.argument("input", type=click.File("r"), required=True)
+@click.argument("output", type=click.File("w+"), required=True)
+@click.option("--max-reactants", default=10)
+@click.option("--max-agents", default=0)
+@click.option("--max-products", default=1)
+@click.option("--min-reactants", default=2)
+@click.option("--min-agents", default=0)
+@click.option("--min-products", default=1)
+@click.option("--max-reactants_tokens", default=300)
+@click.option("--max-agents_tokens", default=0)
+@click.option("--max-products-tokens", default=200)
+@click.option("--max-absolute-formal-charge", default=2)
+def cli(
+    input: TextIO,
+    output: TextIO,
+    max_reactants: int,
+    max_agents: int,
+    max_products: int,
+    min_reactants: int,
+    min_agents: int,
+    min_products: int,
+    max_reactants_tokens: int,
+    max_agents_tokens: int,
+    max_products_tokens: int,
+    max_absolute_formal_charge: int,
+) -> None:
+    """The entry point for this cli script.
+
+    Args:
+        input (TextIO):  The input file (one reaction SMARTS per line).
+        output (TextIO): The output file (one reaction SMARTS per line).
+    """
+
+    # This is for the special SMILES extension where agents are separated by pipe.
+    def clean_func(rxn: str) -> str:
+        return re.sub(
+            r"(?<=\[)([0-9]+)(?=[A-Za-z])",  # Remove isotopes
+            "",
+            rxn.strip()
+            .replace("(|", "(")  # Hack for bad input data
+            .replace(")|", ")")  # Hack for bad input data
+            .replace("~", ".")
+            .replace("|", ".")
+            .replace("..", ".")
+            .replace(">.", ">")
+            .replace(".>", ">"),
+        )
+
+    # This is the function that is applied to each reaction.
+    def apply_func(reaction: dp.Reaction) -> dp.Reaction:
+        # Move agents to reactants
+        reaction.remove_none()
+        reaction.reactants.extend(reaction.agents)
+        reaction.agents = []
+
+        # Remove products that are also reactants
+        reaction.remove_precursors_from_products()
+
+        return reaction.sort()
+
+    # Create a instance of the mixed reaciton filter with default values.
+    # Make arguments for all properties in script
+    mrf = dp.MixedReactionFilter(
+        max_reactants=max_reactants,
+        max_agents=max_agents,
+        max_products=max_products,
+        min_reactants=min_reactants,
+        min_agents=min_agents,
+        min_products=min_products,
+        max_reactants_tokens=max_reactants_tokens,
+        max_agents_tokens=max_agents_tokens,
+        max_products_tokens=max_products_tokens,
+        max_absolute_formal_charge=max_absolute_formal_charge,
+    )
+
+    pp = dp.Preprocessor.read_csv(input.name, "rxn")
+
+    # Remove duplicate reactions (useful for large dataset, this step is repeated later)
+    pp.remove_duplicates()
+
+    # In a first step, let's clean the data using the cleaning function
+    # defined above
+    pp.df.rxn = pp.df.rxn.apply(clean_func)
+
+    # Apply the function above to all reactions, the remove_duplicate_molecules argument
+    # is set to true to remove duplicate molecules within each reaction part
+    pp.apply(apply_func, remove_duplicate_molecules=True)
+
+    # Remove duplicate reactions
+    pp.remove_duplicates()
+
+    # Apply the mixed reaction filter instance defined above, enable verbose mode
+    pp.filter(mrf, True)
+
+    # Print the detailed stats
+    pp.print_stats()
+
+    # Drop the invalid ractions
+    pp.remove_invalids()
+
+    # After dropping invalid columns, display stats again (as an example)
+    pp.print_stats()
+    output.write("Test")
+    # pp.df.rxn.to_csv(output)
+
+
+if __name__ == "__main__":
+    cli()
