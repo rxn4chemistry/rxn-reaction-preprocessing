@@ -16,12 +16,14 @@ TOKENIZER = dp.SmilesTokenizer()
 @click.command()
 @click.argument("input", type=click.File("r"), required=False)
 @click.argument("output", nargs=1, required=False)
-def cli(input: TextIO, output: str) -> None:
+@click.option("--fragment_bond", default=None, help='fragment bond token in the SMILES of the reactions to process')
+def cli(input: TextIO, output: str, fragment_bond: str) -> None:
     """The entry point for this cli script.
 
     Args:
         input (TextIO):  The input file (one reaction SMARTS per line).
         output (str): The output file name (one reaction SMARTS per line).
+        fragment_bond (str): The fragment bond token present in the SMILES of the reactions to process. default to None
     """
 
     # If not running in docker, require intput and output file.
@@ -93,7 +95,7 @@ def cli(input: TextIO, output: str) -> None:
     # Print the detailed stats
     pp.print_stats()
 
-    # Drop the invalid ractions
+    # Drop the invalid reactions
     pp.remove_invalids()
 
     # After dropping invalid columns, display stats again (as an example)
