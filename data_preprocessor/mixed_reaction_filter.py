@@ -8,20 +8,20 @@ from .smiles_tokenizer import SmilesTokenizer
 
 class MixedReactionFilter:
     def __init__(
-        self,
-        max_reactants: int = 10,
-        max_agents: int = 0,
-        max_products: int = 1,
-        min_reactants: int = 2,
-        min_agents: int = 0,
-        min_products: int = 1,
-        max_reactants_tokens: int = 300,
-        max_agents_tokens: int = 0,
-        max_products_tokens: int = 200,
-        max_absolute_formal_charge: int = 2,
-        # filter_single_atom_products: bool = True,
-        # filter_purifications: bool = True,
-        # filter_alchemy: bool = True,
+            self,
+            max_reactants: int = 10,
+            max_agents: int = 0,
+            max_products: int = 1,
+            min_reactants: int = 2,
+            min_agents: int = 0,
+            min_products: int = 1,
+            max_reactants_tokens: int = 300,
+            max_agents_tokens: int = 0,
+            max_products_tokens: int = 200,
+            max_absolute_formal_charge: int = 2,
+            # filter_single_atom_products: bool = True,
+            # filter_purifications: bool = True,
+            # filter_alchemy: bool = True,
     ):
         """Creates a new instance of the type MixedReactionFilter.
 
@@ -239,8 +239,8 @@ class MixedReactionFilter:
             return True
 
         return (
-            len(self.tokenizer.tokenize(".".join(smiles)).split(" "))
-            > self.max_reactants_tokens
+                len(self.tokenizer.tokenize(".".join(smiles)).split(" "))
+                > self.max_reactants_tokens
         )
 
     def max_agent_tokens_exceeded(self, reaction: Reaction) -> bool:
@@ -261,8 +261,8 @@ class MixedReactionFilter:
             return False
 
         return (
-            len(self.tokenizer.tokenize(".".join(smiles)).split(" "))
-            > self.max_agents_tokens
+                len(self.tokenizer.tokenize(".".join(smiles)).split(" "))
+                > self.max_agents_tokens
         )
 
     def max_product_tokens_exceeded(self, reaction: Reaction) -> bool:
@@ -281,8 +281,8 @@ class MixedReactionFilter:
             return True
 
         return (
-            len(self.tokenizer.tokenize(".".join(smiles)).split(" "))
-            > self.max_products_tokens
+                len(self.tokenizer.tokenize(".".join(smiles)).split(" "))
+                > self.max_products_tokens
         )
 
     def formal_charge_exceeded(self, reaction: Reaction) -> bool:
@@ -298,24 +298,18 @@ class MixedReactionFilter:
         # Fragment bonds should, if the user choses to, be dealt with
         # before filtering reactions
         return (
-            abs(
-                rdk.GetFormalCharge(
-                    rdk.MolFromSmiles(".".join(reaction.get_reactants_as_smiles()))
+                abs(
+                    reaction.get_reactants_formal_charge()
                 )
-            )
-            > self.max_absolute_formal_charge
-            or abs(
-                rdk.GetFormalCharge(
-                    rdk.MolFromSmiles(".".join(reaction.get_agents_as_smiles()))
-                )
-            )
-            > self.max_absolute_formal_charge
-            or abs(
-                rdk.GetFormalCharge(
-                    rdk.MolFromSmiles(".".join(reaction.get_products_as_smiles()))
-                )
-            )
-            > self.max_absolute_formal_charge
+                > self.max_absolute_formal_charge
+                or abs(
+            reaction.get_agents_formal_charge()
+        )
+                > self.max_absolute_formal_charge
+                or abs(
+            reaction.get_products_formal_charge()
+        )
+                > self.max_absolute_formal_charge
         )
 
     def different_atom_types(self, reaction: Reaction) -> bool:
@@ -328,12 +322,8 @@ class MixedReactionFilter:
             bool: Whether the products contain atom types not found in the agents or reactants.
         """
 
-        reactants = rdk.MolFromSmiles(".".join(reaction.get_reactants_as_smiles()))
-        agents = rdk.MolFromSmiles(".".join(reaction.get_agents_as_smiles()))
-        products = rdk.MolFromSmiles(".".join(reaction.get_products_as_smiles()))
-
-        products_atoms = set([atom.GetSymbol() for atom in products.GetAtoms()])
-        agents_atoms = set([atom.GetSymbol() for atom in agents.GetAtoms()])
-        reactants_atoms = set([atom.GetSymbol() for atom in reactants.GetAtoms()])
+        products_atoms = reaction.get_products_atoms()
+        agents_atoms = reaction.get_agents_atoms()
+        reactants_atoms = reaction.get_reactants_atoms()
 
         return len(products_atoms - (reactants_atoms | agents_atoms)) != 0
