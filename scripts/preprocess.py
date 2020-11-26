@@ -1,21 +1,11 @@
-import sys
 import os
 import re
 import sys
-import pathlib
 import click
-import numpy as np
-import pandas as pd
 import data_preprocessor as dp
-from collections import Counter
-from typing import TextIO, Iterable, Tuple, List
-from itertools import chain
-from functools import partial
-from multiprocessing import Pool, cpu_count
-from rdkit.Chem import AllChem as rdk
+from typing import TextIO
 from rdkit import RDLogger
-from crc64iso.crc64iso import crc64
-from tabulate import tabulate
+
 
 RDLogger.DisableLog("rdApp.*")
 
@@ -31,7 +21,7 @@ def cli(input: TextIO, output: str) -> None:
 
     Args:
         input (TextIO):  The input file (one reaction SMARTS per line).
-        output (TextIO): The output file (one reaction SMARTS per line).
+        output (str): The output file name (one reaction SMARTS per line).
     """
 
     # If not running in docker, require intput and output file.
