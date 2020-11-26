@@ -215,6 +215,7 @@ class Preprocessor:
         func: Callable[[Reaction], Reaction],
         remove_duplicate_molecules: bool = False,
         smiles_to_mol_kwargs: Dict = {"canonical": True},
+        fragment_bond: str = '~'
     ):
         """Applies the supplied function to each reaction.
 
@@ -222,6 +223,7 @@ class Preprocessor:
             func (Callable[[Reaction], Reaction]): A function which is applied to each reaction.
             remove_duplicate_molecules (bool, optional): Whether to remove duplicate molecules when a reaction instance is created from a reaction SMARTS. Defaults to False.
             smiles_to_mol_kwargs (Dict, optional): Additional parameters for the rdkit method MolFromSmiles. Defaults to {"canonical": True}.
+            fragment_bond (str): The token used for fragments in the Reaction SMILES
 
         Returns:
             Preprocessor: Itself.
@@ -235,6 +237,7 @@ class Preprocessor:
                         rxn,
                         remove_duplicates=remove_duplicate_molecules,
                         smiles_to_mol_kwargs=smiles_to_mol_kwargs,
+                        fragment_bond=fragment_bond
                     )
                 )
             )
