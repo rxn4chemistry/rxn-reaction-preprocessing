@@ -270,7 +270,7 @@ class Preprocessor:
         Returns:
             Preprocessor: Itself.
         """
-        print(f"- {len(self.df)} total reactions.")
+        print(f"- {len(self.df)} total unique reactions.")
         if self.__valid_column in self.df.columns:
             counts = self.df[self.__valid_column].value_counts()
             if True in counts:

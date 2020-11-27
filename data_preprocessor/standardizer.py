@@ -123,7 +123,8 @@ class Standardizer:
         """
          Standardizes the entries of self.df[_valid_column]
         """
-        self.df[f"{self.__standardized_column}"] = self.df[self.__reaction_column_name].\
+        self.df.rename(columns={self.__reaction_column_name: f"{self.__reaction_column_name}_before_std"}, inplace=True)
+        self.df[f"{self.__reaction_column_name}"] = self.df[f"{self.__reaction_column_name}_before_std"].\
             apply(lambda x: self.__standardize_reaction_smiles(x))
         return self
 

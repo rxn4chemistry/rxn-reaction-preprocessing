@@ -46,12 +46,12 @@ def cli(input: TextIO, output: str, fragment_bond: str) -> None:
 
     # Create an instance of the Standardizer
     std = dp.Standardizer.read_csv(input.name, pt, reaction_column_name="rxn", fragment_bond=fragment_bond,
-                                   kwargs={'lineterminator':'\n'})
+                                   kwargs={'lineterminator': '\n'})
     # Perform standardization
     std.standardize()
 
     # Exporting standardized samples
-    std.df.to_csv(os.path.join(output, f"rxn_std.csv"))
+    std.df.to_csv(os.path.join(output, f"standardized.csv"))
 
 
 if __name__ == "__main__":
