@@ -4,6 +4,7 @@ import click
 import data_preprocessor as dp
 from typing import TextIO
 from rdkit import RDLogger
+from data_preprocessor.utils import data_directory
 
 RDLogger.DisableLog("rdApp.*")
 
@@ -14,13 +15,15 @@ TOKENIZER = dp.SmilesTokenizer()
 @click.command()
 @click.argument("input", type=click.File("r"), required=False)
 @click.argument("output", nargs=1, required=False)
+@click.option("--valid_column", default="rxn", help='column name for the SMILES of the reactions to process')
 @click.option("--fragment_bond", default=".", help='fragment bond token in the SMILES of the reactions to process')
-def cli(input: TextIO, output: str, fragment_bond: str) -> None:
+def cli(input: TextIO, output: str, valid_column: str, fragment_bond: str) -> None:
     """The entry point for this cli script.
 
     Args:
         input (TextIO):  The input file (one SMILES per line).
         output (str): The output file (one SMILES per line).
+        valid_column (str): The column name for the SMILES of the reactions to process
         fragment_bond (str): The fragment bond token used in the files to be standardized
     """
 
@@ -40,16 +43,16 @@ def cli(input: TextIO, output: str, fragment_bond: str) -> None:
 
     # Create a instance of the Patterns.
     # for now jsonpath and fragment_bond (the one present in the jsonfile) fixed
-    jsonfilepath = "./data/standardization-files/pistachio-200302"
+    jsonfilepath = f"{str(data_directory())}/standardization-files/pistachio-200302"
     pt = dp.Patterns(jsonfilepath, fragment_bond='~')
 
     # Create an instance of the Standardizer
-    std = dp.Standardizer.read_csv(input.name, pt, "rxn", fragment_bond)
+    std = dp.Standardizer.read_csv(input.name, pt, valid_column, fragment_bond)
     # Perform standardization
     std.standardize()
 
     # Exporting standardized samples
-    std.df[f"std_rxn"].to_csv(f"{output}std_rxn.csv")
+    std.df[f"std_{valid_column}"].to_csv(os.path.join(output,f"std_{valid_column}.csv"))
 
 
 if __name__ == "__main__":

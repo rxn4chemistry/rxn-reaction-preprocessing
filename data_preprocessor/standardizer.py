@@ -86,7 +86,7 @@ class Standardizer:
         self.current_smiles = ''
 
         # Check if the input reaction SMILES are (RDKIT) valid
-        self.df[self.__valid_column].apply(lambda x: self.__check_correct_chemistry(x))
+        # self.df[self.__valid_column].apply(lambda x: self.__check_correct_chemistry(x))
 
         if (self.fragment_bond and self.patterns.fragment_bond) and (self.fragment_bond != self.patterns.fragment_bond):
             for key, elem in self.patterns.patterns.items():
