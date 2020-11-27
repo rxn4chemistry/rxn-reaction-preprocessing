@@ -112,9 +112,7 @@ def test_standardization_with_different_fragment(standardizer_with_different_fra
         "CC(C)(C)[O-]$[K+]$CCC>>[Li+]$[OH-]",
         "CC(=O)C=C(C)[O-]$CC(=O)C=C(C)[O-]$O=[V+2]$O=C([O-])[O-]$[K+]$[K+].[Li+]$[OH-]>>[K+]$[OH-]",
     ]
-    # "[Li]O>>[Na]Cl",
-    # "CC(C)(C)O[K]$CCC>>[Li]O",
-    # "CC(=O)/C=C(\C)O[V](=O)O/C(C)=C/C(C)=O$O=C(O[K])O[K].[Li]O>>O[K]",
+
     print(standardizer_with_different_fragment.patterns.patterns)
     print(new_df['_rxn_std'].values)
     assert all([new_df['_rxn_std'].values[i] == converted_rxns[i] for i in range(len(converted_rxns))])

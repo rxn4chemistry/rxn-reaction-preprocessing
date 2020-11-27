@@ -16,13 +16,12 @@ TOKENIZER = dp.SmilesTokenizer()
 @click.argument("input", type=click.File("r"), required=False)
 @click.argument("output", nargs=1, required=False)
 @click.option("--fragment_bond", default=".", help='fragment bond token in the SMILES of the reactions to process')
-def cli(input: TextIO, output: str, valid_column: str, fragment_bond: str) -> None:
+def cli(input: TextIO, output: str, fragment_bond: str) -> None:
     """The entry point for this cli script.
 
     Args:
         input (TextIO):  The input file (one SMILES per line).
         output (str): The output file (one SMILES per line).
-        valid_column (str): The column name for the SMILES of the reactions to process
         fragment_bond (str): The fragment bond token used in the files to be standardized
     """
 
@@ -46,7 +45,8 @@ def cli(input: TextIO, output: str, valid_column: str, fragment_bond: str) -> No
     pt = dp.Patterns(jsonfilepath, fragment_bond='~')
 
     # Create an instance of the Standardizer
-    std = dp.Standardizer.read_csv(input.name, pt, "rxn", fragment_bond)
+    std = dp.Standardizer.read_csv(input.name, pt, reaction_column_name="rxn", fragment_bond=fragment_bond,
+                                   kwargs={'lineterminator':'\n'})
     # Perform standardization
     std.standardize()
 

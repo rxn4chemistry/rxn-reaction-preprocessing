@@ -170,4 +170,4 @@ class Standardizer:
         if len(df.columns) == 1:
             df.rename(columns={df.columns[0]: reaction_column_name}, inplace=True)
 
-        return Standardizer(df, patterns, reaction_column_name, fragment_bond)
+        return Standardizer(df, patterns=patterns, reaction_column_name=reaction_column_name, fragment_bond=fragment_bond)
