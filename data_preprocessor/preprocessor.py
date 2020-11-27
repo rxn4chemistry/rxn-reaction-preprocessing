@@ -16,6 +16,7 @@ class Preprocessor:
         reaction_column_name: str,
         valid_column: str = "_rxn_valid",
         valid_message_column: str = "_rxn_valid_messages",
+        fragment_bond: str = ".",
         clean_data=True,
     ):
         """Creates a new instance of the Preprocessor class.
@@ -25,12 +26,14 @@ class Preprocessor:
             reaction_column_name (str): The name of the DataFrame column containing the reaction SMARTS.
             valid_column (str, optional): The name of the column to write the validation results to (will be created if it doesn't exist). Defaults to "_rxn_valid".
             valid_message_column (str, optional): The name of the column to write the validation messages to in verbose mode (will be created if it doesn't exist). Defaults to "_rxn_valid_messages".
+            fragment_bond (str): The token that represents fragment bonds in the raction SMILES.
             clean_data (bool, optional): Whether to run a simple pre-cleaning of the input data (naive check for valid SMARTS reactions based on the number of greater-thans in the string). Defaults to True.
         """
         self.df = df
         self.__reaction_column_name = reaction_column_name
         self.__valid_column = valid_column
         self.__valid_message_column = valid_message_column
+        self.fragment_bond = fragment_bond
 
         if clean_data:
             self.__clean_data()
@@ -132,7 +135,7 @@ class Preprocessor:
 
             self.df[self.__valid_message_column] += self.df.apply(
                 lambda row: self.__filter_func_verbose(
-                    Reaction(row[self.__reaction_column_name]), filter
+                    Reaction(row[self.__reaction_column_name], fragment_bond=self.fragment_bond), filter
                 ),
                 axis=1,
             )
@@ -145,7 +148,7 @@ class Preprocessor:
             self.df[self.__valid_column] = np.logical_and(
                 self.df.apply(
                     lambda row: self.__filter_func(
-                        Reaction(row[self.__reaction_column_name]), filter
+                        Reaction(row[self.__reaction_column_name], fragment_bond=self.fragment_bond), filter
                     ),
                     axis=1,
                 ),
@@ -180,7 +183,7 @@ class Preprocessor:
                 lambda row: not (
                     (
                         len(
-                            Reaction(row[self.__reaction_column_name]).find_in(
+                            Reaction(row[self.__reaction_column_name], fragment_bond=self.fragment_bond).find_in(
                                 pattern, reaction_part
                             )
                         )
@@ -214,8 +217,7 @@ class Preprocessor:
         self,
         func: Callable[[Reaction], Reaction],
         remove_duplicate_molecules: bool = False,
-        smiles_to_mol_kwargs: Dict = {"canonical": True},
-        fragment_bond: str = '~'
+        smiles_to_mol_kwargs: Dict = {"canonical": True}
     ):
         """Applies the supplied function to each reaction.
 
@@ -223,7 +225,6 @@ class Preprocessor:
             func (Callable[[Reaction], Reaction]): A function which is applied to each reaction.
             remove_duplicate_molecules (bool, optional): Whether to remove duplicate molecules when a reaction instance is created from a reaction SMARTS. Defaults to False.
             smiles_to_mol_kwargs (Dict, optional): Additional parameters for the rdkit method MolFromSmiles. Defaults to {"canonical": True}.
-            fragment_bond (str): The token used for fragments in the Reaction SMILES
 
         Returns:
             Preprocessor: Itself.
@@ -237,7 +238,7 @@ class Preprocessor:
                         rxn,
                         remove_duplicates=remove_duplicate_molecules,
                         smiles_to_mol_kwargs=smiles_to_mol_kwargs,
-                        fragment_bond=fragment_bond
+                        fragment_bond=self.fragment_bond
                     )
                 )
             )
@@ -300,7 +301,7 @@ class Preprocessor:
     # Static Methods
     #
     @staticmethod
-    def read_csv(filepath: str, reaction_column_name: str, kwargs={}):
+    def read_csv(filepath: str, reaction_column_name: str, fragment_bond :str ='.', kwargs={}):
         """A helper function to read a list or csv of reactions.
 
         Args:
@@ -315,4 +316,4 @@ class Preprocessor:
         if len(df.columns) == 1:
             df.rename(columns={df.columns[0]: reaction_column_name}, inplace=True)
 
-        return Preprocessor(df, reaction_column_name)
+        return Preprocessor(df, reaction_column_name, fragment_bond=fragment_bond)

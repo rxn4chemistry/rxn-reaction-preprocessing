@@ -8,7 +8,7 @@ from data_preprocessor import Standardizer, Patterns
 def standardizer():
     df = pd.DataFrame(
         {
-            "_rxn_valid": [
+            "rxn": [
                 "[Li]O>>[Na]Cl",
                 "CC(C)(C)O[K]~CCC>>[Li]O",
                 "CC(=O)/C=C(\C)O[V](=O)O/C(C)=C/C(C)=O~O=C(O[K])O[K].[Li]O>>O[K]",
@@ -16,14 +16,14 @@ def standardizer():
         }
     )
     pt = Patterns(jsonpath="tests/test_patterns", fragment_bond='~')
-    return Standardizer(df=df, patterns=pt, fragment_bond=None)
+    return Standardizer(df, pt, "rxn", fragment_bond=None)
 
 
 @pytest.fixture
 def standardizer_with_same_fragment():
     df = pd.DataFrame(
         {
-            "_rxn_valid": [
+            "rxn": [
                 "[Li]O.O[Na]>>[Na]Cl",
                 "CC(C)(C)O[K].CCC>>[Li]O",
                 "CC(=O)/C=C(\C)O[V](=O)O/C(C)=C/C(C)=O.O=C(O[K])O[K].[Li]O>>O[K]",
@@ -33,13 +33,13 @@ def standardizer_with_same_fragment():
         }
     )
     pt = Patterns(jsonpath="tests/test_patterns", fragment_bond='~')
-    return Standardizer(df=df, patterns=pt, fragment_bond='~')
+    return Standardizer(df, pt, "rxn", fragment_bond='~')
 
 @pytest.fixture
 def standardizer_with_different_fragment():
     df = pd.DataFrame(
         {
-            "_rxn_valid": [
+            "rxn": [
                 "[Li]O>>[Na]Cl",
                 "CC(C)(C)O[K]$CCC>>[Li]O",
                 "CC(=O)/C=C(\C)O[V](=O)O/C(C)=C/C(C)=O$O=C(O[K])O[K].[Li]O>>O[K]",
@@ -47,7 +47,8 @@ def standardizer_with_different_fragment():
         }
     )
     pt = Patterns(jsonpath="tests/test_patterns", fragment_bond='~')
-    return Standardizer(df=df, patterns=pt, fragment_bond='$')
+    return Standardizer(df, pt, "rxn", fragment_bond='$')
+
 
 def test_patterns():
     pt = Patterns(jsonpath="tests/test_patterns", fragment_bond='~')
@@ -85,8 +86,8 @@ def test_standardization(standardizer):
                          "CC(=O)C=C(C)[O-]~CC(=O)C=C(C)[O-]~O=[V+2]~O=C([O-])[O-]~[K+]~[K+].[Li+]~[OH-]>>[K+]~[OH-]",
     ]
 
-    print(new_df['std__rxn_valid'].values)
-    assert all([new_df['std__rxn_valid'].values[i] == converted_rxns[i] for i in range(len(converted_rxns))])
+    print(new_df['_rxn_std'].values)
+    assert all([new_df['_rxn_std'].values[i] == converted_rxns[i] for i in range(len(converted_rxns))])
 
 
 def test_standardization_with_same_fragment(standardizer_with_same_fragment):
@@ -99,8 +100,8 @@ def test_standardization_with_same_fragment(standardizer_with_same_fragment):
                          "CO.COC(=O)C(C)(C)c1ccc(C(=O)CCCN2CCC(C(O)(c3ccccc3)c3ccccc3)CC2)cc1.Cl.[Na+]~[OH-]>>CC(C)(C(=O)O)c1ccc(C(=O)CCCN2CCC(C(O)(c3ccccc3)c3ccccc3)CC2)cc1~Cl"
     ]
 
-    print(new_df['std__rxn_valid'].values)
-    assert all([new_df['std__rxn_valid'].values[i] == converted_rxns[i] for i in range(len(converted_rxns))])
+    print(new_df['_rxn_std'].values)
+    assert all([new_df['_rxn_std'].values[i] == converted_rxns[i] for i in range(len(converted_rxns))])
 
 
 def test_standardization_with_different_fragment(standardizer_with_different_fragment):
@@ -115,5 +116,5 @@ def test_standardization_with_different_fragment(standardizer_with_different_fra
     # "CC(C)(C)O[K]$CCC>>[Li]O",
     # "CC(=O)/C=C(\C)O[V](=O)O/C(C)=C/C(C)=O$O=C(O[K])O[K].[Li]O>>O[K]",
     print(standardizer_with_different_fragment.patterns.patterns)
-    print(new_df['std__rxn_valid'].values)
-    assert all([new_df['std__rxn_valid'].values[i] == converted_rxns[i] for i in range(len(converted_rxns))])
+    print(new_df['_rxn_std'].values)
+    assert all([new_df['_rxn_std'].values[i] == converted_rxns[i] for i in range(len(converted_rxns))])

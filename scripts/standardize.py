@@ -15,7 +15,6 @@ TOKENIZER = dp.SmilesTokenizer()
 @click.command()
 @click.argument("input", type=click.File("r"), required=False)
 @click.argument("output", nargs=1, required=False)
-@click.option("--valid_column", default="rxn", help='column name for the SMILES of the reactions to process')
 @click.option("--fragment_bond", default=".", help='fragment bond token in the SMILES of the reactions to process')
 def cli(input: TextIO, output: str, valid_column: str, fragment_bond: str) -> None:
     """The entry point for this cli script.
@@ -47,12 +46,12 @@ def cli(input: TextIO, output: str, valid_column: str, fragment_bond: str) -> No
     pt = dp.Patterns(jsonfilepath, fragment_bond='~')
 
     # Create an instance of the Standardizer
-    std = dp.Standardizer.read_csv(input.name, pt, valid_column, fragment_bond)
+    std = dp.Standardizer.read_csv(input.name, pt, "rxn", fragment_bond)
     # Perform standardization
     std.standardize()
 
     # Exporting standardized samples
-    std.df[f"std_{valid_column}"].to_csv(os.path.join(output,f"std_{valid_column}.csv"))
+    std.df.to_csv(os.path.join(output, f"rxn_std.csv"))
 
 
 if __name__ == "__main__":

@@ -73,7 +73,7 @@ def cli(input: TextIO, output: str, fragment_bond: str) -> None:
     # Make arguments for all properties in script
     mrf = dp.MixedReactionFilter()
 
-    pp = dp.Preprocessor.read_csv(input.name, "rxn")
+    pp = dp.Preprocessor.read_csv(input.name, "rxn", fragment_bond=fragment_bond)
 
     # Remove duplicate reactions (useful for large dataset, this step is repeated later)
     pp.remove_duplicates()

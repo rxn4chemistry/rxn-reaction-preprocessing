@@ -67,7 +67,8 @@ class Standardizer:
             self,
             df: pd.DataFrame,
             patterns: Patterns,
-            valid_column: str = '_rxn_valid',
+            reaction_column_name: str,
+            standardized_column: str = "_rxn_std",
             fragment_bond: str = None
     ):
         """Creates a new instance of the Standardizer class.
@@ -76,17 +77,19 @@ class Standardizer:
             df (pd.DataFrame): A pandas DataFrame containing the reaction SMILES.
             patterns (Patterns): An instance of the Patterns class, containing a dictionary of the patterns and the
             substitutions to be found and replaced in the reaction SMILES as well as the fragment used in the patterns.
-            valid_column (str): column on which to apply a standardization. Default _rxn_valid
+            reaction_column_name (str): The name of the DataFrame column containing the reaction SMARTS.
+            standardized_column (str, optional): The name of the column to write the standardized results to (will be created if it doesn't exist). Defaults to "_rxn_std".
             fragment_bond (str): the fragment bond used.
         """
         self.df = df
         self.patterns = patterns
-        self.__valid_column = valid_column
+        self.__reaction_column_name = reaction_column_name
+        self.__standardized_column = standardized_column
         self.fragment_bond = fragment_bond
         self.current_smiles = ''
 
         # Check if the input reaction SMILES are (RDKIT) valid
-        # self.df[self.__valid_column].apply(lambda x: self.__check_correct_chemistry(x))
+        # self.df[self.__reaction_column_name].apply(lambda x: self.__check_correct_chemistry(x))
 
         if (self.fragment_bond and self.patterns.fragment_bond) and (self.fragment_bond != self.patterns.fragment_bond):
             for key, elem in self.patterns.patterns.items():
@@ -120,9 +123,8 @@ class Standardizer:
         """
          Standardizes the entries of self.df[_valid_column]
         """
-        self.df[f"std_{self.__valid_column}"] = self.df[self.__valid_column].\
+        self.df[f"{self.__standardized_column}"] = self.df[self.__reaction_column_name].\
             apply(lambda x: self.__standardize_reaction_smiles(x))
-        print(len(self.df.loc[self.df[f"std_{self.__valid_column}"] != self.df[f"{self.__valid_column}"]]))
         return self
 
     def __check_correct_chemistry(self, smiles: str):
@@ -146,7 +148,7 @@ class Standardizer:
         return smiles
 
     @staticmethod
-    def read_csv(filepath: str, patterns: Patterns, valid_column: str = '_rxn_valid', fragment_bond: str = None,
+    def read_csv(filepath: str, patterns: Patterns, reaction_column_name: str, fragment_bond: str = None,
                  kwargs={}):
         """
         A helper function to read a list or csv of VALID reactions (in the sense of RDKIT).
@@ -155,7 +157,8 @@ class Standardizer:
             filepath (str): The path to the text file containing the reactions.
             patterns (Patterns): An instance of the Patterns class, containing a dictionary of the patterns and the
              substitutions to be found and replaced in the reaction SMILES as well as the fragment used in the patterns.
-            valid_column (str): column on which to apply a standardization. Default _rxn_valid
+            reaction_column_name (str): The name of the reaction column (or the name that wil be given to the reaction
+            column if the input file has no headers).
             fragment_bond (str): the fragment bond used.
             kwargs (dict, optional): Additional arguments to supply to the internal Pandas read_csv method.
              Defaults to {}.
@@ -165,6 +168,6 @@ class Standardizer:
         """
         df = pd.read_csv(filepath, **kwargs)
         if len(df.columns) == 1:
-            df.rename(columns={df.columns[0]: valid_column}, inplace=True)
+            df.rename(columns={df.columns[0]: reaction_column_name}, inplace=True)
 
-        return Standardizer(df, patterns, valid_column, fragment_bond)
+        return Standardizer(df, patterns, reaction_column_name, fragment_bond)
