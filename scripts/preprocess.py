@@ -16,7 +16,7 @@ TOKENIZER = dp.SmilesTokenizer()
 @click.command()
 @click.argument("input", type=click.File("r"), required=False)
 @click.argument("output", nargs=1, required=False)
-@click.option("--fragment_bond", default=None, help='fragment bond token in the SMILES of the reactions to process')
+@click.option("--fragment_bond", default='.', help='fragment bond token in the SMILES of the reactions to process')
 def cli(input: TextIO, output: str, fragment_bond: str) -> None:
     """The entry point for this cli script.
 
