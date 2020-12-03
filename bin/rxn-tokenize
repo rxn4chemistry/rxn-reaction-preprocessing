@@ -10,7 +10,7 @@ from typing import Tuple
 import click
 import pandas as pd
 
-import data_preprocessor as dp
+import rxn_reaction_preprocessing as rrp
 
 
 @click.command()
@@ -29,7 +29,7 @@ def cli(input_output_pairs: Tuple[str]) -> None:
         )
 
     # Tokenize the reactions
-    tokenizer = dp.SmilesTokenizer()
+    tokenizer = rrp.SmilesTokenizer()
 
     for input, output in zip(input_output_pairs[::2], input_output_pairs[1::2]):
         df = pd.read_csv(input)

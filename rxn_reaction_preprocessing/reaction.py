@@ -6,6 +6,7 @@
 from enum import Enum
 from typing import Dict
 from typing import List
+from typing import Set
 from typing import Tuple
 
 from rdkit.Chem import AllChem as rdk
@@ -24,6 +25,7 @@ class Reaction:
         self,
         reaction_smarts: str,
         remove_duplicates: bool = False,
+        fragment_bond='.',
         smiles_to_mol_kwargs: Dict = {'canonical': True},
     ):
         """Creates a new instance of type Reaction based on a reaction SMARTs.
@@ -32,10 +34,12 @@ class Reaction:
             reaction_smarts (str): A reaction smarts
             remove_duplicates (bool, optional): Whether to remove duplicates from within reactants, agents and products. Defaults to False.
             smiles_to_mol_kwargs (Dict, optional): Keyword arguments supplied to rdkit MolToSmiles. Defaults to {"canonical": True}.
+            fragment_bond (str): Token for the modeling of fragment bonds. Defaults to None.
         """
         self.__reaction_smarts = reaction_smarts
         self.__remove_duplicates = remove_duplicates
         self.__smiles_to_mol_kwargs = smiles_to_mol_kwargs
+        self.fragment_bond = fragment_bond
         self.reactants, self.agents, self.products = self.__reaction_to_mols(
             self.__reaction_smarts
         )
@@ -189,6 +193,75 @@ class Reaction:
             rdk.MolToSmiles(product, **self.__smiles_to_mol_kwargs) for product in self.products
             if product
         ]
+
+    def get_reactants_formal_charge(self) -> int:
+        """Returns the the formal charge for the reactants of this reaction.
+
+        Returns:
+            List[str]: A list of SMILES of the reactants.
+        """
+        return rdk.GetFormalCharge(
+            rdk.MolFromSmiles(
+                '.'.join(self.get_reactants_as_smiles()).replace(self.fragment_bond, '.')
+            )
+        )
+
+    def get_agents_formal_charge(self) -> int:
+        """Returns the the formal charge for the agents of this reaction.
+
+        Returns:
+            List[str]: A list of SMILES of the reactants.
+        """
+        return rdk.GetFormalCharge(
+            rdk.MolFromSmiles(
+                '.'.join(self.get_agents_as_smiles()).replace(self.fragment_bond, '.')
+            )
+        )
+
+    def get_products_formal_charge(self) -> int:
+        """Returns the the formal charge for the products of this reaction.
+
+        Returns:
+            List[str]: A list of SMILES of the reactants.
+        """
+        return rdk.GetFormalCharge(
+            rdk.MolFromSmiles(
+                '.'.join(self.get_products_as_smiles()).replace(self.fragment_bond, '.')
+            )
+        )
+
+    def get_reactants_atoms(self) -> Set[str]:
+        """Returns the list of atoms, non repetitive, for the reactants of this reaction as a Set of strings.
+
+        Returns:
+            Set[str]: A list of tokens for the atoms.
+        """
+        reactants = rdk.MolFromSmiles(
+            '.'.join(self.get_reactants_as_smiles()).replace(self.fragment_bond, '.')
+        )
+        return {atom.GetSymbol() for atom in reactants.GetAtoms()}
+
+    def get_agents_atoms(self) -> Set[str]:
+        """Returns the list of atoms, non repetitive, for the agents of this reaction as a Set of strings.
+
+        Returns:
+            Set[str]: A list of tokens for the atoms.
+        """
+        agents = rdk.MolFromSmiles(
+            '.'.join(self.get_agents_as_smiles()).replace(self.fragment_bond, '.')
+        )
+        return {atom.GetSymbol() for atom in agents.GetAtoms()}
+
+    def get_products_atoms(self) -> Set[str]:
+        """Returns the list of atoms, non repetitive, for the products of this reaction as a Set of strings.
+
+        Returns:
+            Set[str]: A list of tokens for the atoms.
+        """
+        products = rdk.MolFromSmiles(
+            '.'.join(self.get_products_as_smiles()).replace(self.fragment_bond, '.')
+        )
+        return {atom.GetSymbol() for atom in products.GetAtoms()}
 
     def find(self, pattern: str) -> Tuple[List[int], List[int], List[int]]:
         """Find the occurences of a SMARTS pattern within the reaction and returns a tuple

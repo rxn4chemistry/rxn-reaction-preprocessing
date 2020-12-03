@@ -9,6 +9,8 @@ from .reaction import Reaction
 from .reaction import ReactionPart
 from .smiles_tokenizer import SmilesTokenizer
 from .stable_data_splitter import StableDataSplitter
+from .standardizer import Patterns
+from .standardizer import Standardizer
 
 __name__ = 'rxn-reaction-preprocessing'
 __version__ = '0.2.0'

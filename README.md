@@ -11,7 +11,7 @@ pip install -e .
 
 ### Development
 ```bash
-pip install -e .[development]
+pip install -e .[dev]
 ```
 Escape brackets in zsh
 ```bash
@@ -88,21 +88,21 @@ The package is readily dockerized using the supplied ```Dockerfile```. `demo.sh`
 #!/bin/sh
 
 docker run \
---mount type=bind,source=/mnt/c/Users/DanielProbst/Code/data_preprocessor/data,target=/data \
+--mount type=bind,source=/mnt/c/Users/DanielProbst/Code/rxn_reaction_preprocessing/data,target=/data \
 uk.icr.io/rxn-test/rxn-reaction-preprocessing \
 rxn-preprocess \
 /data/example/raw/rxns-small.txt \
 /data/example/processed/rxns-small.processed.csv
 
 docker run \
---mount type=bind,source=/mnt/c/Users/DanielProbst/Code/data_preprocessor/data,target=/data \
+--mount type=bind,source=/mnt/c/Users/DanielProbst/Code/rxn_reaction_preprocessing/data,target=/data \
 uk.icr.io/rxn-test/rxn-reaction-preprocessing \
 rxn-split \
 /data/example/processed/rxns-small.processed.csv \
 /data/example/processed
 
 docker run \
---mount type=bind,source=/mnt/c/Users/DanielProbst/Code/data_preprocessor/data,target=/data \
+--mount type=bind,source=/mnt/c/Users/DanielProbst/Code/rxn_reaction_preprocessing/data,target=/data \
 uk.icr.io/rxn-test/rxn-reaction-preprocessing \
 rxn-tokenize \
 /data/example/processed/rxns-small.processed.train.csv \

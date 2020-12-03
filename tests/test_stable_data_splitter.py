@@ -8,7 +8,7 @@ from string import ascii_lowercase
 import pandas as pd
 import pytest
 
-from data_preprocessor import StableDataSplitter
+from rxn_reaction_preprocessing import StableDataSplitter
 
 random.seed(42)
 

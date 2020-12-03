@@ -11,7 +11,7 @@ from typing import TextIO
 import click
 import pandas as pd
 
-import data_preprocessor as dp
+import rxn_reaction_preprocessing as rrp
 
 
 @click.command()
@@ -28,7 +28,7 @@ def cli(input_file_path: str, output_directory: str, split_ratio: float) -> None
     df = pd.read_csv(input_file_path)
 
     # Split into train, validation, and test sets, but do not export yet
-    train, validation, test = dp.StableDataSplitter.split(df, 'rxn', split_ratio=split_ratio)
+    train, validation, test = rrp.StableDataSplitter.split(df, 'rxn', split_ratio=split_ratio)
 
     # Get the file name without the extension
     stem = Path(input_file_path).stem

@@ -1,8 +1,4 @@
-# LICENSED INTERNAL CODE. PROPERTY OF IBM.
-# IBM Research Zurich Licensed Internal Code
-# (C) Copyright IBM Corp. 2020
-# ALL RIGHTS RESERVED
-""" A utility class to split data sets in a stable manner. """
+""" A utility class to augment the dataset files """
 import math
 import random
 from typing import List
@@ -10,15 +6,10 @@ from typing import List
 import pandas as pd
 from rdkit import Chem
 
-from data_preprocessor.smiles_tokenizer import SmilesTokenizer
+from rxn_reaction_preprocessing.smiles_tokenizer import SmilesTokenizer
+from rxn_reaction_preprocessing.utils import InvalidSmiles
 
 SUPPORTED_RANDOM_TYPES = ['molecules', 'unrestricted', 'restricted', 'rotated']
-
-
-class InvalidSmiles(ValueError):
-
-    def __init__(self, smiles: str):
-        super().__init__(f'"{smiles}" is not a valid SMILES string')
 
 
 def molecules_permutation_given_index(molecules_list: List[str],

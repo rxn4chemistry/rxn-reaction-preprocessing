@@ -5,10 +5,10 @@
 import pandas as pd
 import pytest
 
-from data_preprocessor import MixedReactionFilter
-from data_preprocessor import Preprocessor
-from data_preprocessor import Reaction
-from data_preprocessor import ReactionPart
+from rxn_reaction_preprocessing import MixedReactionFilter
+from rxn_reaction_preprocessing import Preprocessor
+from rxn_reaction_preprocessing import Reaction
+from rxn_reaction_preprocessing import ReactionPart
 
 
 @pytest.fixture

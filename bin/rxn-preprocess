@@ -8,9 +8,8 @@ from typing import TextIO
 
 import click
 from rdkit import RDLogger
-from tabulate import tabulate
 
-import data_preprocessor as dp
+import rxn_reaction_preprocessing as rrp
 
 RDLogger.DisableLog('rdApp.*')
 
@@ -64,7 +63,7 @@ def cli(
         )
 
     # This is the function that is applied to each reaction.
-    def apply_func(reaction: dp.Reaction) -> dp.Reaction:
+    def apply_func(reaction: rrp.Reaction) -> rrp.Reaction:
         # Move agents to reactants
         reaction.remove_none()
         reaction.reactants.extend(reaction.agents)
@@ -77,7 +76,7 @@ def cli(
 
     # Create a instance of the mixed reaciton filter with default values.
     # Make arguments for all properties in script
-    mrf = dp.MixedReactionFilter(
+    mrf = rrp.MixedReactionFilter(
         max_reactants=max_reactants,
         max_agents=max_agents,
         max_products=max_products,
@@ -90,7 +89,7 @@ def cli(
         max_absolute_formal_charge=max_absolute_formal_charge,
     )
 
-    pp = dp.Preprocessor.read_csv(input_file_path, 'rxn')
+    pp = rrp.Preprocessor.read_csv(input_file_path, 'rxn')
 
     # Remove duplicate reactions (useful for large dataset, this step is repeated later)
     pp.remove_duplicates()
@@ -112,7 +111,7 @@ def cli(
     # Print the detailed stats
     pp.print_stats()
 
-    # Drop the invalid ractions
+    # Drop the invalid reactions
     pp.remove_invalids()
 
     # After dropping invalid columns, display stats again (as an example)

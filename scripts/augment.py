@@ -5,12 +5,12 @@ from typing import TextIO
 import click
 from rdkit import RDLogger
 
-import data_preprocessor as dp
+import rxn_reaction_preprocessing as rrp
 
 RDLogger.DisableLog('rdApp.*')
 
 DOCKER = os.getenv('RUNNING_IN_DOCKER')
-TOKENIZER = dp.SmilesTokenizer()
+TOKENIZER = rrp.SmilesTokenizer()
 
 
 @click.command()
@@ -35,12 +35,8 @@ def cli(
     """The entry point for this cli script.
 
     Args:
-        input_file (TextIO):  The input file (one SMILES per line).
-        output_directory (TextIO): The output file (one SMILES per line).
-        tokenize (bool): Whether to tokenize the augmented SMILES.
-        random_type (str): Type of randomization for the SMILES. Available: unrestricted, restricted, rotated, molecules
-        permutations (int): Number of permutations to retain for each of the SMILES
-        fragment_bond (str): Token for fragment bond in the SMILES
+        input (TextIO):  The input file (one SMILES per line).
+        output (str): The output file (one SMILES per line).
     """
 
     # If not running in docker, require input and output file.
@@ -58,7 +54,7 @@ def cli(
         output_directory = '/data/output'
 
     # Create a instance of the Augmenter.
-    ag = dp.Augmenter.read_csv(input_file.name, fragment_bond)
+    ag = rrp.Augmenter.read_csv(input_file.name, fragment_bond)
 
     # Perform augmentation
     augm = ag.augment(random_type, permutations, tokenize)

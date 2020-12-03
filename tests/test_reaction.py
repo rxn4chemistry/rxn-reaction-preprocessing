@@ -4,8 +4,8 @@
 # ALL RIGHTS RESERVED
 import pytest
 
-from data_preprocessor import Reaction
-from data_preprocessor import ReactionPart
+from rxn_reaction_preprocessing import Reaction
+from rxn_reaction_preprocessing import ReactionPart
 
 
 @pytest.fixture

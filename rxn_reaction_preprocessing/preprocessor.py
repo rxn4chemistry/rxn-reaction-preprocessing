@@ -36,6 +36,7 @@ class Preprocessor:
             reaction_column_name (str): The name of the DataFrame column containing the reaction SMARTS.
             valid_column (str, optional): The name of the column to write the validation results to (will be created if it doesn't exist). Defaults to "_rxn_valid".
             valid_message_column (str, optional): The name of the column to write the validation messages to in verbose mode (will be created if it doesn't exist). Defaults to "_rxn_valid_messages".
+            fragment_bond (str): The token that represents fragment bonds in the raction SMILES.
             clean_data (bool, optional): Whether to run a simple pre-cleaning of the input data (naive check for valid SMARTS reactions based on the number of greater-thans in the string). Defaults to True.
         """
         self.df = df
