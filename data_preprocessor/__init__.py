@@ -2,13 +2,13 @@
 # IBM Research Zurich Licensed Internal Code
 # (C) Copyright IBM Corp. 2020
 # ALL RIGHTS RESERVED
-
-from .version import __version__
-from .reaction import Reaction, ReactionPart
-from .smiles_tokenizer import SmilesTokenizer
-from .mixed_reaction_filter import MixedReactionFilter
-from .stable_data_splitter import StableDataSplitter
-from .preprocessor import Preprocessor
 from .augmenter import Augmenter
+from .mixed_reaction_filter import MixedReactionFilter
+from .preprocessor import Preprocessor
+from .reaction import Reaction
+from .reaction import ReactionPart
+from .smiles_tokenizer import SmilesTokenizer
+from .stable_data_splitter import StableDataSplitter
 
-__name__ = "rxn-reaction-preprocessing"
+__name__ = 'rxn-reaction-preprocessing'
+__version__ = '0.2.0'

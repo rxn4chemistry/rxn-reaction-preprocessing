@@ -2,25 +2,31 @@
 # IBM Research Zurich Licensed Internal Code
 # (C) Copyright IBM Corp. 2020
 # ALL RIGHTS RESERVED
-
 """ The preprocessor class abstracts the workflow for preprocessing reaction data sets. """
-from typing import Callable, Dict, List, Tuple
 from collections import Counter
+from typing import Callable
+from typing import Dict
+from typing import List
+from typing import Tuple
+
 import numpy as np
 import pandas as pd
 from tabulate import tabulate
-from .reaction import Reaction, ReactionPart
+
 from .mixed_reaction_filter import MixedReactionFilter
+from .reaction import Reaction
+from .reaction import ReactionPart
 from .stable_data_splitter import StableDataSplitter
 
 
 class Preprocessor:
+
     def __init__(
         self,
         df: pd.DataFrame,
         reaction_column_name: str,
-        valid_column: str = "_rxn_valid",
-        valid_message_column: str = "_rxn_valid_messages",
+        valid_column: str = '_rxn_valid',
+        valid_message_column: str = '_rxn_valid_messages',
         clean_data=True,
     ):
         """Creates a new instance of the Preprocessor class.
@@ -46,7 +52,7 @@ class Preprocessor:
     def __clean_data(self):
         """Drops records from the internal pandas DataFrame that do not contain valid reaction SMARTS (WARNING: Very naive, just checks for two greater-thans)"""
         self.df.drop(
-            self.df[self.df[self.__reaction_column_name].str.count(">") != 2].index,
+            self.df[self.df[self.__reaction_column_name].str.count('>') != 2].index,
             inplace=True,
         )
 
@@ -88,7 +94,7 @@ class Preprocessor:
 
         # If reactions contains *any* None values for molecules
         if reaction.has_none():
-            invalid_reasons.append("rdkit_molfromsmiles_failed")
+            invalid_reasons.append('rdkit_molfromsmiles_failed')
 
         _, filter_reasons = filter.validate_reasons(reaction)
         invalid_reasons.extend(filter_reasons)
@@ -102,8 +108,8 @@ class Preprocessor:
         self,
         filter: MixedReactionFilter,
         verbose: bool = False,
-        filter_func: Callable[[Reaction], bool] = None,
-        filter_func_verbose: Callable[[Reaction], List[str]] = None,
+        filter_func: Callable[[Reaction, MixedReactionFilter], bool] = None,
+        filter_func_verbose: Callable[[Reaction, MixedReactionFilter], List[str]] = None,
     ):
         """Applies filter functions to the reaction. Alternatives for the default filter functions can be supplied. The default filters remove reactions containing molecules that could not be parse by rdkit's MolFromSmiles.
 
@@ -127,14 +133,11 @@ class Preprocessor:
 
         if verbose:
             if self.__valid_message_column not in self.df.columns:
-                self.df[self.__valid_message_column] = np.empty(
-                    (len(self.df), 0)
-                ).tolist()
+                self.df[self.__valid_message_column] = np.empty((len(self.df), 0)).tolist()
 
             self.df[self.__valid_message_column] += self.df.apply(
-                lambda row: self.__filter_func_verbose(
-                    Reaction(row[self.__reaction_column_name]), filter
-                ),
+                lambda row:
+                filter_func_verbose(Reaction(row[self.__reaction_column_name]), filter),
                 axis=1,
             )
 
@@ -145,9 +148,7 @@ class Preprocessor:
         else:
             self.df[self.__valid_column] = np.logical_and(
                 self.df.apply(
-                    lambda row: self.__filter_func(
-                        Reaction(row[self.__reaction_column_name]), filter
-                    ),
+                    lambda row: filter_func(Reaction(row[self.__reaction_column_name]), filter),
                     axis=1,
                 ),
                 self.df[self.__valid_column],
@@ -181,13 +182,10 @@ class Preprocessor:
                 lambda row: not (
                     (
                         len(
-                            Reaction(row[self.__reaction_column_name]).find_in(
-                                pattern, reaction_part
-                            )
-                        )
-                        > 0
-                    )
-                    != keep
+                            Reaction(row[self.__reaction_column_name]).
+                            find_in(pattern, reaction_part)
+                        ) > 0
+                    ) != keep
                 ),
                 axis=1,
             ),
@@ -198,16 +196,13 @@ class Preprocessor:
 
         if verbose:
             if self.__valid_message_column not in self.df.columns:
-                self.df[self.__valid_message_column] = np.empty(
-                    (len(self.df), 0)
-                ).tolist()
+                self.df[self.__valid_message_column] = np.empty((len(self.df), 0)).tolist()
 
             if keep:
                 tmp = ~tmp
 
             self.df.loc[tmp, self.__valid_message_column] = self.df.loc[
-                tmp, self.__valid_message_column
-            ].apply(lambda c: c + ["pattern_" + pattern])
+                tmp, self.__valid_message_column].apply(lambda c: c + ['pattern_' + pattern])
 
         return self
 
@@ -215,7 +210,7 @@ class Preprocessor:
         self,
         func: Callable[[Reaction], Reaction],
         remove_duplicate_molecules: bool = False,
-        smiles_to_mol_kwargs: Dict = {"canonical": True},
+        smiles_to_mol_kwargs: Dict = {'canonical': True},
     ):
         """Applies the supplied function to each reaction.
 
@@ -227,9 +222,7 @@ class Preprocessor:
         Returns:
             Preprocessor: Itself.
         """
-        self.df[self.__reaction_column_name] = self.df[
-            self.__reaction_column_name
-        ].apply(
+        self.df[self.__reaction_column_name] = self.df[self.__reaction_column_name].apply(
             lambda rxn: str(
                 func(
                     Reaction(
@@ -267,13 +260,13 @@ class Preprocessor:
         Returns:
             Preprocessor: Itself.
         """
-        print(f"- {len(self.df)} total reactions.")
+        print(f'- {len(self.df)} total reactions.')
         if self.__valid_column in self.df.columns:
             counts = self.df[self.__valid_column].value_counts()
             if True in counts:
-                print(f"\033[92m- {counts[True]} valid reactions.\033[0m")
+                print(f'\033[92m- {counts[True]} valid reactions.\033[0m')
             if False in counts:
-                print(f"\033[93m- {counts[False]} invalid reactions removed.\033[0m")
+                print(f'\033[93m- {counts[False]} invalid reactions removed.\033[0m')
 
         if self.__valid_message_column in self.df.columns:
             reasons = Counter()
@@ -282,14 +275,12 @@ class Preprocessor:
 
             if len(reasons) > 0:
                 print(
-                    f"\033[93m- The {counts[False]} reactions were removed for the following reasons:"
+                    f'\033[93m- The {counts[False]} reactions were removed for the following reasons:'
                 )
-                headers = ["Reason", "Number of Reactions"]
+                headers = ['Reason', 'Number of Reactions']
                 print(
-                    tabulate(
-                        list(Counter(reasons).items()), headers, tablefmt="fancy_grid"
-                    )
-                    + "\033[0m"
+                    tabulate(list(Counter(reasons).items()), headers, tablefmt='fancy_grid') +
+                    '\033[0m'
                 )
 
         return self

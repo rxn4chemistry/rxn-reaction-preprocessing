@@ -2,22 +2,25 @@
 
 Repository to apply many preprocessing transformations including stable train/test/validation splits.
 
-## Building
-Create a development environment
+## Install / Build
+### Create Environment and Install
 ```bash
-conda create -c rdkit -n rxn-reaction-preprocessing rdkit
-pip install -r requirements.txt
-pip install -r dev-requirements.txt
+conda create -c rdkit -n rxn-reaction-preprocessing rdkit python=3.6
+pip install -e .
 ```
 
-Running tests
+### Development
+```bash
+pip install -e .[development]
+```
+Escape brackets in zsh
+```bash
+pip install -e .\[dev\]
+```
+
+### Running tests
 ```bash
 python -m pytest
-```
-
-Packaging / installation
-```bash
-python setup.py install
 ```
 
 ## Usage

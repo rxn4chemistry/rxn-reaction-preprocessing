@@ -14,15 +14,14 @@ install:
   # check conda info
   - conda info -a
   # setup the environment
-  - conda env create -f conda.yml
-  - conda activate data-preprocessor
-  # install data-preprocessor
-  - pip install .
-  # install dev dependencies
-  - pip install -r test_requirements.txt
+  - conda create -c rdkit -n rxn-reaction-preprocessing rdkit python=3.6
+  - conda activate rxn-reaction-preprocessing
+  # install rxn-reaction-preprocessing
+  - pip install .[dev]
 script:
   - |
-    yapf --quiet --style "{based_on_style: pep8, blank_line_before_nested_class_or_def: true, indent_dictionary_value: true, dedent_closing_brackets: true, column_limit: 99}" --recursive bio_rxn
-  - python3 -m pytest -sv --cov=bio_rxn --cov-fail-under=50
-  - python3 -m flake8 --disable-noqa bio_rxn
-  - mypy bio_rxn
+    yapf --quiet --style "{based_on_style: pep8, blank_line_before_nested_class_or_def: true, indent_dictionary_value: true, dedent_closing_brackets: true, column_limit: 99}" --recursive data_preprocessor
+  - python3 -m pytest -sv --cov=data_preprocessor --cov-fail-under=50
+  - python3 -m flake8 --disable-noqa data_preprocessor
+  # --no-strict-optional because mypy doesn't allow for Callables to be assigned to Optional Callables. This is not ok.
+  - mypy --no-implicit-optional --no-strict-optional --ignore-missing-imports data_preprocessor

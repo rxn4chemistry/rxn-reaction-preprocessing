@@ -2,16 +2,17 @@
 # IBM Research Zurich Licensed Internal Code
 # (C) Copyright IBM Corp. 2020
 # ALL RIGHTS RESERVED
-
 """ A utility class to split data sets in a stable manner. """
+import math
+import random
 from typing import List
+
 import pandas as pd
 from rdkit import Chem
-from data_preprocessor.smiles_tokenizer import SmilesTokenizer
-import random
-import math
 
-SUPPORTED_RANDOM_TYPES = ["molecules", "unrestricted", "restricted", "rotated"]
+from data_preprocessor.smiles_tokenizer import SmilesTokenizer
+
+SUPPORTED_RANDOM_TYPES = ['molecules', 'unrestricted', 'restricted', 'rotated']
 
 
 class InvalidSmiles(ValueError):
@@ -20,7 +21,8 @@ class InvalidSmiles(ValueError):
         super().__init__(f'"{smiles}" is not a valid SMILES string')
 
 
-def molecules_permutation_given_index(molecules_list: List[str], permutation_index: int) -> List['str']:
+def molecules_permutation_given_index(molecules_list: List[str],
+                                      permutation_index: int) -> List['str']:
     """
     https://stackoverflow.com/questions/5602488/random-picks-from-permutation-generator
     """
@@ -32,11 +34,8 @@ def molecules_permutation_given_index(molecules_list: List[str], permutation_ind
 
 
 class Augmenter:
-    def __init__(
-            self,
-            df: pd.DataFrame,
-            fragment_bond: str = None
-    ):
+
+    def __init__(self, df: pd.DataFrame, fragment_bond: str = None):
         """Creates a new instance of the Augmenter class.
 
         Args:
@@ -61,9 +60,9 @@ class Augmenter:
         mol = Chem.MolFromSmiles(smiles)
         if not mol:
             raise InvalidSmiles(smiles)
-        if random_type == "unrestricted":
+        if random_type == 'unrestricted':
             return Chem.MolToSmiles(mol, canonical=False, doRandom=True, isomericSmiles=False)
-        elif random_type == "restricted":
+        elif random_type == 'restricted':
             new_atom_order = list(range(mol.GetNumAtoms()))
             random.shuffle(new_atom_order)
             random_mol = Chem.RenumberAtoms(mol, newOrder=new_atom_order)
@@ -72,9 +71,12 @@ class Augmenter:
             n_atoms = mol.GetNumAtoms()
             rotation_index = random.randint(0, n_atoms - 1)
             atoms = list(range(n_atoms))
-            new_atoms_order = (atoms[rotation_index % len(atoms):] + atoms[:rotation_index % len(atoms)])
+            new_atoms_order = (
+                atoms[rotation_index % len(atoms):] + atoms[:rotation_index % len(atoms)]
+            )
             rotated_mol = Chem.RenumberAtoms(mol, new_atoms_order)
             return Chem.MolToSmiles(rotated_mol, canonical=False, isomericSmiles=False)
+        return ''
 
     def __randomize_smiles(self, smiles: str, random_type: str, permutations: int) -> List[str]:
         """
@@ -96,10 +98,21 @@ class Augmenter:
 
         list_of_smiles: List[str] = []
         for i in range(permutations):
-            list_of_smiles.append('.'.join(
-                sorted([self.fragment_bond.join([Augmenter.__randomize_smiles_without_fragment(fragment, random_type)
-                                                 for fragment in group.split(self.fragment_bond)])
-                        for group in smiles.split('.')])))
+            list_of_smiles.append(
+                '.'.join(
+                    sorted(
+                        [
+                            self.fragment_bond.join(
+                                [
+                                    Augmenter.__randomize_smiles_without_fragment(
+                                        fragment, random_type
+                                    ) for fragment in group.split(self.fragment_bond)
+                                ]
+                            ) for group in smiles.split('.')
+                        ]
+                    )
+                )
+            )
         return list_of_smiles
 
     @staticmethod
@@ -120,7 +133,7 @@ class Augmenter:
         if not smiles:
             raise InvalidSmiles(smiles)
 
-        molecules_list = smiles.split(".")
+        molecules_list = smiles.split('.')
         total_permutations = range(math.factorial(len(molecules_list)))
         permutation_indices = random.sample(total_permutations, permutations)
         permuted_molecules_smiles = []
@@ -130,8 +143,12 @@ class Augmenter:
 
         return permuted_molecules_smiles
 
-    def augment(self, random_type: str = "unrestricted",
-                permutations: int = 1, tokenize: bool = True) -> pd.DataFrame:
+    def augment(
+        self,
+        random_type: str = 'unrestricted',
+        permutations: int = 1,
+        tokenize: bool = True
+    ) -> pd.DataFrame:
         """
         Creates samples for the augmentation. Returns a a pandas Series containing the augmented samples.
 
@@ -151,21 +168,24 @@ class Augmenter:
             pd.DataFrame: A pandas Series containing the augmented samples.
         """
 
-        self.df[f"{random_type}"] = self.df.apply(lambda smiles: smiles.replace(" ", ""))
+        self.df[f'{random_type}'] = self.df.apply(lambda smiles: smiles.replace(' ', ''))
 
         if random_type not in SUPPORTED_RANDOM_TYPES:
-            raise (ValueError, f"This type of randomization {random_type} is not supported")
+            raise ValueError(f'This type of randomization {random_type} is not supported')
 
         if random_type != 'molecules':
-            self.df[f"{random_type}"] = self.df.apply(
-                lambda smiles: self.__randomize_smiles(smiles, random_type, permutations))
-            self.df[f"{random_type}"] = self.df.apply(
-                lambda smiles: Augmenter.__randomize_molecules(smiles, permutations))
+            self.df[f'{random_type}'] = self.df.apply(
+                lambda smiles: self.__randomize_smiles(smiles, random_type, permutations)
+            )
+            self.df[f'{random_type}'] = self.df.apply(
+                lambda smiles: Augmenter.__randomize_molecules(smiles, permutations)
+            )
 
             if tokenize:
-                self.df[f"{random_type}"] = self.df[f"{random_type}"].apply(lambda smiles: [self.tokenizer.tokenize(smi)
-                                                                                            for smi in smiles])
-        return self.df.explode(f"{random_type}").reset_index(drop=True)
+                self.df[f'{random_type}'] = self.df[f'{random_type}'].apply(
+                    lambda smiles: [self.tokenizer.tokenize(smi) for smi in smiles]
+                )
+        return self.df.explode(f'{random_type}').reset_index(drop=True)
 
     @staticmethod
     def read_csv(filepath: str, kwargs={}):
