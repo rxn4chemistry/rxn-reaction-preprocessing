@@ -1,3 +1,8 @@
+# LICENSED INTERNAL CODE. PROPERTY OF IBM.
+# IBM Research Zurich Licensed Internal Code
+# (C) Copyright IBM Corp. 2020
+# ALL RIGHTS RESERVED
+
 """ The preprocessor class abstracts the workflow for preprocessing reaction data sets. """
 from typing import Callable, Dict, List, Tuple
 from collections import Counter

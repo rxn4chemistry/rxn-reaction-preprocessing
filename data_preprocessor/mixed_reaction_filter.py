@@ -1,3 +1,8 @@
+# LICENSED INTERNAL CODE. PROPERTY OF IBM.
+# IBM Research Zurich Licensed Internal Code
+# (C) Copyright IBM Corp. 2020
+# ALL RIGHTS RESERVED
+
 """ A class encapsulating filtering functionality for chemical reactions """
 
 from typing import List, Tuple

@@ -1,3 +1,8 @@
+# LICENSED INTERNAL CODE. PROPERTY OF IBM.
+# IBM Research Zurich Licensed Internal Code
+# (C) Copyright IBM Corp. 2020
+# ALL RIGHTS RESERVED
+
 """ Contains the class Reaction representing unidirectional reactions. """
 import re
 from enum import Enum
