@@ -18,7 +18,7 @@ def standardizer():
                 ],
         }
     )
-    pt = Patterns(jsonpath='tests/test_patterns', fragment_bond='~')
+    pt = Patterns(jsonpath='tests/test_patterns.json', fragment_bond='~')
     return Standardizer(df, pt, 'rxn', fragment_bond=None)
 
 
@@ -34,7 +34,7 @@ def standardizer_with_same_fragment():
                 ],
         }
     )
-    pt = Patterns(jsonpath='tests/test_patterns', fragment_bond='~')
+    pt = Patterns(jsonpath='tests/test_patterns.json', fragment_bond='~')
     return Standardizer(df, pt, 'rxn', fragment_bond='~')
 
 
@@ -50,12 +50,12 @@ def standardizer_with_different_fragment():
                 ],
         }
     )
-    pt = Patterns(jsonpath='tests/test_patterns', fragment_bond='~')
+    pt = Patterns(jsonpath='tests/test_patterns.json', fragment_bond='~')
     return Standardizer(df, pt, 'rxn', fragment_bond='$')
 
 
 def test_patterns():
-    pt = Patterns(jsonpath='tests/test_patterns', fragment_bond='~')
+    pt = Patterns(jsonpath='tests/test_patterns.json', fragment_bond='~')
 
     assert type(pt.patterns) is dict
     assert list(pt.patterns.keys()) == ['exception_patterns', 'potassium_compounds']
@@ -75,7 +75,7 @@ def test_patterns_manipulation():
         ]
     ]
 
-    pt = Patterns(jsonpath='tests/test_patterns', fragment_bond='~')
+    pt = Patterns(jsonpath='tests/test_patterns.json', fragment_bond='~')
 
     for i, elem in enumerate(pt.patterns.values()):
         for j, pat in enumerate(elem):

@@ -45,7 +45,7 @@ class Patterns:
                 for char in special_chars:
                     self.patterns[key][i][0] = self.patterns[key][i][0].replace(
                         char,
-                        '\{}'.format(char)  # rf'\{char}' fails on my system (dpr)
+                        r'\{}'.format(char)  # rf'\{char}' fails on my system (dpr)
                     )
                 self.patterns[key][i][
                     0] = r'(?:^|(?<=\~|\.|>))' + self.patterns[key][i][0] + r'(?=\~|\.|>|$)'

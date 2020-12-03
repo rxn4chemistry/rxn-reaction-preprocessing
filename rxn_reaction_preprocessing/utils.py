@@ -11,14 +11,11 @@ def root_directory() -> Path:
     """
     Returns the path to the root directory of the repository
     """
-    this_dir = Path(__file__).resolve().parent
-    data_dir = this_dir / '..'
-    return data_dir.resolve()
+    return Path(__file__).parent.parent.resolve()
 
 
 def data_directory() -> Path:
     """
     Returns the path to the data directory at the root of the repository
     """
-    data_dir = root_directory() / 'data'
-    return data_dir.resolve()
+    return Path(root_directory(), 'data')
