@@ -1,11 +1,13 @@
-# data_preprocessor
+# rxn-reaction-preprocessing
 
 Repository to apply many preprocessing transformations including stable train/test/validation splits.
 
 ## Building
-Create a conda environment using the environment file.
+Create a development environment
 ```bash
-conda env create -f environment.yml
+conda create -c rdkit -n rxn-reaction-preprocessing rdkit
+pip install -r requirements.txt
+pip install -r dev-requirements.txt
 ```
 
 Running tests
