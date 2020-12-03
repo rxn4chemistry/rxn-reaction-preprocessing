@@ -1,7 +1,13 @@
+# LICENSED INTERNAL CODE. PROPERTY OF IBM.
+# IBM Research Zurich Licensed Internal Code
+# (C) Copyright IBM Corp. 2020
+# ALL RIGHTS RESERVED
 import random
 from string import ascii_lowercase
-import pytest
+
 import pandas as pd
+import pytest
+
 from data_preprocessor import StableDataSplitter
 
 random.seed(42)
@@ -10,15 +16,15 @@ random.seed(42)
 @pytest.fixture
 def data():
     random_strings = [
-        "".join([random.choice(ascii_lowercase) for i in range(random.randint(5, 20))])
+        ''.join([random.choice(ascii_lowercase) for i in range(random.randint(5, 20))])
         for j in range(1000)
     ]
 
-    return pd.DataFrame(data={"col_1": random_strings})
+    return pd.DataFrame(data={'col_1': random_strings})
 
 
 def test_split(data):
-    train, validate, test = StableDataSplitter.split(data, "col_1", split_ratio=0.05)
+    train, validate, test = StableDataSplitter.split(data, 'col_1', split_ratio=0.05)
     assert train.sum() == 889
     assert validate.sum() == 48
     assert test.sum() == 63

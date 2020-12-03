@@ -13,7 +13,6 @@ repos:
     -   id: double-quote-string-fixer
     -   id: end-of-file-fixer
     -   id: mixed-line-ending
-    -   id: name-tests-test
 # -   repo: https://gitlab.com/pycqa/flake8
 #     rev: 3.8.4
 #     hooks:
@@ -41,3 +40,4 @@ repos:
     hooks:
     -   id: mypy
         args: [--no-implicit-optional,--no-strict-optional,--ignore-missing-imports]
+        exclude: bin

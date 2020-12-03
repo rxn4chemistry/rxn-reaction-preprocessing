@@ -1,20 +1,20 @@
 #!/usr/bin/env python
-
 # LICENSED INTERNAL CODE. PROPERTY OF IBM.
 # IBM Research Zurich Licensed Internal Code
 # (C) Copyright IBM Corp. 2020
 # ALL RIGHTS RESERVED
-
 import os
 import sys
+from typing import Tuple
+
 import click
 import pandas as pd
+
 import data_preprocessor as dp
-from typing import Tuple
 
 
 @click.command()
-@click.argument("input_output_pairs", type=click.Path(), nargs=-1, required=True)
+@click.argument('input_output_pairs', type=click.Path(), nargs=-1, required=True)
 def cli(input_output_pairs: Tuple[str]) -> None:
     """The entry point for this cli script.
 
@@ -23,10 +23,10 @@ def cli(input_output_pairs: Tuple[str]) -> None:
     """
 
     if len(input_output_pairs) % 2 != 0:
-        print(
-            f"\033[91mFiles must be supplied as input output pairs in the form <input_a> <output_a> <input_b> <output_b> [...]:\n{input}"
+        print()
+        raise SystemExit(
+            f'Files must be supplied as input output pairs in the form <input_a> <output_a> <input_b> <output_b> [...]:\n{input}'
         )
-        sys.exit(1)
 
     # Tokenize the reactions
     tokenizer = dp.SmilesTokenizer()
@@ -34,25 +34,18 @@ def cli(input_output_pairs: Tuple[str]) -> None:
     for input, output in zip(input_output_pairs[::2], input_output_pairs[1::2]):
         df = pd.read_csv(input)
 
-        if "rxn" not in df.columns:
-            print(
-                f"\033[91mThe following file does not contain an rxn column:\n{input}"
-            )
-            sys.exit(1)
+        if 'rxn' not in df.columns:
+            raise SystemExit(f'The following file does not contain an rxn column:\n{input}')
 
-        df["rxn_precursors"] = df.rxn.str.split(">>").str[0]
-        df["rxn_products"] = df.rxn.str.split(">>").str[1]
+        df['rxn_precursors'] = df.rxn.str.split('>>').str[0]
+        df['rxn_products'] = df.rxn.str.split('>>').str[1]
 
         df.rxn_precursors = df.rxn_precursors.apply(tokenizer.tokenize)
         df.rxn_products = df.rxn_products.apply(tokenizer.tokenize)
 
-        df[["rxn_precursors"]].to_csv(
-            f"{output}.precursors_tokens", header=False, index=False
-        )
-        df[["rxn_products"]].to_csv(
-            f"{output}.products_tokens", header=False, index=False
-        )
+        df[['rxn_precursors']].to_csv(f'{output}.precursors_tokens', header=False, index=False)
+        df[['rxn_products']].to_csv(f'{output}.products_tokens', header=False, index=False)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     cli()

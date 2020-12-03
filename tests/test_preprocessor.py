@@ -1,22 +1,31 @@
-import pytest
+# LICENSED INTERNAL CODE. PROPERTY OF IBM.
+# IBM Research Zurich Licensed Internal Code
+# (C) Copyright IBM Corp. 2020
+# ALL RIGHTS RESERVED
 import pandas as pd
-from data_preprocessor import Preprocessor, Reaction, ReactionPart, MixedReactionFilter
+import pytest
+
+from data_preprocessor import MixedReactionFilter
+from data_preprocessor import Preprocessor
+from data_preprocessor import Reaction
+from data_preprocessor import ReactionPart
 
 
 @pytest.fixture
 def preprocessor():
     df = pd.DataFrame(
         {
-            "rxn": [
-                "[14C]Cl.O[Na]>O>[Na]Cl.[14C]O",
-                "[14C]Cl.O[Na]>>[Na]Cl",
-                "[C].C.[O--].[O--].O.O=[N+]([O-])c1cc(-c2nc3ccccc3o2)ccc1F.C.C>O>O.C",
-                "=)(/?",
-            ],
-            "class": [2, 2, 6, 0],
+            'rxn':
+                [
+                    '[14C]Cl.O[Na]>O>[Na]Cl.[14C]O',
+                    '[14C]Cl.O[Na]>>[Na]Cl',
+                    '[C].C.[O--].[O--].O.O=[N+]([O-])c1cc(-c2nc3ccccc3o2)ccc1F.C.C>O>O.C',
+                    '=)(/?',
+                ],
+            'class': [2, 2, 6, 0],
         }
     )
-    return Preprocessor(df, "rxn")
+    return Preprocessor(df, 'rxn')
 
 
 @pytest.fixture
@@ -36,6 +45,7 @@ def filter():
 
 
 def test_apply(preprocessor):
+
     def func(reaction: Reaction) -> Reaction:
         reaction.reactants.extend(reaction.agents)
         reaction.agents.clear()
@@ -43,7 +53,7 @@ def test_apply(preprocessor):
 
     preprocessor.apply(func)
 
-    assert preprocessor.df.rxn.iloc[0] == "[14C]Cl.O[Na].O>>[Na]Cl.[14C]O"
+    assert preprocessor.df.rxn.iloc[0] == '[14C]Cl.O[Na].O>>[Na]Cl.[14C]O'
 
 
 def test_filter(preprocessor, filter):
@@ -61,13 +71,13 @@ def test_filter_verbose(preprocessor, filter):
 
 
 def test_filter_smarts(preprocessor):
-    preprocessor.filter_smarts("[O--]", ReactionPart.reactants)
+    preprocessor.filter_smarts('[O--]', ReactionPart.reactants)
     assert preprocessor.df._rxn_valid.iloc[0]
     assert preprocessor.df._rxn_valid.iloc[1]
     assert not preprocessor.df._rxn_valid.iloc[2]
 
 
 def test_filter_smarts_keep(preprocessor):
-    preprocessor.filter_smarts("[O--]", ReactionPart.reactants, keep=True, verbose=True)
-    assert preprocessor.df._rxn_valid_messages.iloc[0] == ["pattern_[O--]"]
-    assert preprocessor.df._rxn_valid_messages.iloc[1] == ["pattern_[O--]"]
+    preprocessor.filter_smarts('[O--]', ReactionPart.reactants, keep=True, verbose=True)
+    assert preprocessor.df._rxn_valid_messages.iloc[0] == ['pattern_[O--]']
+    assert preprocessor.df._rxn_valid_messages.iloc[1] == ['pattern_[O--]']
