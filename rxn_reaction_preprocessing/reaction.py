@@ -32,8 +32,10 @@ class Reaction:
 
         Args:
             reaction_smarts (str): A reaction smarts
-            remove_duplicates (bool, optional): Whether to remove duplicates from within reactants, agents and products. Defaults to False.
-            smiles_to_mol_kwargs (Dict, optional): Keyword arguments supplied to rdkit MolToSmiles. Defaults to {"canonical": True}.
+            remove_duplicates (bool, optional): Whether to remove duplicates from within
+            reactants, agents and products. Defaults to False.
+            smiles_to_mol_kwargs (Dict, optional): Keyword arguments supplied to rdkit
+            MolToSmiles. Defaults to {"canonical": True}.
             fragment_bond (str): Token for the modeling of fragment bonds. Defaults to None.
         """
         self.__reaction_smarts = reaction_smarts
@@ -113,7 +115,8 @@ class Reaction:
         self,
         reaction_smarts: str,
     ) -> Tuple[List[Mol], List[Mol], List[Mol]]:
-        """Creates a tuple of lists of reactants, agents, and products as rdkit Mol instances from a reaction SMARTS.
+        """Creates a tuple of lists of reactants, agents, and products as rdkit Mol
+        instances from a reaction SMARTS.
 
         Args:
             reaction_smarts (str): A reaction SMARTS.
@@ -122,7 +125,8 @@ class Reaction:
             ValueError: This error is raised if a non-valid reaction SMARTS is provided.
 
         Returns:
-            Tuple[List[Mol], List[Mol], List[Mol]]: A tuple of lists of reactants, agents, and products representing the reaction.
+            Tuple[List[Mol], List[Mol], List[Mol]]: A tuple of lists of reactants, agents,
+            and products representing the reaction.
         """
         if reaction_smarts.count('>') != 2:
             raise ValueError("A valid SMARTS reaction must contain two '>'.")
@@ -145,7 +149,8 @@ class Reaction:
         )
 
     def __mol_to_smiles(self, mol: Mol) -> str:
-        """Encodes a molecule as a SMILES string by applying the rdkit MolToSmiles arguments supplied to this instantce.
+        """Encodes a molecule as a SMILES string by applying the rdkit MolToSmiles
+        arguments supplied to this instantce.
 
         Args:
             mol (Mol): An rdkit Mol instance.
@@ -231,7 +236,8 @@ class Reaction:
         )
 
     def get_reactants_atoms(self) -> Set[str]:
-        """Returns the list of atoms, non repetitive, for the reactants of this reaction as a Set of strings.
+        """Returns the list of atoms, non repetitive, for the reactants of
+        this reaction as a Set of strings.
 
         Returns:
             Set[str]: A list of tokens for the atoms.
@@ -271,7 +277,8 @@ class Reaction:
             pattern (str): A SMARTS pattern.
 
         Returns:
-            Tuple[List[int], List[int], List[int]]: A tuple of lists of indices from the lists of reactants, agents, and products.
+            Tuple[List[int], List[int], List[int]]: A tuple of lists of indices from
+            the lists of reactants, agents, and products.
         """
         p = rdk.MolFromSmarts(pattern)
 
@@ -296,7 +303,8 @@ class Reaction:
             reaction_part (ReactionPart): The reaction part to search.
 
         Returns:
-            List[int]: A list of indices from the list of molecules representing the chosen reaction part.
+            List[int]: A list of indices from the list of molecules representing
+            the chosen reaction part.
         """
         p = rdk.MolFromSmarts(pattern)
 
@@ -324,7 +332,8 @@ class Reaction:
         """Remove reactants, agents and products based on their index within the respective lists.
 
         Args:
-            indices (Tuple[List[int], List[int], List[int]]): The indices of the molecules to be removed from the reaction.
+            indices (Tuple[List[int], List[int], List[int]]): The indices of the
+            molecules to be removed from the reaction.
 
         Returns:
             Reaction: Itself with changes applied.
@@ -344,10 +353,12 @@ class Reaction:
         return self
 
     def filter(self, indices: Tuple[List[int], List[int], List[int]]):
-        """Filter for reactants, agents and products based on their index within the respective lists. This is the complement to remove.
+        """Filter for reactants, agents and products based on their index within
+        the respective lists. This is the complement to remove.
 
         Args:
-            indices (Tuple[List[int], List[int], List[int]]): The indices of the molecules to not be removed from the reaction.
+            indices (Tuple[List[int], List[int], List[int]]): The indices of the
+            molecules to not be removed from the reaction.
 
         Returns:
             Reaction: Itself with changes applied.
@@ -421,7 +432,8 @@ class Reaction:
         return self
 
     def has_none(self) -> bool:
-        """Checks whether the reactants, agents, or products contain None (usually due to failed rdkit MolFromSmiles).
+        """Checks whether the reactants, agents, or products contain None
+        (usually due to failed rdkit MolFromSmiles).
 
         Returns:
             bool: Whether the reactants, agents, or products contain None.
@@ -435,9 +447,9 @@ class Reaction:
         Returns:
             Reaction: Itself with None values removed.
         """
-        self.reactants = [m for m in self.reactants if m != None]
-        self.agents = [m for m in self.agents if m != None]
-        self.products = [m for m in self.products if m != None]
+        self.reactants = [m for m in self.reactants if m is not None]
+        self.agents = [m for m in self.agents if m is not None]
+        self.products = [m for m in self.products if m is not None]
 
         return self
 
