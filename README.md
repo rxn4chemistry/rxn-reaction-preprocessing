@@ -23,6 +23,12 @@ pip install -e .\[dev\]
 python -m pytest
 ```
 
+## Before you commit
+Please apply pre-commit before commiting. This makes life easier for everyone (including you, as chances for CI failing will be smaller afterwards).
+```bash
+pre-commit install
+```
+
 ## Usage
 The following command line scripts are installed with the package
 
