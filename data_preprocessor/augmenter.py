@@ -1,18 +1,13 @@
-""" A utility class to split data sets in a stable manner. """
+""" A utility class to augment the dataset files """
 from typing import List
 import pandas as pd
+from data_preprocessor.utils import InvalidSmiles
 from rdkit import Chem
 from data_preprocessor.smiles_tokenizer import SmilesTokenizer
 import random
 import math
 
 SUPPORTED_RANDOM_TYPES = ["molecules", "unrestricted", "restricted", "rotated"]
-
-
-class InvalidSmiles(ValueError):
-
-    def __init__(self, smiles: str):
-        super().__init__(f'"{smiles}" is not a valid SMILES string')
 
 
 def molecules_permutation_given_index(molecules_list: List[str], permutation_index: int) -> List['str']:

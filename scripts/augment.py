@@ -24,11 +24,7 @@ def cli(input: TextIO, output: str, tokenize: bool, random_type: str, permutatio
 
     Args:
         input (TextIO):  The input file (one SMILES per line).
-        output (TextIO): The output file (one SMILES per line).
-        tokenize (bool): Whether to tokenize the augmented SMILES.
-        random_type (str): Type of randomization for the SMILES. Available: unrestricted, restricted, rotated, molecules
-        permutations (int): Number of permutations to retain for each of the SMILES
-        fragment_bond (str): Token for fragment bond in the SMILES
+        output (str): The output file (one SMILES per line).
     """
 
     # If not running in docker, require input and output file.
