@@ -3,6 +3,7 @@
 # (C) Copyright IBM Corp. 2020
 # ALL RIGHTS RESERVED
 from .augmenter import Augmenter
+from .augmenter import RandomType
 from .mixed_reaction_filter import MixedReactionFilter
 from .preprocessor import Preprocessor
 from .reaction import Reaction

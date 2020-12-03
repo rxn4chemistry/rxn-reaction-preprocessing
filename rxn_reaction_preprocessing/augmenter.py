@@ -1,6 +1,7 @@
 """ A utility class to augment the dataset files """
 import math
 import random
+from enum import Enum
 from typing import List
 
 import pandas as pd
@@ -9,7 +10,12 @@ from rdkit import Chem
 from rxn_reaction_preprocessing.smiles_tokenizer import SmilesTokenizer
 from rxn_reaction_preprocessing.utils import InvalidSmiles
 
-SUPPORTED_RANDOM_TYPES = ['molecules', 'unrestricted', 'restricted', 'rotated']
+
+class RandomType(Enum):
+    molecules = 1
+    unrestricted = 2
+    restricted = 3
+    rotated = 4
 
 
 def molecules_permutation_given_index(molecules_list: List[str],
@@ -36,47 +42,19 @@ class Augmenter:
         self.tokenizer = SmilesTokenizer()
         self.fragment_bond = fragment_bond
 
-    @staticmethod
-    def __randomize_smiles_without_fragment(smiles: str, random_type: str) -> str:
-        """
-        Generates a random version of a SMILES without a fragment bond
+    #
+    # Private Methods
+    #
 
-        Args:
-            smiles (str): The pandas DataFrame to be split into training, validation, and test sets.
-            random_type (str): The type of randomization to be applied. see SUPPORTED_RANDOM_TYPES
-
-        Returns:
-            str: the randomized SMILES
-        """
-        mol = Chem.MolFromSmiles(smiles)
-        if not mol:
-            raise InvalidSmiles(smiles)
-        if random_type == 'unrestricted':
-            return Chem.MolToSmiles(mol, canonical=False, doRandom=True, isomericSmiles=False)
-        elif random_type == 'restricted':
-            new_atom_order = list(range(mol.GetNumAtoms()))
-            random.shuffle(new_atom_order)
-            random_mol = Chem.RenumberAtoms(mol, newOrder=new_atom_order)
-            return Chem.MolToSmiles(random_mol, canonical=False, isomericSmiles=False)
-        elif random_type == 'rotated':
-            n_atoms = mol.GetNumAtoms()
-            rotation_index = random.randint(0, n_atoms - 1)
-            atoms = list(range(n_atoms))
-            new_atoms_order = (
-                atoms[rotation_index % len(atoms):] + atoms[:rotation_index % len(atoms)]
-            )
-            rotated_mol = Chem.RenumberAtoms(mol, new_atoms_order)
-            return Chem.MolToSmiles(rotated_mol, canonical=False, isomericSmiles=False)
-        return ''
-
-    def __randomize_smiles(self, smiles: str, random_type: str, permutations: int) -> List[str]:
+    def __randomize_smiles(self, smiles: str, random_type: RandomType,
+                           permutations: int) -> List[str]:
         """
         Randomizes a molecules SMILES string that might contain fragment bonds and returns a number of augmented versions
         of the SMILES equal to permutations.
 
         Args:
             smiles (str): The molecules SMILES to augment
-            random_type (str): The type of randomization to be applied. see SUPPORTED_RANDOM_TYPES
+            random_type (RandomType): The type of randomization to be applied. see SUPPORTED_RANDOM_TYPES
             permutations (int): The number of permutations to deliver for the SMILES
 
         Returns:
@@ -106,6 +84,45 @@ class Augmenter:
             )
         return list_of_smiles
 
+    #
+    # Private Static Methods
+    #
+
+    @staticmethod
+    def __randomize_smiles_without_fragment(smiles: str, random_type: RandomType) -> str:
+        """
+        Generates a random version of a SMILES without a fragment bond
+
+        Args:
+            smiles (str): The pandas DataFrame to be split into training, validation, and test sets.
+            random_type (RandomType): The type of randomization to be applied.
+
+        Returns:
+            str: the randomized SMILES
+        """
+        mol = Chem.MolFromSmiles(smiles)
+
+        if not mol:
+            raise InvalidSmiles(smiles)
+
+        if random_type == RandomType.unrestricted:
+            return Chem.MolToSmiles(mol, canonical=False, doRandom=True, isomericSmiles=False)
+        elif random_type == RandomType.restricted:
+            new_atom_order = list(range(mol.GetNumAtoms()))
+            random.shuffle(new_atom_order)
+            random_mol = Chem.RenumberAtoms(mol, newOrder=new_atom_order)
+            return Chem.MolToSmiles(random_mol, canonical=False, isomericSmiles=False)
+        elif random_type == RandomType.rotated:
+            n_atoms = mol.GetNumAtoms()
+            rotation_index = random.randint(0, n_atoms - 1)
+            atoms = list(range(n_atoms))
+            new_atoms_order = (
+                atoms[rotation_index % len(atoms):] + atoms[:rotation_index % len(atoms)]
+            )
+            rotated_mol = Chem.RenumberAtoms(mol, new_atoms_order)
+            return Chem.MolToSmiles(rotated_mol, canonical=False, isomericSmiles=False)
+        return ''
+
     @staticmethod
     def __randomize_molecules(smiles: str, permutations: int) -> List[str]:
         """
@@ -134,9 +151,13 @@ class Augmenter:
 
         return permuted_molecules_smiles
 
+    #
+    # Public Methods
+    #
+
     def augment(
         self,
-        random_type: str = 'unrestricted',
+        random_type: RandomType = RandomType.unrestricted,
         permutations: int = 1,
         tokenize: bool = True
     ) -> pd.DataFrame:
@@ -144,7 +165,7 @@ class Augmenter:
         Creates samples for the augmentation. Returns a a pandas Series containing the augmented samples.
 
         Args:
-            random_type (str): The string identifying the type of randomization to apply.
+            random_type (RandomType): The string identifying the type of randomization to apply.
                               "molecules" for randomization of the molecules (canonical SMILES kept)
                               "unrestricted" for unrestricted randomization
                               "restricted" for restricted randomization
@@ -159,24 +180,25 @@ class Augmenter:
             pd.DataFrame: A pandas Series containing the augmented samples.
         """
 
-        self.df[f'{random_type}'] = self.df.apply(lambda smiles: smiles.replace(' ', ''))
-
-        if random_type not in SUPPORTED_RANDOM_TYPES:
-            raise ValueError(f'This type of randomization {random_type} is not supported')
+        self.df[f'{random_type.name}'] = self.df.apply(lambda smiles: smiles.replace(' ', ''))
 
         if random_type != 'molecules':
-            self.df[f'{random_type}'] = self.df.apply(
+            self.df[f'{random_type.name}'] = self.df.apply(
                 lambda smiles: self.__randomize_smiles(smiles, random_type, permutations)
             )
-            self.df[f'{random_type}'] = self.df.apply(
+            self.df[f'{random_type.name}'] = self.df.apply(
                 lambda smiles: Augmenter.__randomize_molecules(smiles, permutations)
             )
 
             if tokenize:
-                self.df[f'{random_type}'] = self.df[f'{random_type}'].apply(
+                self.df[f'{random_type.name}'] = self.df[f'{random_type.name}'].apply(
                     lambda smiles: [self.tokenizer.tokenize(smi) for smi in smiles]
                 )
-        return self.df.explode(f'{random_type}').reset_index(drop=True)
+        return self.df.explode(f'{random_type.name}').reset_index(drop=True)
+
+    #
+    # Public Static Methods
+    #
 
     @staticmethod
     def read_csv(filepath: str, kwargs={}):
