@@ -35,11 +35,9 @@ def cli(input: TextIO, output: str, fragment_bond: str) -> None:
     # In docker these will be supplied by the volumes
     if not DOCKER:
         if not input:
-            print('Please specify an input file.')
-            sys.exit(1)
+            SystemExit('Please specify an input file.')
         if not output:
-            print('Please specify an output directory.')
-            sys.exit(1)
+            SystemExit('Please specify an output directory.')
         output = output.rstrip('/')
     else:
         input = open('/data/input.txt')

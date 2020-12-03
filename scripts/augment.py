@@ -43,11 +43,9 @@ def cli(
     # In docker these will be supplied by the volumes
     if not DOCKER:
         if not input_file:
-            print('Please specify an input file.')
-            sys.exit(1)
+            SystemExit('Please specify an input file.')
         if not output_directory:
-            print('Please specify an output directory.')
-            sys.exit(1)
+            SystemExit('Please specify an output directory.')
         output = output_directory.rstrip('/')
     else:
         input_file = open('/data/input.txt')
