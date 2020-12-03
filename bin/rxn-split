@@ -1,0 +1,38 @@
+import os
+import sys
+from pathlib import Path
+from typing import TextIO
+import click
+import pandas as pd
+import data_preprocessor as dp
+
+
+@click.command()
+@click.argument("input", type=click.Path(exists=True), required=True)
+@click.argument("output", type=click.Path(), required=True)
+@click.option("--split-ratio", default=0.05)
+def cli(input: str, output: str, split_ratio: float) -> None:
+    """The entry point for this cli script.
+
+    Args:
+        input (str):  The input file path.
+        output (str): The output directory (where train, validation, and test files will be written to).
+    """
+    df = pd.read_csv(input)
+
+    # Split into train, validation, and test sets, but do not export yet
+    train, validation, test = dp.StableDataSplitter.split(
+        df, "rxn", split_ratio=split_ratio
+    )
+
+    # Get the file name without the extension
+    stem = Path(input).stem
+
+    # Example of exporting one of the sets
+    df.rxn[train].to_csv(os.path.join(output, stem + ".train.csv"))
+    df.rxn[validation].to_csv(os.path.join(output, stem + ".validation.csv"))
+    df.rxn[test].to_csv(os.path.join(output, stem + ".test.csv"))
+
+
+if __name__ == "__main__":
+    cli()
