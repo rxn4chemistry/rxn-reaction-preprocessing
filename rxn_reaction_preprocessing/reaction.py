@@ -3,8 +3,9 @@
 # (C) Copyright IBM Corp. 2020
 # ALL RIGHTS RESERVED
 """ Contains the class Reaction representing unidirectional reactions. """
+from enum import auto
 from enum import Enum
-from typing import Dict
+from typing import Any
 from typing import List
 from typing import Set
 from typing import Tuple
@@ -14,9 +15,9 @@ from rdkit.Chem.rdchem import Mol
 
 
 class ReactionPart(Enum):
-    reactants = 1
-    agents = 2
-    products = 3
+    reactants = auto()
+    agents = auto()
+    products = auto()
 
 
 class Reaction:
@@ -26,25 +27,23 @@ class Reaction:
         reaction_smarts: str,
         remove_duplicates: bool = False,
         fragment_bond='.',
-        smiles_to_mol_kwargs: Dict = {'canonical': True},
+        **kwargs: Any,
     ):
         """Creates a new instance of type Reaction based on a reaction SMARTs.
 
         Args:
-            reaction_smarts (str): A reaction smarts
-            remove_duplicates (bool, optional): Whether to remove duplicates from within
-            reactants, agents and products. Defaults to False.
-            smiles_to_mol_kwargs (Dict, optional): Keyword arguments supplied to rdkit
-            MolToSmiles. Defaults to {"canonical": True}.
-            fragment_bond (str): Token for the modeling of fragment bonds. Defaults to None.
+            reaction_smarts: A reaction smarts
+            remove_duplicates: Whether to remove duplicates from within reactants, agents and products. Defaults to False.
+            kwargs: Keyword arguments supplied to rdkit MolToSmiles.
+            fragment_bond: Token for the modeling of fragment bonds. Defaults to None.
         """
+        kwargs.setdefault('canonical', True)
+
         self.__reaction_smarts = reaction_smarts
         self.__remove_duplicates = remove_duplicates
-        self.__smiles_to_mol_kwargs = smiles_to_mol_kwargs
-        self.fragment_bond = fragment_bond
-        self.reactants, self.agents, self.products = self.__reaction_to_mols(
-            self.__reaction_smarts
-        )
+        self.__smiles_to_mol_kwargs = kwargs
+        self.__fragment_bond = fragment_bond
+        self.reactants, self.agents, self.products = self.__reaction_to_mols(self.__reaction_smarts)
 
     #
     # Overwrites / Virtuals
@@ -54,7 +53,7 @@ class Reaction:
         """Returns the number of molecules participating in this reaction (reactants, agents, and products).
 
         Returns:
-            int: The number of molecules participating in this reaction.
+            The number of molecules participating in this reaction.
         """
         return len(self.reactants) + len(self.agents) + len(self.products)
 
@@ -62,15 +61,27 @@ class Reaction:
         """Returns the reaction SMARTS of this instance (reactants>agents>products).
 
         Returns:
-            str: The reaction SMARTS representing this instance.
+            The reaction SMARTS representing this instance.
         """
         return (
             '.'.join(
-                [rdk.MolToSmiles(m, **self.__smiles_to_mol_kwargs) for m in self.reactants if m]
+                [
+                    rdk.MolToSmiles(m, **
+                                    self.__smiles_to_mol_kwargs).replace('.', self.__fragment_bond)
+                    for m in self.reactants if m
+                ]
             ) + '>' + '.'.join(
-                [rdk.MolToSmiles(m, **self.__smiles_to_mol_kwargs) for m in self.agents if m]
+                [
+                    rdk.MolToSmiles(m, **
+                                    self.__smiles_to_mol_kwargs).replace('.', self.__fragment_bond)
+                    for m in self.agents if m
+                ]
             ) + '>' + '.'.join(
-                [rdk.MolToSmiles(m, **self.__smiles_to_mol_kwargs) for m in self.products if m]
+                [
+                    rdk.MolToSmiles(m, **
+                                    self.__smiles_to_mol_kwargs).replace('.', self.__fragment_bond)
+                    for m in self.products if m
+                ]
             )
         )
 
@@ -78,10 +89,10 @@ class Reaction:
         """Compares the count, order, and SMILES string of each molecule in this reaction.
 
         Args:
-            other (Reaction): A reaction to be compared with this instance.
+            other: A reaction to be compared with this instance.
 
         Returns:
-            bool: Whether this instance is equal to another.
+            Whether this instance is equal to another.
         """
         if len(self) != len(other):
             return False
@@ -115,18 +126,16 @@ class Reaction:
         self,
         reaction_smarts: str,
     ) -> Tuple[List[Mol], List[Mol], List[Mol]]:
-        """Creates a tuple of lists of reactants, agents, and products as rdkit Mol
-        instances from a reaction SMARTS.
+        """Creates a tuple of lists of reactants, agents, and products as rdkit Mol instances from a reaction SMARTS.
 
         Args:
-            reaction_smarts (str): A reaction SMARTS.
+            reaction_smarts: A reaction SMARTS.
 
         Raises:
             ValueError: This error is raised if a non-valid reaction SMARTS is provided.
 
         Returns:
-            Tuple[List[Mol], List[Mol], List[Mol]]: A tuple of lists of reactants, agents,
-            and products representing the reaction.
+            A tuple of lists of reactants, agents, and products representing the reaction.
         """
         if reaction_smarts.count('>') != 2:
             raise ValueError("A valid SMARTS reaction must contain two '>'.")
@@ -143,20 +152,28 @@ class Reaction:
             products = list(dict.fromkeys(products))
 
         return (
-            [rdk.MolFromSmiles(reactant) for reactant in reactants if reactant != ''],
-            [rdk.MolFromSmiles(agent) for agent in agents if agent != ''],
-            [rdk.MolFromSmiles(product) for product in products if product != ''],
+            [
+                rdk.MolFromSmiles(reactant.replace(self.__fragment_bond, '.'))
+                for reactant in reactants if reactant != ''
+            ],
+            [
+                rdk.MolFromSmiles(agent.replace(self.__fragment_bond, '.')) for agent in agents
+                if agent != ''
+            ],
+            [
+                rdk.MolFromSmiles(product.replace(self.__fragment_bond, '.'))
+                for product in products if product != ''
+            ],
         )
 
     def __mol_to_smiles(self, mol: Mol) -> str:
-        """Encodes a molecule as a SMILES string by applying the rdkit MolToSmiles
-        arguments supplied to this instantce.
+        """Encodes a molecule as a SMILES string by applying the rdkit MolToSmiles arguments supplied to this instantce.
 
         Args:
-            mol (Mol): An rdkit Mol instance.
+            mol: An rdkit Mol instance.
 
         Returns:
-            str: The SMILES encoding of the input Mol.
+            The SMILES encoding of the input Mol.
         """
         return rdk.MolToSmiles(mol, **self.__smiles_to_mol_kwargs)
 
@@ -171,7 +188,7 @@ class Reaction:
         """Returns the reactants of this reactions as a list of SMILES.
 
         Returns:
-            List[str]: A list of SMILES of the reactants.
+            A list of SMILES of the reactants.
         """
         return [
             rdk.MolToSmiles(reactant, **self.__smiles_to_mol_kwargs) for reactant in self.reactants
@@ -182,7 +199,7 @@ class Reaction:
         """Returns the agents of this reactions as a list of SMILES.
 
         Returns:
-            List[str]: A list of SMILES of the agents.
+            A list of SMILES of the agents.
         """
         return [
             rdk.MolToSmiles(agent, **self.__smiles_to_mol_kwargs) for agent in self.agents if agent
@@ -192,7 +209,7 @@ class Reaction:
         """Returns the products of this reactions as a list of SMILES.
 
         Returns:
-            List[str]: A list of SMILES of the products.
+            A list of SMILES of the products.
         """
         return [
             rdk.MolToSmiles(product, **self.__smiles_to_mol_kwargs) for product in self.products
@@ -203,11 +220,11 @@ class Reaction:
         """Returns the the formal charge for the reactants of this reaction.
 
         Returns:
-            List[str]: A list of SMILES of the reactants.
+            Formal charge of the reactants.
         """
         return rdk.GetFormalCharge(
             rdk.MolFromSmiles(
-                '.'.join(self.get_reactants_as_smiles()).replace(self.fragment_bond, '.')
+                '.'.join(self.get_reactants_as_smiles()).replace(self.__fragment_bond, '.')
             )
         )
 
@@ -215,11 +232,11 @@ class Reaction:
         """Returns the the formal charge for the agents of this reaction.
 
         Returns:
-            List[str]: A list of SMILES of the reactants.
+            Formal charge of the agents.
         """
         return rdk.GetFormalCharge(
             rdk.MolFromSmiles(
-                '.'.join(self.get_agents_as_smiles()).replace(self.fragment_bond, '.')
+                '.'.join(self.get_agents_as_smiles()).replace(self.__fragment_bond, '.')
             )
         )
 
@@ -227,23 +244,22 @@ class Reaction:
         """Returns the the formal charge for the products of this reaction.
 
         Returns:
-            List[str]: A list of SMILES of the reactants.
+            Formal charge of the products.
         """
         return rdk.GetFormalCharge(
             rdk.MolFromSmiles(
-                '.'.join(self.get_products_as_smiles()).replace(self.fragment_bond, '.')
+                '.'.join(self.get_products_as_smiles()).replace(self.__fragment_bond, '.')
             )
         )
 
     def get_reactants_atoms(self) -> Set[str]:
-        """Returns the list of atoms, non repetitive, for the reactants of
-        this reaction as a Set of strings.
+        """Returns the list of atoms, non repetitive, for the reactants of this reaction as a Set of strings.
 
         Returns:
-            Set[str]: A list of tokens for the atoms.
+            A list of tokens for the atoms.
         """
         reactants = rdk.MolFromSmiles(
-            '.'.join(self.get_reactants_as_smiles()).replace(self.fragment_bond, '.')
+            '.'.join(self.get_reactants_as_smiles()).replace(self.__fragment_bond, '.')
         )
         return {atom.GetSymbol() for atom in reactants.GetAtoms()}
 
@@ -251,10 +267,10 @@ class Reaction:
         """Returns the list of atoms, non repetitive, for the agents of this reaction as a Set of strings.
 
         Returns:
-            Set[str]: A list of tokens for the atoms.
+            A list of tokens for the atoms.
         """
         agents = rdk.MolFromSmiles(
-            '.'.join(self.get_agents_as_smiles()).replace(self.fragment_bond, '.')
+            '.'.join(self.get_agents_as_smiles()).replace(self.__fragment_bond, '.')
         )
         return {atom.GetSymbol() for atom in agents.GetAtoms()}
 
@@ -262,23 +278,21 @@ class Reaction:
         """Returns the list of atoms, non repetitive, for the products of this reaction as a Set of strings.
 
         Returns:
-            Set[str]: A list of tokens for the atoms.
+            A list of tokens for the atoms.
         """
         products = rdk.MolFromSmiles(
-            '.'.join(self.get_products_as_smiles()).replace(self.fragment_bond, '.')
+            '.'.join(self.get_products_as_smiles()).replace(self.__fragment_bond, '.')
         )
         return {atom.GetSymbol() for atom in products.GetAtoms()}
 
     def find(self, pattern: str) -> Tuple[List[int], List[int], List[int]]:
-        """Find the occurences of a SMARTS pattern within the reaction and returns a tuple
-           of lists of indices in the reactants, agents, and products.
+        """Find the occurences of a SMARTS pattern within the reaction and returns a tuple of lists of indices in the reactants, agents, and products.
 
         Args:
-            pattern (str): A SMARTS pattern.
+            pattern: A SMARTS pattern.
 
         Returns:
-            Tuple[List[int], List[int], List[int]]: A tuple of lists of indices from
-            the lists of reactants, agents, and products.
+            A tuple of lists of indices from the lists of reactants, agents, and products.
         """
         p = rdk.MolFromSmarts(pattern)
 
@@ -289,22 +303,18 @@ class Reaction:
                 if m and len(list(m.GetSubstructMatch(p))) > 0
             ],
             [i for i, m in enumerate(self.agents) if m and len(list(m.GetSubstructMatch(p))) > 0],
-            [
-                i for i, m in enumerate(self.products)
-                if m and len(list(m.GetSubstructMatch(p))) > 0
-            ],
+            [i for i, m in enumerate(self.products) if m and len(list(m.GetSubstructMatch(p))) > 0],
         )
 
     def find_in(self, pattern: str, reaction_part: ReactionPart) -> List[int]:
         """Finds a SMARTS pattern in a part (reactants, agents, products) of the reaction.
 
         Args:
-            pattern (str): A SMARTS pattern.
-            reaction_part (ReactionPart): The reaction part to search.
+            pattern: A SMARTS pattern.
+            reaction_part: The reaction part to search.
 
         Returns:
-            List[int]: A list of indices from the list of molecules representing
-            the chosen reaction part.
+            A list of indices from the list of molecules representing the chosen reaction part.
         """
         p = rdk.MolFromSmarts(pattern)
 
@@ -332,11 +342,10 @@ class Reaction:
         """Remove reactants, agents and products based on their index within the respective lists.
 
         Args:
-            indices (Tuple[List[int], List[int], List[int]]): The indices of the
-            molecules to be removed from the reaction.
+            indices: The indices of the molecules to be removed from the reaction.
 
         Returns:
-            Reaction: Itself with changes applied.
+            Itself with changes applied.
         """
         if len(indices) > 0:
             for idx in sorted(indices[0], reverse=True):
@@ -353,15 +362,13 @@ class Reaction:
         return self
 
     def filter(self, indices: Tuple[List[int], List[int], List[int]]):
-        """Filter for reactants, agents and products based on their index within
-        the respective lists. This is the complement to remove.
+        """Filter for reactants, agents and products based on their index within the respective lists. This is the complement to remove.
 
         Args:
-            indices (Tuple[List[int], List[int], List[int]]): The indices of the
-            molecules to not be removed from the reaction.
+            indices: The indices of the molecules to not be removed from the reaction.
 
         Returns:
-            Reaction: Itself with changes applied.
+            Itself with changes applied.
         """
         if len(indices) > 0 and len(indices[0]) > 0:
             for idx in range(len(self.reactants) - 1, -1, -1):
@@ -385,12 +392,12 @@ class Reaction:
            The rdkit MolToSmiles argument supplied to this instance will be applied.
 
         Args:
-            sort_reactants (bool, optional): Whether to sort the reactants. Defaults to True.
-            sort_agents (bool, optional): Whether to sort the agents. Defaults to True.
-            sort_products (bool, optional): Whether to sort the products. Defaults to True.
+            sort_reactants: Whether to sort the reactants. Defaults to True.
+            sort_agents: Whether to sort the agents. Defaults to True.
+            sort_products: Whether to sort the products. Defaults to True.
 
         Returns:
-            Reaction: Itself with changes applied.
+            Itself with changes applied.
         """
         # Mol to SMILES here is rather inefficient, but this allows for
         # changes to the Mol objects at any time in the lifecycle of the instance
@@ -418,7 +425,7 @@ class Reaction:
         """Removes prodcuts that are also found in reactants or agents.
 
         Returns:
-            Reaction: Itself with prodcuts occuring as reactants or agents removed.
+            Itself with prodcuts occuring as reactants or agents removed.
         """
 
         reactants_smiles = self.get_reactants_as_smiles()
@@ -432,11 +439,10 @@ class Reaction:
         return self
 
     def has_none(self) -> bool:
-        """Checks whether the reactants, agents, or products contain None
-        (usually due to failed rdkit MolFromSmiles).
+        """Checks whether the reactants, agents, or products contain None (usually due to failed rdkit MolFromSmiles).
 
         Returns:
-            bool: Whether the reactants, agents, or products contain None.
+            Whether the reactants, agents, or products contain None.
         """
 
         return None in self.reactants or None in self.agents or None in self.products
@@ -445,7 +451,7 @@ class Reaction:
         """Removes all None values from the reactants, agents, and products.
 
         Returns:
-            Reaction: Itself with None values removed.
+            Itself with None values removed.
         """
         self.reactants = [m for m in self.reactants if m is not None]
         self.agents = [m for m in self.agents if m is not None]
