@@ -18,4 +18,4 @@ def data_directory() -> Path:
     """
     Returns the path to the data directory at the root of the repository
     """
-    return Path(root_directory(), 'data')
+    return root_directory() / 'data'

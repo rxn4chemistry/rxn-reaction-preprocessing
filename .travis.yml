@@ -19,7 +19,7 @@ install:
   # install rxn-reaction-preprocessing
   - pip install .[dev]
 script:
-  - flake8 --max-line-length=100 rxn_reaction_preprocessing
+  - flake8
   - |
     yapf --quiet --style "{based_on_style: pep8, blank_line_before_nested_class_or_def: true, indent_dictionary_value: true, dedent_closing_brackets: true, column_limit: 99}" --recursive rxn_reaction_preprocessing
   - python3 -m pytest -sv --cov=rxn_reaction_preprocessing --cov-fail-under=50

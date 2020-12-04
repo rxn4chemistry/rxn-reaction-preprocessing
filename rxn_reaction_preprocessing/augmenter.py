@@ -54,7 +54,7 @@ class Augmenter:
 
         Args:
             smiles (str): The molecules SMILES to augment
-            random_type (RandomType): The type of randomization to be applied. see SUPPORTED_RANDOM_TYPES
+            random_type (RandomType): The type of randomization to be applied.
             permutations (int): The number of permutations to deliver for the SMILES
 
         Returns:
