@@ -2,7 +2,6 @@
 import json
 import re
 from typing import List
-from typing import Optional
 from typing import Pattern
 from typing import Tuple
 
@@ -30,7 +29,7 @@ class Patterns:
             self.patterns = json.load(j)
         self.fragment_bond = fragment_bond
         self.__escape_special_chars_and_isolate()
-        self.compiled_patterns: Optional[List[Tuple[Pattern[str], str]]] = None
+        self.compiled_patterns: List[Tuple[Pattern[str], str]] = []
 
     def __escape_special_chars_and_isolate(self) -> None:
         """
@@ -102,8 +101,7 @@ class Standardizer:
         # Check if the input reaction SMILES are (RDKIT) valid
         # self.df[self.__reaction_column_name].apply(lambda x: self.__check_correct_chemistry(x))
 
-        if (self.fragment_bond and
-            self.patterns.fragment_bond) and (self.fragment_bond != self.patterns.fragment_bond):
+        if self.fragment_bond and self.patterns.fragment_bond and self.fragment_bond != self.patterns.fragment_bond:
             for key, elem in self.patterns.patterns.items():
                 for i in range(len(elem)):
                     self.patterns.patterns[key][i][0] = self.patterns.patterns[key][i][0]\

@@ -33,7 +33,7 @@ def molecules_permutation_given_index(molecules_list: List[str],
 
 class Augmenter:
 
-    def __init__(self, df: pd.DataFrame, fragment_bond: str = None):
+    def __init__(self, df: pd.DataFrame, fragment_bond: str = '.'):
         """Creates a new instance of the Augmenter class.
 
         Args:
