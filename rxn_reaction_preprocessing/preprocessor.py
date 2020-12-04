@@ -301,12 +301,13 @@ class Preprocessor:
     # Static Methods
     #
     @staticmethod
-    def read_csv(filepath: str, reaction_column_name: str, **kwargs):
+    def read_csv(filepath: str, reaction_column_name: str, fragment_bond='.', **kwargs):
         """A helper function to read a list or csv of reactions.
 
         Args:
             filepath: The path to the text file containing the reactions.
             reaction_column_name: The name of the reaction column (or the name that wil be given to the reaction column if the input file has no headers).
+            fragment_bond: The token that represents fragment bonds in the raction SMILES.
             kwargs: Additional arguments to supply to the internal Pandas read_csv method.
 
         Returns:
@@ -316,4 +317,4 @@ class Preprocessor:
         if len(df.columns) == 1:
             df.rename(columns={df.columns[0]: reaction_column_name}, inplace=True)
 
-        return Preprocessor(df, reaction_column_name)
+        return Preprocessor(df, reaction_column_name, fragment_bond=fragment_bond)

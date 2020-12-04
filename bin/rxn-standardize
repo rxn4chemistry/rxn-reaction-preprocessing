@@ -3,8 +3,6 @@
 # IBM Research Zurich Licensed Internal Code
 # (C) Copyright IBM Corp. 2020
 # ALL RIGHTS RESERVED
-import os
-import sys
 from pathlib import Path
 
 import click

@@ -3,10 +3,6 @@
 # IBM Research Zurich Licensed Internal Code
 # (C) Copyright IBM Corp. 2020
 # ALL RIGHTS RESERVED
-import os
-import sys
-from typing import TextIO
-
 import click
 
 import rxn_reaction_preprocessing as rrp
@@ -23,12 +19,10 @@ import rxn_reaction_preprocessing as rrp
     type=click.Choice(
         ['unrestricted', 'restricted', 'restricted', 'rotated', 'molecules'], case_sensitive=True
     ),
-    help=
-    'the randomization type for the SMILES. Available: unrestricted, restricted, rotated, molecules'
+    help='the randomization type for the SMILES. '
+    'Available: unrestricted, restricted, rotated, molecules'
 )
-@click.option(
-    '--permutations', '-n', default=1, help='number of generated permutations per SMILES'
-)
+@click.option('--permutations', '-n', default=1, help='number of generated permutations per SMILES')
 @click.option('--fragment_bond', default='~', help='fragment bond token in the SMILES')
 def cli(
     input_file_path: str, output_file_path: str, tokenize: bool, random_type: str,

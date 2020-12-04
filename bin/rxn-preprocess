@@ -4,7 +4,6 @@
 # (C) Copyright IBM Corp. 2020
 # ALL RIGHTS RESERVED
 import re
-from typing import TextIO
 
 import click
 from rdkit import RDLogger
@@ -89,7 +88,7 @@ def cli(
         max_absolute_formal_charge=max_absolute_formal_charge,
     )
 
-    pp = rrp.Preprocessor.read_csv(input_file_path, 'rxn')
+    pp = rrp.Preprocessor.read_csv(input_file_path, 'rxn', fragment_bond='~')
 
     # Remove duplicate reactions (useful for large dataset, this step is repeated later)
     pp.remove_duplicates()

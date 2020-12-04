@@ -3,8 +3,6 @@
 # IBM Research Zurich Licensed Internal Code
 # (C) Copyright IBM Corp. 2020
 # ALL RIGHTS RESERVED
-import os
-import sys
 from typing import Tuple
 
 import click
@@ -25,7 +23,7 @@ def cli(input_output_pairs: Tuple[str]) -> None:
     if len(input_output_pairs) % 2 != 0:
         print()
         raise SystemExit(
-            f'Files must be supplied as input output pairs in the form <input_a> <output_a> <input_b> <output_b> [...]:\n{input}'
+            f'Files must be supplied as input output pairs in the form <input_a> <output_a> <input_b> <output_b> [...]:\n{input_output_pairs}'
         )
 
     # Tokenize the reactions
