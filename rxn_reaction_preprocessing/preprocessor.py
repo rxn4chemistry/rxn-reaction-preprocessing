@@ -7,7 +7,6 @@ from collections import Counter
 from typing import Callable
 from typing import Dict
 from typing import List
-from typing import Tuple
 
 import numpy as np
 import pandas as pd
@@ -16,7 +15,6 @@ from tabulate import tabulate
 from .mixed_reaction_filter import MixedReactionFilter
 from .reaction import Reaction
 from .reaction import ReactionPart
-from .stable_data_splitter import StableDataSplitter
 
 
 class Preprocessor:
@@ -123,10 +121,10 @@ class Preprocessor:
         Returns:
             Preprocessor: Itself.
         """
-        if filter_func == None:
+        if filter_func is None:
             filter_func = self.__filter_func
 
-        if filter_func_verbose == None:
+        if filter_func_verbose is None:
             filter_func_verbose = self.__filter_func_verbose
 
         if self.__valid_column not in self.df.columns:
@@ -137,8 +135,7 @@ class Preprocessor:
                 self.df[self.__valid_message_column] = np.empty((len(self.df), 0)).tolist()
 
             self.df[self.__valid_message_column] += self.df.apply(
-                lambda row:
-                filter_func_verbose(Reaction(row[self.__reaction_column_name]), filter),
+                lambda row: filter_func_verbose(Reaction(row[self.__reaction_column_name]), filter),
                 axis=1,
             )
 
@@ -252,7 +249,7 @@ class Preprocessor:
         Returns:
             Preprocessor: Itself.
         """
-        self.df.drop(self.df[self.df[self.__valid_column] == False].index, inplace=True)
+        self.df.drop(self.df[self.df[self.__valid_column] is False].index, inplace=True)
         return self
 
     def print_stats(self):

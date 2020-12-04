@@ -1,6 +1,7 @@
 """ A utility class to augment the dataset files """
 import math
 import random
+from enum import auto
 from enum import Enum
 from typing import List
 
@@ -12,10 +13,10 @@ from rxn_reaction_preprocessing.utils import InvalidSmiles
 
 
 class RandomType(Enum):
-    molecules = 1
-    unrestricted = 2
-    restricted = 3
-    rotated = 4
+    molecules = auto()
+    unrestricted = auto()
+    restricted = auto()
+    rotated = auto()
 
 
 def molecules_permutation_given_index(molecules_list: List[str],
