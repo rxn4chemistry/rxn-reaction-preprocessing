@@ -202,17 +202,16 @@ class Augmenter:
     #
 
     @staticmethod
-    def read_csv(filepath: str, kwargs={}):
+    def read_csv(filepath: str):
         """A helper function to read a list or csv of SMILES.
 
         Args:
             filepath (str): The path to the text file containing the molecules SMILES.
-            kwargs (dict, optional): Additional arguments to supply to the internal Pandas read_csv method. Defaults to {}.
 
         Returns:
             Augmenter: A new augmenter instance.
         """
-        df = pd.read_csv(filepath, **kwargs)
+        df = pd.read_csv(filepath, lineterminator='\n')
         if len(df.columns) == 1:
             df.rename(columns={df.columns[0]: 'smiles'}, inplace=True)
 

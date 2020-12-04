@@ -112,3 +112,7 @@ rxn-tokenize \
 /data/example/processed/rxns-small.processed.test.csv \
 /data/example/processed/rxns-small.processed.test
 ```
+
+## Note about reading CSV files
+Pandas appears not to always be able to write a CSV and re-read it if it contains Windows carriage returns.
+In order for the scripts to work despite this, all the `pd.read_csv` function calls should include the argument `lineterminator='\n'`.

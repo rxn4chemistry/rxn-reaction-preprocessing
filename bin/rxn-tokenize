@@ -30,7 +30,7 @@ def cli(input_output_pairs: Tuple[str]) -> None:
     tokenizer = rrp.SmilesTokenizer()
 
     for input, output in zip(input_output_pairs[::2], input_output_pairs[1::2]):
-        df = pd.read_csv(input)
+        df = pd.read_csv(input, lineterminator='\n')
 
         if 'rxn' not in df.columns:
             raise SystemExit(f'The following file does not contain an rxn column:\n{input}')

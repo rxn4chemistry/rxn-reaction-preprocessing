@@ -36,7 +36,7 @@ def cli(
     """
 
     # Create a instance of the Augmenter.
-    ag = rrp.Augmenter.read_csv(input_file_path, fragment_bond)
+    ag = rrp.Augmenter.read_csv(input_file_path)
 
     # Perform augmentation
     augm = ag.augment(rrp.RandomType[random_type], permutations, tokenize)

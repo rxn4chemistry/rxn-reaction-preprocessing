@@ -41,8 +41,7 @@ def cli(input_file_path: str, output_file_path: str, fragment_bond: str) -> None
         input_file_path,
         pt,
         reaction_column_name='rxn',
-        fragment_bond=fragment_bond,
-        kwargs={'lineterminator': '\n'}
+        fragment_bond=fragment_bond
     )
     # Perform standardization
     std.standardize()

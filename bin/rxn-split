@@ -23,7 +23,7 @@ def cli(input_file_path: str, output_directory: str, split_ratio: float) -> None
         input (str):  The input file path.
         output_directory_path (str): The output directory (where train, validation, and test files will be written to).
     """
-    df = pd.read_csv(input_file_path)
+    df = pd.read_csv(input_file_path, lineterminator='\n')
 
     # Split into train, validation, and test sets, but do not export yet
     train, validation, test = rrp.StableDataSplitter.split(df, 'rxn', split_ratio=split_ratio)

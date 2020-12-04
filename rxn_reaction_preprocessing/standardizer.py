@@ -167,8 +167,7 @@ class Standardizer:
         filepath: str,
         patterns: Patterns,
         reaction_column_name: str,
-        fragment_bond: str = None,
-        kwargs={}
+        fragment_bond: str = None
     ):
         """
         A helper function to read a list or csv of VALID reactions (in the sense of RDKIT).
@@ -180,13 +179,11 @@ class Standardizer:
             reaction_column_name (str): The name of the reaction column (or the name that wil be given to the reaction
             column if the input file has no headers).
             fragment_bond (str): the fragment bond used.
-            kwargs (dict, optional): Additional arguments to supply to the internal Pandas read_csv method.
-             Defaults to {}.
 
         Returns:
             : A new preprocessor instance.
         """
-        df = pd.read_csv(filepath, **kwargs)
+        df = pd.read_csv(filepath, lineterminator='\n')
         if len(df.columns) == 1:
             df.rename(columns={df.columns[0]: reaction_column_name}, inplace=True)
 
