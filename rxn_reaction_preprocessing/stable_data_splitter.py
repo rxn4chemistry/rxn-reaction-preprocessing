@@ -3,7 +3,6 @@
 # (C) Copyright IBM Corp. 2020
 # ALL RIGHTS RESERVED
 """ A utility class to split data sets in a stable manner. """
-from typing import Iterable
 from typing import Tuple
 
 import pandas as pd

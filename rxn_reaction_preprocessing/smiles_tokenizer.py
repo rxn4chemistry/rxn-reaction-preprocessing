@@ -3,7 +3,6 @@
 # (C) Copyright IBM Corp. 2020
 # ALL RIGHTS RESERVED
 import re
-from typing import List
 
 
 class SmilesTokenizer:

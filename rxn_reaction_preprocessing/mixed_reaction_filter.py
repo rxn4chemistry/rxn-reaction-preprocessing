@@ -6,8 +6,6 @@
 from typing import List
 from typing import Tuple
 
-from rdkit.Chem import AllChem as rdk
-
 from .reaction import Reaction
 from .smiles_tokenizer import SmilesTokenizer
 
