@@ -49,6 +49,11 @@ def big_reaction():
 
 
 @pytest.fixture
+def reaction_with_no_product():
+    return Reaction('CCC.CCCO>OC>')
+
+
+@pytest.fixture
 def alchemic_reaction():
     return Reaction('C>[Hg]>[Au]')
 
@@ -82,12 +87,16 @@ def test_min_products_subceeded(filter, good_reaction, small_reaction):
     assert filter.min_products_subceeded(small_reaction)
 
 
-def test_products_subset_of_reactants(filter, good_reaction, bad_reaction):
+def test_products_subset_of_reactants(
+    filter, good_reaction, bad_reaction, reaction_with_no_product
+):
+    assert not filter.products_subset_of_reactants(reaction_with_no_product)
     assert not filter.products_subset_of_reactants(good_reaction)
     assert filter.products_subset_of_reactants(bad_reaction)
 
 
-def test_products_single_atoms(filter, good_reaction, bad_reaction):
+def test_products_single_atoms(filter, good_reaction, bad_reaction, reaction_with_no_product):
+    assert not filter.products_single_atoms(reaction_with_no_product)
     assert not filter.products_single_atoms(good_reaction)
     assert filter.products_single_atoms(bad_reaction)
 

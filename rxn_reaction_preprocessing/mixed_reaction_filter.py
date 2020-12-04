@@ -210,9 +210,10 @@ class MixedReactionFilter:
         Returns:
             bool: Whether the set of products is a subset of the set of reactants.
         """
+        products = set(reaction.get_products_as_smiles())
+        reactants = set(reaction.get_reactants_as_smiles())
 
-        return set(reaction.get_products_as_smiles()
-                   ).issubset(set(reaction.get_reactants_as_smiles()))
+        return len(products) > 0 and products.issubset(reactants)
 
     def products_single_atoms(self, reaction: Reaction) -> bool:
         """Checks whether the products solely consist of single atoms.
@@ -223,9 +224,10 @@ class MixedReactionFilter:
         Returns:
             bool: Whether the products solely consist of single atoms.
         """
-        if not all([product.GetNumAtoms() == 1 for product in reaction.products]):
-            return False
-        return True
+
+        return len(reaction.products) > 0 and all(
+            [product.GetNumAtoms() == 1 for product in reaction.products]
+        )
 
     def max_reactant_tokens_exceeded(self, reaction: Reaction) -> bool:
         """Check whether the number of reactant tokens exceeds the maximum.
