@@ -78,7 +78,6 @@ class Standardizer:
         df: pd.DataFrame,
         patterns: Patterns,
         reaction_column_name: str,
-        standardized_column: str = '_rxn_std',
         fragment_bond: str = None
     ):
         """Creates a new instance of the Standardizer class.
@@ -88,13 +87,11 @@ class Standardizer:
             patterns (Patterns): An instance of the Patterns class, containing a dictionary of the patterns and the
             substitutions to be found and replaced in the reaction SMILES as well as the fragment used in the patterns.
             reaction_column_name (str): The name of the DataFrame column containing the reaction SMARTS.
-            standardized_column (str, optional): The name of the column to write the standardized results to (will be created if it doesn't exist). Defaults to "_rxn_std".
             fragment_bond (str): the fragment bond used.
         """
         self.df = df
         self.patterns = patterns
         self.__reaction_column_name = reaction_column_name
-        self.__standardized_column = standardized_column
         self.fragment_bond = fragment_bond
         self.current_smiles = ''
 

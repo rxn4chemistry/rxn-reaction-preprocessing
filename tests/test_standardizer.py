@@ -83,48 +83,35 @@ def test_patterns_manipulation():
 
 
 def test_standardization(standardizer):
-    pass
-    # Not working
-    # new_df = standardizer.standardize().df
+    new_df = standardizer.standardize().df
+    converted_rxns = [
+        '[Li+]~[OH-]>>[Na]Cl',
+        'CC(C)(C)[O-]~[K+]~CCC>>[Li+]~[OH-]',
+        'CC(=O)C=C(C)[O-]~CC(=O)C=C(C)[O-]~O=[V+2]~O=C([O-])[O-]~[K+]~[K+].[Li+]~[OH-]>>[K+]~[OH-]',
+    ]
 
-    # converted_rxns = [
-    #     "[Li+]~[OH-]>>[Na]Cl",
-    #     "CC(C)(C)[O-]~[K+]~CCC>>[Li+]~[OH-]",
-    #     "CC(=O)C=C(C)[O-]~CC(=O)C=C(C)[O-]~O=[V+2]~O=C([O-])[O-]~[K+]~[K+].[Li+]~[OH-]>>[K+]~[OH-]",
-    # ]
-
-    # assert all(
-    #     [new_df['_rxn_std'].values[i] == converted_rxns[i] for i in range(len(converted_rxns))]
-    # )
+    assert all([new_df['rxn'].values[i] == converted_rxns[i] for i in range(len(converted_rxns))])
 
 
 def test_standardization_with_same_fragment(standardizer_with_same_fragment):
-    pass
-    # Not working
-    # new_df = standardizer_with_same_fragment.standardize().df
+    new_df = standardizer_with_same_fragment.standardize().df
 
-    # converted_rxns = [
-    #     "[Li+]~[OH-].[Na+]~[OH-]>>[Na]Cl", "CC(C)(C)[O-]~[K+].CCC>>[Li+]~[OH-]",
-    #     "CC(=O)C=C(C)[O-]~CC(=O)C=C(C)[O-]~O=[V+2].O=C([O-])[O-]~[K+]~[K+].[Li+]~[OH-]>>[K+]~[OH-]",
-    #     "CO.COC(=O)C(C)(C)c1ccc(C(=O)CCCN2CCC(C(O)(c3ccccc3)c3ccccc3)CC2)cc1.Cl.[Na+]~[OH-]>>CC(C)(C(=O)O)c1ccc(C(=O)CCCN2CCC(C(O)(c3ccccc3)c3ccccc3)CC2)cc1~Cl"
-    # ]
+    converted_rxns = [
+        '[Li+]~[OH-].[Na+]~[OH-]>>[Na]Cl', 'CC(C)(C)[O-]~[K+].CCC>>[Li+]~[OH-]',
+        'CC(=O)C=C(C)[O-]~CC(=O)C=C(C)[O-]~O=[V+2].O=C([O-])[O-]~[K+]~[K+].[Li+]~[OH-]>>[K+]~[OH-]',
+        'CO.COC(=O)C(C)(C)c1ccc(C(=O)CCCN2CCC(C(O)(c3ccccc3)c3ccccc3)CC2)cc1.Cl.[Na+]~[OH-]>>CC(C)(C(=O)O)c1ccc(C(=O)CCCN2CCC(C(O)(c3ccccc3)c3ccccc3)CC2)cc1~Cl'
+    ]
 
-    # assert all(
-    #     [new_df['_rxn_std'].values[i] == converted_rxns[i] for i in range(len(converted_rxns))]
-    # )
+    assert all([new_df['rxn'].values[i] == converted_rxns[i] for i in range(len(converted_rxns))])
 
 
 def test_standardization_with_different_fragment(standardizer_with_different_fragment):
-    pass
-    # Not working
-    # new_df = standardizer_with_different_fragment.standardize().df
+    new_df = standardizer_with_different_fragment.standardize().df
 
-    # converted_rxns = [
-    #     "[Li+]$[OH-]>>[Na]Cl",
-    #     "CC(C)(C)[O-]$[K+]$CCC>>[Li+]$[OH-]",
-    #     "CC(=O)C=C(C)[O-]$CC(=O)C=C(C)[O-]$O=[V+2]$O=C([O-])[O-]$[K+]$[K+].[Li+]$[OH-]>>[K+]$[OH-]",
-    # ]
+    converted_rxns = [
+        '[Li+]$[OH-]>>[Na]Cl',
+        'CC(C)(C)[O-]$[K+]$CCC>>[Li+]$[OH-]',
+        'CC(=O)C=C(C)[O-]$CC(=O)C=C(C)[O-]$O=[V+2]$O=C([O-])[O-]$[K+]$[K+].[Li+]$[OH-]>>[K+]$[OH-]',
+    ]
 
-    # assert all(
-    #     [new_df['_rxn_std'].values[i] == converted_rxns[i] for i in range(len(converted_rxns))]
-    # )
+    assert all([new_df['rxn'].values[i] == converted_rxns[i] for i in range(len(converted_rxns))])
