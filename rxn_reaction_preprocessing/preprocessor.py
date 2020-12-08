@@ -263,7 +263,10 @@ class Preprocessor:
         Returns:
             Itself.
         """
-        self.df.drop(self.df[self.df[self.__valid_column] is False].index, inplace=True)
+        self.df.drop(
+            self.df[self.df[self.__valid_column] == False].index,  # noqa: E712
+            inplace=True
+        )
         return self
 
     def print_stats(self):

@@ -16,6 +16,7 @@ RDLogger.DisableLog('rdApp.*')
 @click.command()
 @click.argument('input_file_path', type=click.Path(exists=True), required=True)
 @click.argument('output_file_path', type=click.Path(), required=True)
+@click.option('--fragment-bond', default='.')
 @click.option('--max-reactants', default=10)
 @click.option('--max-agents', default=0)
 @click.option('--max-products', default=1)
@@ -29,6 +30,7 @@ RDLogger.DisableLog('rdApp.*')
 def cli(
     input_file_path: str,
     output_file_path: str,
+    fragment_bond: str,
     max_reactants: int,
     max_agents: int,
     max_products: int,
@@ -43,8 +45,19 @@ def cli(
     """The entry point for this cli script.
 
     Args:
-        input_file_path (str):  The input file path (one reaction SMARTS per line).
-        output_file_path (str): The output file path.
+        input_file_path:  The input file path (one reaction SMARTS per line).
+        output_file_path: The output file path.
+        fragment_bond: The fragment bond character.
+        max_reactants: The maximum number of reactants.
+        max_agents: The maximum number of agents.
+        max_products: The maximum number of products.
+        min_reactants: The minimum number of reactants.
+        min_agents: The minimum number of agents.
+        min_products: The minimum number of products.
+        max_reactants_tokens: The maximum number of reactants tokens.
+        max_agents_tokens: The maximum number of agents tokens.
+        max_products_tokens: The maximum number of products tokens.
+        max_absolute_formal_charge: The maximum absolute formal charge.
     """
 
     # This is for the special SMILES extension where agents are separated by pipe.
@@ -88,7 +101,7 @@ def cli(
         max_absolute_formal_charge=max_absolute_formal_charge,
     )
 
-    pp = rrp.Preprocessor.read_csv(input_file_path, 'rxn', fragment_bond='~')
+    pp = rrp.Preprocessor.read_csv(input_file_path, 'rxn', fragment_bond=fragment_bond)
 
     # Remove duplicate reactions (useful for large dataset, this step is repeated later)
     pp.remove_duplicates()
