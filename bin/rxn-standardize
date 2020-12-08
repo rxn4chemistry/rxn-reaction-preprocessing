@@ -38,10 +38,7 @@ def cli(input_file_path: str, output_file_path: str, fragment_bond: str) -> None
 
     # Create an instance of the Standardizer
     std = rrp.Standardizer.read_csv(
-        input_file_path,
-        pt,
-        reaction_column_name='rxn',
-        fragment_bond=fragment_bond
+        input_file_path, pt, reaction_column_name='rxn', fragment_bond=fragment_bond
     )
     # Perform standardization
     std.standardize()

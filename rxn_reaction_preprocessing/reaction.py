@@ -43,7 +43,9 @@ class Reaction:
         self.__remove_duplicates = remove_duplicates
         self.__smiles_to_mol_kwargs = kwargs
         self.__fragment_bond = fragment_bond
-        self.reactants, self.agents, self.products = self.__reaction_to_mols(self.__reaction_smarts)
+        self.reactants, self.agents, self.products = self.__reaction_to_mols(
+            self.__reaction_smarts
+        )
 
     #
     # Overwrites / Virtuals
@@ -66,20 +68,19 @@ class Reaction:
         return (
             '.'.join(
                 [
-                    rdk.MolToSmiles(m, **
-                                    self.__smiles_to_mol_kwargs).replace('.', self.__fragment_bond)
+                    rdk.MolToSmiles(m, **self.__smiles_to_mol_kwargs
+                                    ).replace('.', self.__fragment_bond)
                     for m in self.reactants if m
                 ]
             ) + '>' + '.'.join(
                 [
-                    rdk.MolToSmiles(m, **
-                                    self.__smiles_to_mol_kwargs).replace('.', self.__fragment_bond)
-                    for m in self.agents if m
+                    rdk.MolToSmiles(m, **self.__smiles_to_mol_kwargs
+                                    ).replace('.', self.__fragment_bond) for m in self.agents if m
                 ]
             ) + '>' + '.'.join(
                 [
-                    rdk.MolToSmiles(m, **
-                                    self.__smiles_to_mol_kwargs).replace('.', self.__fragment_bond)
+                    rdk.MolToSmiles(m, **self.__smiles_to_mol_kwargs
+                                    ).replace('.', self.__fragment_bond)
                     for m in self.products if m
                 ]
             )
@@ -303,7 +304,10 @@ class Reaction:
                 if m and len(list(m.GetSubstructMatch(p))) > 0
             ],
             [i for i, m in enumerate(self.agents) if m and len(list(m.GetSubstructMatch(p))) > 0],
-            [i for i, m in enumerate(self.products) if m and len(list(m.GetSubstructMatch(p))) > 0],
+            [
+                i for i, m in enumerate(self.products)
+                if m and len(list(m.GetSubstructMatch(p))) > 0
+            ],
         )
 
     def find_in(self, pattern: str, reaction_part: ReactionPart) -> List[int]:
