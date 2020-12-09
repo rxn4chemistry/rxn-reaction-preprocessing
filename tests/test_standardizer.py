@@ -93,6 +93,28 @@ def test_standardization(standardizer):
     assert all([new_df['rxn'].values[i] == converted_rxns[i] for i in range(len(converted_rxns))])
 
 
+def test_standardization_invalid_smiles():
+    df = pd.DataFrame(
+        {
+            'rxn': [
+                '[Li]O>>[Na]Cl',
+                'CC(C)(C)O[K]~CCC>>[Li]O',
+                r'C[N.[Li]O>>O[K]',
+            ],
+        }
+    )
+    pt = Patterns(jsonpath='tests/test_patterns.json', fragment_bond='~')
+
+    new_df = Standardizer(df, pt, 'rxn', fragment_bond=None).standardize().df
+    converted_rxns = [
+        '[Li+]~[OH-]>>[Na]Cl',
+        'CC(C)(C)[O-]~[K+]~CCC>>[Li+]~[OH-]',
+        '>>',
+    ]
+
+    assert all([new_df['rxn'].values[i] == converted_rxns[i] for i in range(len(converted_rxns))])
+
+
 def test_standardization_with_same_fragment(standardizer_with_same_fragment):
     new_df = standardizer_with_same_fragment.standardize().df
 

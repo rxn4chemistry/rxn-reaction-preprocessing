@@ -24,7 +24,7 @@ def cli(input_file_path: str, output_file_path: str, fragment_bond: str) -> None
 
     Args:
         input_file_path (str):  The input file path (one SMILES per line).
-        output_file_path (str): The output file path (one SMILES per line).
+        output_file_path (str): The output file path.
         fragment_bond (str): The fragment bond token used in the files to be standardized
     """
 

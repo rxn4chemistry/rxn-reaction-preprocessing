@@ -33,18 +33,23 @@ def cli(
     """The entry point for this cli script.
 
     Args:
-        input (TextIO):  The input file (one SMILES per line).
-        output (str): The output file (one SMILES per line).
+        input_file_path (str):  The input file path (one SMILES per line).
+        output_file_path (str): The output file path.
+        tokenize (bool): if tokenization is to be performed
+        random_type (str): The randomization type to be applied
+        permutations (int): number of randomic permutations for input SMILES
+        fragment_bond (str): fragment bond token of the SMILES
+
     """
 
     # Create a instance of the Augmenter.
-    ag = rrp.Augmenter.read_csv(input_file_path)
+    ag = rrp.Augmenter.read_csv(input_file_path, fragment_bond)
 
     # Perform augmentation
     augm = ag.augment(rrp.RandomType[random_type], permutations, tokenize)
 
     # Exporting augmented samples
-    augm[f'{random_type}'].to_csv(f'{random_type}.csv')
+    augm[f'{random_type}'].to_csv(output_file_path)
 
 
 if __name__ == '__main__':

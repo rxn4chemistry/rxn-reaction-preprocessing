@@ -9,8 +9,6 @@ import pandas as pd
 from rdkit import Chem
 from rdkit import RDLogger
 
-from rxn_reaction_preprocessing.utils import InvalidSmiles
-
 RDLogger.DisableLog('rdApp.*')
 
 
@@ -95,9 +93,7 @@ class Standardizer:
         self.fragment_bond = fragment_bond
         self.current_smiles = ''
 
-        # Check if the input reaction SMILES are (RDKIT) valid
-        # self.df[self.__reaction_column_name].apply(lambda x: self.__check_correct_chemistry(x))
-
+        # Dealing with the possible mismatch between the fragment-bond token in the patterns and in the provided data
         if self.fragment_bond and self.patterns.fragment_bond and self.fragment_bond != self.patterns.fragment_bond:
             for key, elem in self.patterns.patterns.items():
                 for i in range(len(elem)):
@@ -124,7 +120,7 @@ class Standardizer:
             regex = self.patterns.compiled_patterns[i][0]
             new_smiles = regex.sub(self.patterns.compiled_patterns[i][1], new_smiles)
 
-        return self.__check_correct_chemistry(new_smiles)
+        return self.__validate_mild(new_smiles)
 
     def standardize(self):
         """
@@ -138,29 +134,27 @@ class Standardizer:
             apply(lambda x: self.__standardize_reaction_smiles(x))
         return self
 
-    def __check_correct_chemistry(self, smiles: str):
+    def __validate_mild(self, smiles: str) -> str:
         """
-        Check on the standardization, as the input reaction SMILES are assumed to be valid, then the stardardization
-        should not change this by invalidating. If a smile is invalid an error is raised
+        Checks if the input reaction SMILES is valid. Returns the input SMILES if it is.
+        Catches an Exception error if it is not and returns '>>'.
 
         Args:
             smiles (str): a reaction SMILES
+        Returns:
+            str: the canonical version of the reaction SMILES
         """
+        if self.fragment_bond:
+            reactants, products = smiles.replace(self.fragment_bond, '.').split('>>')
+        else:
+            reactants, products = smiles.split('>>')
+
         try:
-            if self.fragment_bond:
-                reactants, products = smiles.replace(self.fragment_bond, '.').split('>>')
-                Chem.MolToSmiles(Chem.MolFromSmiles(reactants)
-                                 ), Chem.MolToSmiles(Chem.MolFromSmiles(products))
-            else:
-                reactants, products = smiles.split('>>')
-                Chem.MolToSmiles(Chem.MolFromSmiles(reactants)
-                                 ), Chem.MolToSmiles(Chem.MolFromSmiles(products))
-        except InvalidSmiles:
-            print(
-                f'Something went wrong with this standardization: {smiles} -> {self.current_smiles}'
-            )
-            raise
-        return smiles
+            Chem.MolToSmiles(Chem.MolFromSmiles(reactants)
+                             ), Chem.MolToSmiles(Chem.MolFromSmiles(products))
+            return smiles
+        except Exception:
+            return '>>'
 
     @staticmethod
     def read_csv(

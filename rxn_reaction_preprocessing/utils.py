@@ -1,10 +1,7 @@
+import random
 from pathlib import Path
 
-
-class InvalidSmiles(ValueError):
-
-    def __init__(self, smiles: str):
-        super().__init__(f'"{smiles}" is not a valid SMILES string')
+import numpy
 
 
 def root_directory() -> Path:
@@ -19,3 +16,8 @@ def data_directory() -> Path:
     Returns the path to the data directory at the root of the repository
     """
     return root_directory() / 'data'
+
+
+def reset_random_seed() -> None:
+    random.seed(42)
+    numpy.random.seed(42)

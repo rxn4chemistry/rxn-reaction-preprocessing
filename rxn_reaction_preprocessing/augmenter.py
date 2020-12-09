@@ -9,7 +9,6 @@ import pandas as pd
 from rdkit import Chem
 
 from rxn_reaction_preprocessing.smiles_tokenizer import SmilesTokenizer
-from rxn_reaction_preprocessing.utils import InvalidSmiles
 
 
 class RandomType(Enum):
@@ -38,6 +37,7 @@ class Augmenter:
 
         Args:
             df (pd.DataFrame): A pandas DataFrame containing the molecules SMILES.
+            fragment_bond (str): The fragment bond tolen contained in the SMILES.
         """
         self.df = df
         self.tokenizer = SmilesTokenizer()
@@ -64,7 +64,7 @@ class Augmenter:
         """
         # Raise for empty SMILES
         if not smiles:
-            raise InvalidSmiles(smiles)
+            raise ValueError
 
         list_of_smiles: List[str] = []
         for i in range(permutations):
@@ -104,7 +104,7 @@ class Augmenter:
         mol = Chem.MolFromSmiles(smiles)
 
         if not mol:
-            raise InvalidSmiles(smiles)
+            raise ValueError
 
         if random_type == RandomType.unrestricted:
             return Chem.MolToSmiles(mol, canonical=False, doRandom=True, isomericSmiles=False)
@@ -129,6 +129,7 @@ class Augmenter:
         """
         Randomizes the order of the molecules inside a SMILES string that might contain fragment bonds and returns
         a number of augmented versions of the SMILES equal to permutations.
+        For a number of molecules smaller than permutations, returns a number of permutations equal to the number of molecules
 
         Args:
             smiles (str): The molecules SMILES to augment
@@ -140,11 +141,13 @@ class Augmenter:
         """
         # Raise for empty SMILES
         if not smiles:
-            raise InvalidSmiles(smiles)
+            raise ValueError
 
         molecules_list = smiles.split('.')
         total_permutations = range(math.factorial(len(molecules_list)))
-        permutation_indices = random.sample(total_permutations, permutations)
+        permutation_indices = random.sample(
+            total_permutations, min(permutations, len(molecules_list))
+        )
         permuted_molecules_smiles = []
         for idx in permutation_indices:
             permuted_precursors = molecules_permutation_given_index(molecules_list, idx)
@@ -174,8 +177,7 @@ class Augmenter:
                               For details on the differences:
                               https://github.com/undeadpixel/reinvent-randomized and https://github.com/GLambard/SMILES-X
             permutations (int): The number of permutations to generate for each SMILES
-            fragment_bond (str): The token representing a fragment bond
-            tokenize (str): Whether to return the tokenized version of the SMILES
+            tokenize (bool): Whether to return the tokenized version of the SMILES
 
         Returns:
             pd.DataFrame: A pandas Series containing the augmented samples.
@@ -183,18 +185,18 @@ class Augmenter:
 
         self.df[f'{random_type.name}'] = self.df.apply(lambda smiles: smiles.replace(' ', ''))
 
-        if random_type != 'molecules':
-            self.df[f'{random_type.name}'] = self.df.apply(
+        if random_type != RandomType.molecules:
+            self.df[f'{random_type.name}'] = self.df['smiles'].apply(
                 lambda smiles: self.__randomize_smiles(smiles, random_type, permutations)
             )
-            self.df[f'{random_type.name}'] = self.df.apply(
-                lambda smiles: Augmenter.__randomize_molecules(smiles, permutations)
+        else:
+            self.df[f'{random_type.name}'] = self.df['smiles'].apply(
+                lambda smiles: self.__randomize_molecules(smiles, permutations)
             )
-
-            if tokenize:
-                self.df[f'{random_type.name}'] = self.df[f'{random_type.name}'].apply(
-                    lambda smiles: [self.tokenizer.tokenize(smi) for smi in smiles]
-                )
+        if tokenize:
+            self.df[f'{random_type.name}'] = self.df[f'{random_type.name}'].apply(
+                lambda smiles: [self.tokenizer.tokenize(smi) for smi in smiles]
+            )
         return self.df.explode(f'{random_type.name}').reset_index(drop=True)
 
     #
@@ -202,11 +204,12 @@ class Augmenter:
     #
 
     @staticmethod
-    def read_csv(filepath: str):
+    def read_csv(filepath: str, fragment_bond: str = '.'):
         """A helper function to read a list or csv of SMILES.
 
         Args:
             filepath (str): The path to the text file containing the molecules SMILES.
+            fragment_bond (str): The fragment token in the reaction SMILES
 
         Returns:
             Augmenter: A new augmenter instance.
@@ -215,4 +218,4 @@ class Augmenter:
         if len(df.columns) == 1:
             df.rename(columns={df.columns[0]: 'smiles'}, inplace=True)
 
-        return Augmenter(df)
+        return Augmenter(df, fragment_bond)

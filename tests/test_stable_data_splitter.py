@@ -9,12 +9,12 @@ import pandas as pd
 import pytest
 
 from rxn_reaction_preprocessing import StableDataSplitter
-
-random.seed(42)
+from rxn_reaction_preprocessing.utils import reset_random_seed
 
 
 @pytest.fixture
 def data():
+    reset_random_seed()
     random_strings = [
         ''.join([random.choice(ascii_lowercase) for i in range(random.randint(5, 20))])
         for j in range(1000)
