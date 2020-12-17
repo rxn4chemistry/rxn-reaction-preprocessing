@@ -25,8 +25,16 @@ class StableDataSplitter:
         Returns:
             Tuple[pd.Series, pd.Series, pd.Series]: A tuple of pandas Series containing a boolean mask of the training, validation and testing set rows within the original DataFrame.
         """
-
-        df['hash'] = df[index_column].apply(lambda value: xxh64_intdigest(value))
+        if index_column == 'products':
+            df['hash'] = df['rxn'].apply(lambda value: value.split('>>')[1]
+                                         ).apply(lambda value: xxh64_intdigest(value))
+        elif index_column == 'precursors':
+            df['hash'] = df['rxn'].apply(lambda value: value.split('>>')[0]
+                                         ).apply(lambda value: xxh64_intdigest(value))
+        elif index_column in df.columns:
+            df['hash'] = df[index_column].apply(lambda value: xxh64_intdigest(value))
+        else:
+            raise KeyError
 
         return (
             df['hash'].apply(lambda value: value >= split_ratio * 2 * 2**64),
