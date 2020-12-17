@@ -32,6 +32,21 @@ pre-commit install
 ## Usage
 The following command line scripts are installed with the package
 
+### rxn-standardize
+Usage:
+```
+rxn-standardize [OPTIONS] INPUT OUTPUT
+
+  The entry point for this cli script.
+
+  Args:     input (str):  The input file path (at least one column with one reaction SMILES per
+            line). The column, if not the only one, should be named `rxn`.
+            output (str): The output file path.
+
+Options:
+  --fragment_bond STRING [default='.']
+  --help                          Show this message and exit.
+```
 ### rxn-preprocess
 Usage:
 ```
@@ -39,10 +54,12 @@ rxn-preprocess [OPTIONS] INPUT OUTPUT
 
   The entry point for this cli script.
 
-  Args:     input (str):  The input file path (one reaction SMARTS per
-  line).     output (str): The output file path.
+  Args:     input (str):  The input file path (at least one column with one reaction SMILES per
+            line). The column, if not the only one, should be named `rxn`.
+            output (str): The output file path.
 
 Options:
+  --fragment_bond STRING [default='.']
   --max-reactants INTEGER
   --max-agents INTEGER
   --max-products INTEGER
