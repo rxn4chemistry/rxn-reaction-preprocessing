@@ -94,7 +94,8 @@ class Standardizer:
         self.current_smiles = ''
 
         # Dealing with the possible mismatch between the fragment-bond token in the patterns and in the provided data
-        if self.fragment_bond and self.patterns.fragment_bond and self.fragment_bond != self.patterns.fragment_bond:
+        if self.fragment_bond and self.fragment_bond != '.' and self.patterns.fragment_bond and \
+                self.fragment_bond != self.patterns.fragment_bond:
             for key, elem in self.patterns.patterns.items():
                 for i in range(len(elem)):
                     self.patterns.patterns[key][i][0] = self.patterns.patterns[key][i][0]\
