@@ -84,6 +84,7 @@ rxn-split [OPTIONS] INPUT OUTPUT
 
 Options:
   --split-ratio FLOAT
+  --index-column STRING
 ```
 ### rxn-tokenize
 Usage:
