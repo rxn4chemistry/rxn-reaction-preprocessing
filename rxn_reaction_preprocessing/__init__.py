@@ -14,4 +14,4 @@ from .standardizer import Patterns
 from .standardizer import Standardizer
 
 __name__ = 'rxn-reaction-preprocessing'
-__version__ = '0.2.0'
+__version__ = '0.2.1'
