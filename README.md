@@ -101,7 +101,13 @@ Options:
 ```
 
 ## Running in Docker
-The package is readily dockerized using the supplied ```Dockerfile```. `demo.sh` contains an example of running the preprocessing pipeline using the resulting docker image
+The package is readily dockerized using the supplied ```Dockerfile```. 
+It is necessary to provide a GitHub token as the `GHE_TOKEN_ARG` argument.
+```bash
+docker build --build-arg GHE_TOKEN_ARG=${GHE_TOKEN} -t rxn_reaction_preprocessing .
+```
+
+`demo.sh` contains an example of running the preprocessing pipeline using the resulting docker image
 ```bash
 #!/bin/sh
 
