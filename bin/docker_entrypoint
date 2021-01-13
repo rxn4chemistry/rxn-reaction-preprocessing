@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # LICENSED INTERNAL CODE. PROPERTY OF IBM.
 # IBM Research Zurich Licensed Internal Code
 # (C) Copyright IBM Corp. 2020
@@ -20,6 +20,6 @@ echo "Entering docker-entrypoint.sh as user:${current_user}..."
 echo "Running as user:${current_user}..."
 
 # Install non-distributed dependencies
-/bin/bash ${IBM_CODE_PATH}/download_non_distributed_requirements.sh
+[ "${FOR_DISTRIBUTION}" = true ] && download_non_distributed_requirements
 
 exec "$@"
