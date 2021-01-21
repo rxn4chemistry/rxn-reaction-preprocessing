@@ -9,8 +9,8 @@ import setuptools
 setuptools.setup(
     install_requires=[
         'click >= 7.1.2',
-        'numpy >= 1.19.0',
-        'pandas >= 1.1.4',
+        'numpy >= 1.16.5',
+        'pandas >= 1.1.1',
         'tabulate >= 0.8.7',
         'xxhash >= 2.0.0',
         'rxn_chemutils '
