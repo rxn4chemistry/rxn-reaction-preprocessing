@@ -1,8 +1,12 @@
+from pathlib import Path
+
 import pandas as pd
 import pytest
 
 from rxn_reaction_preprocessing import Patterns
 from rxn_reaction_preprocessing import Standardizer
+
+patterns_file = str(Path(__file__).parent / 'test_patterns.json')
 
 
 @pytest.fixture
@@ -17,7 +21,7 @@ def standardizer():
                 ],
         }
     )
-    pt = Patterns(jsonpath='tests/test_patterns.json', fragment_bond='~')
+    pt = Patterns(jsonpath=patterns_file, fragment_bond='~')
     return Standardizer(df, pt, 'rxn', fragment_bond=None)
 
 
@@ -33,7 +37,7 @@ def standardizer_with_same_fragment():
                 ],
         }
     )
-    pt = Patterns(jsonpath='tests/test_patterns.json', fragment_bond='~')
+    pt = Patterns(jsonpath=patterns_file, fragment_bond='~')
     return Standardizer(df, pt, 'rxn', fragment_bond='~')
 
 
@@ -49,12 +53,12 @@ def standardizer_with_different_fragment():
                 ],
         }
     )
-    pt = Patterns(jsonpath='tests/test_patterns.json', fragment_bond='~')
+    pt = Patterns(jsonpath=patterns_file, fragment_bond='~')
     return Standardizer(df, pt, 'rxn', fragment_bond='$')
 
 
 def test_patterns():
-    pt = Patterns(jsonpath='tests/test_patterns.json', fragment_bond='~')
+    pt = Patterns(jsonpath=patterns_file, fragment_bond='~')
 
     assert type(pt.patterns) is dict
     assert list(pt.patterns.keys()) == ['exception_patterns', 'potassium_compounds']
@@ -75,7 +79,7 @@ def test_patterns_manipulation():
         ]
     ]
 
-    pt = Patterns(jsonpath='tests/test_patterns.json', fragment_bond='~')
+    pt = Patterns(jsonpath=patterns_file, fragment_bond='~')
 
     for i, elem in enumerate(pt.patterns.values()):
         for j, pat in enumerate(elem):
@@ -103,7 +107,7 @@ def test_standardization_invalid_smiles():
             ],
         }
     )
-    pt = Patterns(jsonpath='tests/test_patterns.json', fragment_bond='~')
+    pt = Patterns(jsonpath=patterns_file, fragment_bond='~')
 
     new_df = Standardizer(df, pt, 'rxn', fragment_bond=None).standardize().df
     converted_rxns = [

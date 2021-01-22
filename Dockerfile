@@ -52,9 +52,6 @@ RUN mkdir -p /data/output
 
 ENV PATH ${IBM_CODE_PATH}/bin:${PATH}
 
-RUN mkdir -p ${IBM_CODE_PATH}/data
-COPY data/standardization-files/pistachio-200302.json ${IBM_CODE_PATH}/data/standardization-files/pistachio-200302.json
-
 WORKDIR /
 
 ENV LC_ALL C.UTF-8

@@ -15,7 +15,14 @@ def data_directory() -> Path:
     """
     Returns the path to the data directory at the root of the repository
     """
-    return root_directory() / 'data'
+    return Path(__file__).parent.resolve() / 'data'
+
+
+def standardization_files_directory() -> Path:
+    """
+    Returns the path to the data directory at the root of the repository
+    """
+    return data_directory() / 'standardization-files'
 
 
 def reset_random_seed() -> None:

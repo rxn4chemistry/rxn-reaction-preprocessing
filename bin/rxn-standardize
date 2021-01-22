@@ -3,12 +3,11 @@
 # IBM Research Zurich Licensed Internal Code
 # (C) Copyright IBM Corp. 2020
 # ALL RIGHTS RESERVED
-from pathlib import Path
 
 import click
 
 import rxn_reaction_preprocessing as rrp
-import rxn_reaction_preprocessing.utils as utils
+from rxn_reaction_preprocessing.utils import standardization_files_directory
 
 
 @click.command()
@@ -30,10 +29,7 @@ def cli(input_file_path: str, output_file_path: str, fragment_bond: str) -> None
 
     # Create a instance of the Patterns.
     # for now jsonpath and fragment_bond (the one present in the jsonfile) fixed
-    json_file_path = str(
-        Path(utils.data_directory(), 'standardization-files/pistachio-200302.json')
-    )
-    print(json_file_path)
+    json_file_path = str(standardization_files_directory() / 'pistachio-200302.json')
     pt = rrp.Patterns(json_file_path, fragment_bond='~')
 
     # Create an instance of the Standardizer

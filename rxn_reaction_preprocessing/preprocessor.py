@@ -10,6 +10,7 @@ from typing import List
 
 import numpy as np
 import pandas as pd
+import typing
 from tabulate import tabulate
 
 from .mixed_reaction_filter import MixedReactionFilter
@@ -284,7 +285,7 @@ class Preprocessor:
                 print(f'\033[93m- {counts[False]} invalid reactions removed.\033[0m')
 
         if self.__valid_message_column in self.df.columns:
-            reasons = Counter()
+            reasons: typing.Counter[str] = Counter()
             for _, value in self.df[self.__valid_message_column].items():
                 reasons.update(value)
 
