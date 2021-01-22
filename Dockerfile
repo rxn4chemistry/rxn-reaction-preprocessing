@@ -67,8 +67,8 @@ FROM internal as distribution
 ENV FOR_DISTRIBUTION=true
 
 # Add specification of not-for-distribution dependencies
-COPY --from=builder /nodist_requirements_pip.txt ${IBM_CODE_PATH}/nodist_requirements_pip.txt
-COPY --from=builder /nodist_requirements_conda.txt ${IBM_CODE_PATH}/nodist_requirements_conda.txt
+COPY nodist_requirements_pip.txt ${IBM_CODE_PATH}/nodist_requirements_pip.txt
+COPY nodist_requirements_conda.txt ${IBM_CODE_PATH}/nodist_requirements_conda.txt
 
 # Remove not-for-distribution dependencies
 COPY nodist_requirements_conda.txt /

@@ -104,8 +104,9 @@ Options:
 The package is readily dockerized using the supplied ```Dockerfile```. 
 It is necessary to provide a GitHub token as the `GHE_TOKEN_ARG` argument.
 ```bash
-docker build --build-arg GHE_TOKEN_ARG=${GHE_TOKEN} -t rxn_reaction_preprocessing .
+docker build --build-arg GHE_TOKEN_ARG=${GHE_TOKEN} --target ${TARGET} -t rxn_reaction_preprocessing .
 ```
+where `${TARGET}` should be `internal` for internal (IBM) use, and `distribution` or omitted for distribution to clients.
 
 `demo.sh` contains an example of running the preprocessing pipeline using the resulting docker image
 ```bash
