@@ -16,8 +16,8 @@ from rxn_reaction_preprocessing.utils import reset_random_seed
 def data():
     reset_random_seed()
     random_strings = [
-        ''.join([random.choice(ascii_lowercase) for i in range(random.randint(5, 20))])
-        for j in range(1000)
+        ''.join([random.choice(ascii_lowercase) for _ in range(random.randint(5, 20))])
+        for _ in range(1000)
     ]
 
     return pd.DataFrame(data={'col_1': random_strings})
@@ -78,3 +78,18 @@ def test_split(data):
         967,
         994,
     ]
+
+
+def test_split_with_different_seed(data):
+    train1, validate1, test1 = StableDataSplitter.split(data, 'col_1', split_ratio=0.05)
+    train2, validate2, test2 = StableDataSplitter.split(data, 'col_1', split_ratio=0.05, seed=123)
+
+    # The generated splits must be different if the seed was different
+    assert not train2.equals(train1)
+    assert not validate2.equals(validate1)
+    assert not test2.equals(test1)
+
+    # Check that the size of the splits is in the accepted
+    assert train2.sum() == 899
+    assert validate2.sum() == 58
+    assert test2.sum() == 43

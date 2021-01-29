@@ -15,24 +15,35 @@ import rxn_reaction_preprocessing as rrp
 @click.command()
 @click.argument('input_file_path', type=click.Path(exists=True), required=True)
 @click.argument('output_directory', type=click.Path(), required=True)
-@click.option('--split-ratio', default=0.05)
-@click.option('--index-column', default='rxn')
+@click.option(
+    '--split-ratio',
+    default=0.05,
+    help='The column on which to base the stable split.',
+    show_default=True
+)
+@click.option(
+    '--index-column',
+    default='rxn',
+    help='The split ration between training, and test and validation sets.',
+    show_default=True
+)
+@click.option(
+    '--seed',
+    default=0,
+    help='Seed for the hashing function used for splitting.',
+    show_default=True
+)
 def cli(
-    input_file_path: str, output_directory: str, split_ratio: float, index_column: str
+    input_file_path: str, output_directory: str, split_ratio: float, index_column: str, seed: int
 ) -> None:
-    """The entry point for this cli script.
-
-    Args:
-        input_file_path:  The input file path.
-        output_directory: The output directory (where train, validation, and test files will be written to).
-        split_ratio: The split ration between training, and test and validation sets.
-        index_column: The column on which to base the stable split. Default: rxn
+    """Split the dataset INPUT_FILE_PATH into train, validation, and test splits
+    (will be written to OUTPUT_DIRECTORY).
     """
     df = pd.read_csv(input_file_path, lineterminator='\n')
 
     # Split into train, validation, and test sets, but do not export yet
     train, validation, test = rrp.StableDataSplitter.split(
-        df, index_column, split_ratio=split_ratio
+        df, index_column, split_ratio=split_ratio, seed=seed
     )
 
     # Get the file name without the extension
