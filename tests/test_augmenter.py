@@ -22,47 +22,47 @@ def augmenter():
 
 
 def test_restricted(augmenter):
-    new_df = augmenter.augment(rrp.RandomType['restricted'], permutations=1, tokenize=False)
+    new_df = augmenter.augment(rrp.RandomType.restricted, permutations=1, tokenize=False)
 
     expected = [
-        'CCCC.Cl[Na]~[K+].Cn1c2c(c(=O)n(C)c1=O)n(C)cn2.[K+]',
+        'CCCC.CN1C2=C(C(=O)N(C)C1=O)N(C)C=N2.Cl[Na]~[K+].[K+]',
         'CC(C)(C)O[K]~CCC.O',
     ]
-    assert all([new_df['restricted'].values[i] == expected[i] for i in range(len(expected))])
+    assert new_df['restricted'].tolist() == expected
 
 
 def test_unrestricted(augmenter):
-    new_df = augmenter.augment(rrp.RandomType['unrestricted'], permutations=1, tokenize=False)
+    new_df = augmenter.augment(rrp.RandomType.unrestricted, permutations=1, tokenize=False)
 
     expected = [
-        'C(C)CC.[K+].[Na]Cl~[K+].c12ncn(c1c(n(c(n2C)=O)C)=O)C',
+        'C(C)CC.C12N=CN(C=1C(N(C(N2C)=O)C)=O)C.[K+].[Na]Cl~[K+]',
         'C(C)(C)(C)O[K]~CCC.O',
     ]
-    assert all([new_df['unrestricted'].values[i] == expected[i] for i in range(len(expected))])
+    assert new_df['unrestricted'].tolist() == expected
 
 
 def test_rotated(augmenter):
-    new_df = augmenter.augment(rrp.RandomType['rotated'], permutations=1, tokenize=False)
+    new_df = augmenter.augment(rrp.RandomType.rotated, permutations=1, tokenize=False)
 
     expected = [
-        'C(CC)C.[K+].[Na]Cl~[K+].n1c2c(c(=O)n(C)c(=O)n2C)n(C)c1',
-        'C(C)(C)(O[K])C~CCC.O',
+        'C1(=O)N(C)C2=C(N(C)C=N2)C(=O)N1C.CCCC.Cl[Na]~[K+].[K+]',
+        'O.[K]OC(C)(C)C~CCC',
     ]
-    assert all([new_df['rotated'].values[i] == expected[i] for i in range(len(expected))])
+    assert new_df['rotated'].tolist() == expected
 
 
 def test_molecules_order(augmenter):
-    new_df = augmenter.augment(rrp.RandomType['molecules'], permutations=1, tokenize=False)
+    new_df = augmenter.augment(rrp.RandomType.molecules, permutations=1, tokenize=False)
 
     expected = [
         '[Na]Cl~[K+].CN1C=NC2=C1C(=O)N(C(=O)N2C)C.[K+].CCCC',
         'CC(C)(C)O[K]~CCC.O',
     ]
-    assert all([new_df['molecules'].values[i] == expected[i] for i in range(len(expected))])
+    assert new_df['molecules'].tolist() == expected
 
 
 def test_multiple_augmentation_molecules(augmenter):
-    new_df = augmenter.augment(rrp.RandomType['molecules'], permutations=3, tokenize=False)
+    new_df = augmenter.augment(rrp.RandomType.molecules, permutations=3, tokenize=False)
 
     expected = [
         '[Na]Cl~[K+].CN1C=NC2=C1C(=O)N(C(=O)N2C)C.[K+].CCCC',
@@ -70,16 +70,16 @@ def test_multiple_augmentation_molecules(augmenter):
         '[Na]Cl~[K+].[K+].CCCC.CN1C=NC2=C1C(=O)N(C(=O)N2C)C', 'O.CC(C)(C)O[K]~CCC',
         'CC(C)(C)O[K]~CCC.O'
     ]
-    assert all([new_df['molecules'].values[i] == expected[i] for i in range(len(expected))])
+    assert new_df['molecules'].tolist() == expected
 
 
 def test_multiple_augmentation_rotated(augmenter):
-    new_df = augmenter.augment(rrp.RandomType['rotated'], permutations=3, tokenize=False)
+    new_df = augmenter.augment(rrp.RandomType.rotated, permutations=3, tokenize=False)
 
     expected = [
-        'C(CC)C.[K+].[Na]Cl~[K+].n1c2c(c(=O)n(C)c(=O)n2C)n(C)c1',
-        'CCCC.Cn1cnc2c1c(=O)n(C)c(=O)n2C.[K+].[Na]Cl~[K+]',
-        'C(CC)C.[K+].[Na]Cl~[K+].n1(C)c(=O)n(C)c2ncn(C)c2c1=O', 'O.O([K])C(C)(C)C~CCC',
-        'O.[K]OC(C)(C)C~CCC', 'C(C)(C)(O[K])C~C(C)C.O'
+        'C1(=O)N(C)C2=C(N(C)C=N2)C(=O)N1C.CCCC.Cl[Na]~[K+].[K+]',
+        'C(CC)C.Cl[Na]~[K+].N1=CN(C)C2=C1N(C)C(=O)N(C)C2=O.[K+]',
+        'CCCC.CN1C2=C(N(C)C=N2)C(=O)N(C)C1=O.[K+].[Na]Cl~[K+]', 'O.[K]OC(C)(C)C~CCC',
+        'O.O([K])C(C)(C)C~CCC', 'CC(C)(C)O[K]~CCC.O'
     ]
-    assert all([new_df['rotated'].values[i] == expected[i] for i in range(len(expected))])
+    assert new_df['rotated'].tolist() == expected

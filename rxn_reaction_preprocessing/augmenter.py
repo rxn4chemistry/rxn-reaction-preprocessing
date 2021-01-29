@@ -1,12 +1,14 @@
 """ A utility class to augment the dataset files """
 import math
 import random
-from enum import auto
 from enum import Enum
+from enum import auto
 from typing import List
 
 import pandas as pd
-from rdkit import Chem
+from rxn_chemutils.smiles_randomization import (
+    randomize_smiles_rotated, randomize_smiles_restricted, randomize_smiles_unrestricted
+)
 
 from rxn_reaction_preprocessing.smiles_tokenizer import SmilesTokenizer
 
@@ -98,31 +100,20 @@ class Augmenter:
             smiles (str): The pandas DataFrame to be split into training, validation, and test sets.
             random_type (RandomType): The type of randomization to be applied.
 
+        Raises:
+            InvalidSmiles: for invalid SMILES (raised via rxn_chemutils).
+            ValueError: if an invalid randomization type is provided.
+
         Returns:
             str: the randomized SMILES
         """
-        mol = Chem.MolFromSmiles(smiles)
-
-        if not mol:
-            raise ValueError
-
         if random_type == RandomType.unrestricted:
-            return Chem.MolToSmiles(mol, canonical=False, doRandom=True, isomericSmiles=False)
+            return randomize_smiles_unrestricted(smiles)
         elif random_type == RandomType.restricted:
-            new_atom_order = list(range(mol.GetNumAtoms()))
-            random.shuffle(new_atom_order)
-            random_mol = Chem.RenumberAtoms(mol, newOrder=new_atom_order)
-            return Chem.MolToSmiles(random_mol, canonical=False, isomericSmiles=False)
+            return randomize_smiles_restricted(smiles)
         elif random_type == RandomType.rotated:
-            n_atoms = mol.GetNumAtoms()
-            rotation_index = random.randint(0, n_atoms - 1)
-            atoms = list(range(n_atoms))
-            new_atoms_order = (
-                atoms[rotation_index % len(atoms):] + atoms[:rotation_index % len(atoms)]
-            )
-            rotated_mol = Chem.RenumberAtoms(mol, new_atoms_order)
-            return Chem.MolToSmiles(rotated_mol, canonical=False, isomericSmiles=False)
-        return ''
+            return randomize_smiles_rotated(smiles, with_order_reversal=True)
+        raise ValueError(f'Invalid random type: {random_type}')
 
     @staticmethod
     def __randomize_molecules(smiles: str, permutations: int) -> List[str]:

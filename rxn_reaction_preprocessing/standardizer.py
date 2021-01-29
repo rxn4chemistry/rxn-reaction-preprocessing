@@ -6,8 +6,8 @@ from typing import Pattern
 from typing import Tuple
 
 import pandas as pd
-from rdkit import Chem
 from rdkit import RDLogger
+from rxn_chemutils.miscellaneous import is_valid_smiles
 
 RDLogger.DisableLog('rdApp.*')
 
@@ -150,11 +150,9 @@ class Standardizer:
         else:
             reactants, products = smiles.split('>>')
 
-        try:
-            Chem.MolToSmiles(Chem.MolFromSmiles(reactants)
-                             ), Chem.MolToSmiles(Chem.MolFromSmiles(products))
+        if is_valid_smiles(reactants) and is_valid_smiles(products):
             return smiles
-        except Exception:
+        else:
             return '>>'
 
     @staticmethod
