@@ -1,13 +1,14 @@
 """ A utility class to apply standardization to the data """
 import json
 import re
-from typing import List
+from typing import List, Optional
 from typing import Pattern
 from typing import Tuple
 
 import pandas as pd
 from rdkit import RDLogger
 from rxn_chemutils.miscellaneous import is_valid_smiles
+from rxn_chemutils.reaction_equation import ReactionEquation
 
 RDLogger.DisableLog('rdApp.*')
 
@@ -76,7 +77,7 @@ class Standardizer:
         df: pd.DataFrame,
         patterns: Patterns,
         reaction_column_name: str,
-        fragment_bond: str = None
+        fragment_bond: Optional[str] = None
     ):
         """Creates a new instance of the Standardizer class.
 
@@ -138,19 +139,15 @@ class Standardizer:
     def __validate_mild(self, smiles: str) -> str:
         """
         Checks if the input reaction SMILES is valid. Returns the input SMILES if it is.
-        Catches an Exception error if it is not and returns '>>'.
+        If it is not it returns '>>'.
 
         Args:
             smiles (str): a reaction SMILES
         Returns:
             str: the canonical version of the reaction SMILES
         """
-        if self.fragment_bond:
-            reactants, products = smiles.replace(self.fragment_bond, '.').split('>>')
-        else:
-            reactants, products = smiles.split('>>')
-
-        if is_valid_smiles(reactants) and is_valid_smiles(products):
+        reaction_equation = ReactionEquation.from_string(smiles, self.fragment_bond)
+        if all(is_valid_smiles(molecule) for group in reaction_equation for molecule in group):
             return smiles
         else:
             return '>>'

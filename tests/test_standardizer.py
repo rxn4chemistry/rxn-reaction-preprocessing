@@ -16,6 +16,7 @@ def standardizer():
             'rxn':
                 [
                     '[Li]O>>[Na]Cl',
+                    'CC.CCC>>',
                     'CC(C)(C)O[K]~CCC>>[Li]O',
                     r'CC(=O)/C=C(\C)O[V](=O)O/C(C)=C/C(C)=O~O=C(O[K])O[K].[Li]O>>O[K]',
                 ],
@@ -90,6 +91,7 @@ def test_standardization(standardizer):
     new_df = standardizer.standardize().df
     converted_rxns = [
         '[Li+]~[OH-]>>[Na]Cl',
+        'CC.CCC>>',
         'CC(C)(C)[O-]~[K+]~CCC>>[Li+]~[OH-]',
         'CC(=O)C=C(C)[O-]~CC(=O)C=C(C)[O-]~O=[V+2]~O=C([O-])[O-]~[K+]~[K+].[Li+]~[OH-]>>[K+]~[OH-]',
     ]
