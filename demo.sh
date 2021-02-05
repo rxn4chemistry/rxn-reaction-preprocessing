@@ -1,4 +1,9 @@
 #!/bin/sh
+# LICENSED INTERNAL CODE. PROPERTY OF IBM.
+# IBM Research Zurich Licensed Internal Code
+# (C) Copyright IBM Corp. 2021
+# ALL RIGHTS RESERVED
+
 
 docker run \
 --mount type=bind,source=/mnt/c/Users/DanielProbst/Code/rxn_reaction_preprocessing/data,target=/data \
