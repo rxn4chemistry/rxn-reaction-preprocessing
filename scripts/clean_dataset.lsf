@@ -1,4 +1,9 @@
 #!/bin/bash
+# LICENSED INTERNAL CODE. PROPERTY OF IBM.
+# IBM Research Zurich Licensed Internal Code
+# (C) Copyright IBM Corp. 2021
+# ALL RIGHTS RESERVED
+
 #BSUB -q prod.long
 #BSUB -R "rusage[ngpus_excl_p=1]"
 #BSUB -R "select[hname!='zhcc068']"
