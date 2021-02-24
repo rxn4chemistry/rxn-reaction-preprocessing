@@ -9,6 +9,7 @@ import click
 from rdkit import RDLogger
 
 import rxn_reaction_preprocessing as rrp
+from rxn_reaction_preprocessing.cleaner import remove_isotope_information
 
 RDLogger.DisableLog('rdApp.*')
 
@@ -60,33 +61,20 @@ def cli(
         max_absolute_formal_charge: The maximum absolute formal charge.
     """
 
-    # This is for the special SMILES extension where agents are separated by pipe.
-    def clean_func(rxn: str) -> str:
-        return re.sub(
-            r'(?<=\[)([0-9]+)(?=[A-Za-z])',  # Remove isotopes
-            '',
-            rxn.strip().replace('(|', '(')  # Hack for bad input data
-            .replace(')|', ')')  # Hack for bad input data
-            .replace('~', '.') \
-            .replace('|', '.') \
-            .replace('..', '.') \
-            .replace('>.', '>') \
-            .replace('.>', '>'),
-        )
-
     # This is the function that is applied to each reaction.
-    def apply_func(reaction: rrp.Reaction) -> rrp.Reaction:
+    def merge_reactants_and_reagents(reaction: rrp.Reaction) -> rrp.Reaction:
         # Move agents to reactants
         reaction.remove_none()
         reaction.reactants.extend(reaction.agents)
         reaction.agents = []
+        return reaction
 
+    def remove_duplicates(reaction: rrp.Reaction) -> rrp.Reaction:
         # Remove products that are also reactants
         reaction.remove_precursors_from_products()
-
         return reaction.sort()
 
-    # Create a instance of the mixed reaciton filter with default values.
+    # Create a instance of the mixed reaction filter with default values.
     # Make arguments for all properties in script
     mrf = rrp.MixedReactionFilter(
         max_reactants=max_reactants,
@@ -106,13 +94,13 @@ def cli(
     # Remove duplicate reactions (useful for large dataset, this step is repeated later)
     pp.remove_duplicates()
 
-    # In a first step, let's clean the data using the cleaning function
-    # defined above
-    pp.df.rxn = pp.df.rxn.apply(clean_func)
+    # In a first step the data is cleaned, in this case isotope information is removed
+    pp.df.rxn = pp.df.rxn.apply(remove_isotope_information)
 
-    # Apply the function above to all reactions, the remove_duplicate_molecules argument
+    # Apply the two functions above to all reactions, the remove_duplicate_molecules argument
     # is set to true to remove duplicate molecules within each reaction part
-    pp.apply(apply_func, remove_duplicate_molecules=True)
+    pp.apply(merge_reactants_and_reagents)
+    pp.apply(remove_duplicates, remove_duplicate_molecules=True)
 
     # Remove duplicate reactions
     pp.remove_duplicates()
@@ -127,7 +115,7 @@ def cli(
     pp.remove_invalids()
 
     # After dropping invalid columns, display stats again (as an example)
-    pp.df.rxn.to_csv(output_file_path)
+    pp.df.to_csv(output_file_path)
 
 
 if __name__ == '__main__':

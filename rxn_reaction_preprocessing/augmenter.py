@@ -5,14 +5,14 @@
 """ A utility class to augment the dataset files """
 import math
 import random
-from enum import Enum
 from enum import auto
+from enum import Enum
 from typing import List
 
 import pandas as pd
-from rxn_chemutils.smiles_randomization import (
-    randomize_smiles_rotated, randomize_smiles_restricted, randomize_smiles_unrestricted
-)
+from rxn_chemutils.smiles_randomization import randomize_smiles_restricted
+from rxn_chemutils.smiles_randomization import randomize_smiles_rotated
+from rxn_chemutils.smiles_randomization import randomize_smiles_unrestricted
 
 from rxn_reaction_preprocessing.smiles_tokenizer import SmilesTokenizer
 
@@ -76,17 +76,15 @@ class Augmenter:
         for i in range(permutations):
             list_of_smiles.append(
                 '.'.join(
-                    sorted(
-                        [
-                            self.fragment_bond.join(
-                                [
-                                    Augmenter.__randomize_smiles_without_fragment(
-                                        fragment, random_type
-                                    ) for fragment in group.split(self.fragment_bond)
-                                ]
-                            ) for group in smiles.split('.')
-                        ]
-                    )
+                    [
+                        self.fragment_bond.join(
+                            [
+                                Augmenter.__randomize_smiles_without_fragment(
+                                    fragment, random_type
+                                ) for fragment in group.split(self.fragment_bond)
+                            ]
+                        ) for group in smiles.split('.')
+                    ]
                 )
             )
         return list_of_smiles
@@ -209,7 +207,7 @@ class Augmenter:
         Returns:
             Augmenter: A new augmenter instance.
         """
-        df = pd.read_csv(filepath, lineterminator='\n')
+        df = pd.read_csv(filepath, lineterminator='\n', header=None)
         if len(df.columns) == 1:
             df.rename(columns={df.columns[0]: 'smiles'}, inplace=True)
 

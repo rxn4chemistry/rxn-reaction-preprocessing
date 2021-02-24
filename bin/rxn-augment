@@ -10,11 +10,10 @@ import rxn_reaction_preprocessing as rrp
 
 @click.command()
 @click.argument('input_file_path', type=click.Path(exists=True), required=True)
-@click.argument('outupt_file_path', type=click.Path(), required=True)
+@click.argument('output_file_path', type=click.Path(), required=True)
 @click.option('--tokenize/--no-tokenize', default=True)
 @click.option(
     '--random_type',
-    'r',
     default='unrestricted',
     type=click.Choice(
         ['unrestricted', 'restricted', 'restricted', 'rotated', 'molecules'], case_sensitive=True
@@ -49,7 +48,7 @@ def cli(
     augm = ag.augment(rrp.RandomType[random_type], permutations, tokenize)
 
     # Exporting augmented samples
-    augm[f'{random_type}'].to_csv(output_file_path)
+    augm[f'{random_type}'].to_csv(output_file_path, index=False, header=False)
 
 
 if __name__ == '__main__':
