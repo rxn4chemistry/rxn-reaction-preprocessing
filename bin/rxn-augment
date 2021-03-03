@@ -24,7 +24,7 @@ import rxn_reaction_preprocessing as rrp
 @click.option(
     '--permutations', '-n', default=1, help='number of generated permutations per SMILES'
 )
-@click.option('--fragment_bond', default='~', help='fragment bond token in the SMILES')
+@click.option('--fragment-bond', default='~', help='fragment bond token in the SMILES')
 def cli(
     input_file_path: str, output_file_path: str, tokenize: bool, random_type: str,
     permutations: int, fragment_bond: str
