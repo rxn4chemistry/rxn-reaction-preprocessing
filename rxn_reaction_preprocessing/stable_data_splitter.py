@@ -4,10 +4,14 @@
 # ALL RIGHTS RESERVED
 """ A utility class to split data sets in a stable manner. """
 import functools
+import os
+from pathlib import Path
 from typing import Tuple
 
 import pandas as pd
 from xxhash import xxh64_intdigest
+
+from rxn_reaction_preprocessing.config import SplitConfig
 
 
 class StableDataSplitter:
@@ -49,3 +53,23 @@ class StableDataSplitter:
             ),
             df['hash'].apply(lambda value: value < split_ratio * 2**64),
         )
+
+
+def split(cfg: SplitConfig) -> None:
+    output_directory = Path(cfg.output_directory)
+    if not Path(cfg.input_file_path).exists():
+        raise ValueError(f'Input file for standardization does not exist: {cfg.input_file_path}')
+
+    df = pd.read_csv(cfg.input_file_path, lineterminator='\n')
+    # Split into train, validation, and test sets, but do not export yet
+    train, validation, test = StableDataSplitter.split(
+        df, cfg.index_column, split_ratio=cfg.split_ratio, seed=cfg.seed
+    )
+
+    # Get the file name without the extension
+    stem = Path(cfg.input_file_path).stem
+
+    # Example of exporting one of the sets
+    df[train].to_csv(os.path.join(output_directory, stem + '.train.csv'), index=False)
+    df[validation].to_csv(os.path.join(output_directory, stem + '.validation.csv'), index=False)
+    df[test].to_csv(os.path.join(output_directory, stem + '.test.csv'), index=False)

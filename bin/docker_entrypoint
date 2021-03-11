@@ -19,7 +19,4 @@ echo "Entering docker-entrypoint.sh as user:${current_user}..."
 
 echo "Running as user:${current_user}..."
 
-# Install non-distributed dependencies
-[ "${FOR_DISTRIBUTION}" = true ] && download_non_distributed_requirements
-
 exec "$@"

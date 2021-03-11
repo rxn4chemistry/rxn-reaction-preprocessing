@@ -5,7 +5,9 @@
 """ A utility class to apply standardization to the data """
 import json
 import re
-from typing import List, Optional
+from pathlib import Path
+from typing import List
+from typing import Optional
 from typing import Pattern
 from typing import Tuple
 
@@ -13,6 +15,9 @@ import pandas as pd
 from rdkit import RDLogger
 from rxn_chemutils.miscellaneous import is_valid_smiles
 from rxn_chemutils.reaction_equation import ReactionEquation
+
+from rxn_reaction_preprocessing.config import StandardizeConfig
+from rxn_reaction_preprocessing.utils import standardization_files_directory
 
 RDLogger.DisableLog('rdApp.*')
 
@@ -184,3 +189,25 @@ class Standardizer:
             reaction_column_name=reaction_column_name,
             fragment_bond=fragment_bond
         )
+
+
+def standardize(cfg: StandardizeConfig) -> None:
+    output_file_path = Path(cfg.output_file_path)
+    if not Path(cfg.input_file_path).exists():
+        raise ValueError(f'Input file for standardization does not exist: {cfg.input_file_path}')
+
+    # Create a instance of the Patterns.
+    # for now jsonpath and fragment_bond (the one present in the jsonfile) fixed
+    json_file_path = str(standardization_files_directory() / 'pistachio-200302.json')
+    pt = Patterns(json_file_path, fragment_bond='~')
+
+    # Create an instance of the Standardizer
+    std = Standardizer.read_csv(
+        cfg.input_file_path, pt, reaction_column_name='rxn', fragment_bond=cfg.fragment_bond.value
+    )
+
+    # Perform standardization
+    std.standardize()
+
+    # Exporting standardized samples
+    std.df.to_csv(output_file_path)

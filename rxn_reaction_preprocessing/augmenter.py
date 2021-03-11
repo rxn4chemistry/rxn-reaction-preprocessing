@@ -5,8 +5,7 @@
 """ A utility class to augment the dataset files """
 import math
 import random
-from enum import auto
-from enum import Enum
+from pathlib import Path
 from typing import List
 
 import pandas as pd
@@ -14,14 +13,9 @@ from rxn_chemutils.smiles_randomization import randomize_smiles_restricted
 from rxn_chemutils.smiles_randomization import randomize_smiles_rotated
 from rxn_chemutils.smiles_randomization import randomize_smiles_unrestricted
 
+from rxn_reaction_preprocessing.config import AugmentConfig
 from rxn_reaction_preprocessing.smiles_tokenizer import SmilesTokenizer
-
-
-class RandomType(Enum):
-    molecules = auto()
-    unrestricted = auto()
-    restricted = auto()
-    rotated = auto()
+from rxn_reaction_preprocessing.utils import RandomType
 
 
 def molecules_permutation_given_index(molecules_list: List[str],
@@ -212,3 +206,18 @@ class Augmenter:
             df.rename(columns={df.columns[0]: 'smiles'}, inplace=True)
 
         return Augmenter(df, fragment_bond)
+
+
+def augment(cfg: AugmentConfig) -> None:
+    output_file_path = Path(cfg.output_file_path)
+    if not Path(cfg.input_file_path).exists():
+        raise ValueError(f'Input file for standardization does not exist: {cfg.input_file_path}')
+
+    # Create a instance of the Augmenter.
+    ag = Augmenter.read_csv(cfg.input_file_path, cfg.fragment_bond.value)
+
+    # Perform augmentation
+    augm = ag.augment(cfg.random_type, cfg.permutations, cfg.tokenize)
+
+    # Exporting augmented samples
+    augm[f'{cfg.random_type.name}'].to_csv(output_file_path, index=False, header=False)

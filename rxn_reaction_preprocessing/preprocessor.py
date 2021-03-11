@@ -3,19 +3,23 @@
 # (C) Copyright IBM Corp. 2020
 # ALL RIGHTS RESERVED
 """ The preprocessor class abstracts the workflow for preprocessing reaction data sets. """
+import typing
 from collections import Counter
+from pathlib import Path
 from typing import Any
 from typing import Callable
 from typing import List
 
 import numpy as np
 import pandas as pd
-import typing
+from rdkit import RDLogger
 from tabulate import tabulate
 
 from .mixed_reaction_filter import MixedReactionFilter
 from .reaction import Reaction
 from .reaction import ReactionPart
+from rxn_reaction_preprocessing.cleaner import remove_isotope_information
+from rxn_reaction_preprocessing.config import PreprocessConfig
 
 
 class Preprocessor:
@@ -285,7 +289,7 @@ class Preprocessor:
                 print(f'\033[93m- {counts[False]} invalid reactions removed.\033[0m')
 
         if self.__valid_message_column in self.df.columns:
-            reasons: typing.Counter[str] = Counter()
+            reasons: 'typing.Counter[str]' = Counter()
             for _, value in self.df[self.__valid_message_column].items():
                 reasons.update(value)
 
@@ -305,7 +309,7 @@ class Preprocessor:
     # Static Methods
     #
     @staticmethod
-    def read_csv(filepath: str, reaction_column_name: str, fragment_bond='.'):
+    def read_csv(filepath: str, reaction_column_name: str, fragment_bond: str = '.'):
         """A helper function to read a list or csv of reactions.
 
         Args:
@@ -321,3 +325,67 @@ class Preprocessor:
             df.rename(columns={df.columns[0]: reaction_column_name}, inplace=True)
 
         return Preprocessor(df, reaction_column_name, fragment_bond=fragment_bond)
+
+
+def preprocess(cfg: PreprocessConfig) -> None:
+    RDLogger.DisableLog('rdApp.*')
+
+    output_file_path = Path(cfg.output_file_path)
+    if not Path(cfg.input_file_path).exists():
+        raise ValueError(f'Input file for preprocessing does not exist: {cfg.input_file_path}')
+
+    # This is the function that is applied to each reaction.
+    def merge_reactants_and_reagents(reaction: Reaction) -> Reaction:
+        # Move agents to reactants
+        reaction.remove_none()
+        reaction.reactants.extend(reaction.agents)
+        reaction.agents = []
+        return reaction
+
+    def remove_duplicates(reaction: Reaction) -> Reaction:
+        # Remove products that are also reactants
+        reaction.remove_precursors_from_products()
+        return reaction.sort()
+
+    # Create a instance of the mixed reaction filter with default values.
+    # Make arguments for all properties in script
+    mrf = MixedReactionFilter(
+        max_reactants=cfg.max_reactants,
+        max_agents=cfg.max_agents,
+        max_products=cfg.max_products,
+        min_reactants=cfg.min_reactants,
+        min_agents=cfg.min_agents,
+        min_products=cfg.min_products,
+        max_reactants_tokens=cfg.max_reactants_tokens,
+        max_agents_tokens=cfg.max_agents_tokens,
+        max_products_tokens=cfg.max_products_tokens,
+        max_absolute_formal_charge=cfg.max_absolute_formal_charge,
+    )
+
+    pp = Preprocessor.read_csv(cfg.input_file_path, 'rxn', fragment_bond=cfg.fragment_bond.value)
+
+    # Remove duplicate reactions (useful for large dataset, this step is repeated later)
+    pp.remove_duplicates()
+
+    # In a first step the data is cleaned, in this case isotope information is removed
+    pp.df.rxn = pp.df.rxn.apply(remove_isotope_information)
+
+    # Apply the two functions above to all reactions, the remove_duplicate_molecules argument
+    # is set to true to remove duplicate molecules within each reaction part
+    pp.apply(merge_reactants_and_reagents)
+    pp.apply(remove_duplicates, remove_duplicate_molecules=True)
+
+    # Remove duplicate reactions
+    pp.remove_duplicates()
+
+    # Apply the mixed reaction filter instance defined above, enable verbose mode
+    pp.filter(mrf, True)
+
+    # Print the detailed stats
+    pp.print_stats()
+
+    # Drop the invalid reactions
+    pp.remove_invalids()
+
+    # After dropping invalid columns, display stats again (as an example)
+    pp.df.to_csv(output_file_path)

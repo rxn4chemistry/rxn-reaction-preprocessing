@@ -2,11 +2,19 @@
 # IBM Research Zurich Licensed Internal Code
 # (C) Copyright IBM Corp. 2021
 # ALL RIGHTS RESERVED
-
 import random
+from enum import auto
+from enum import Enum
 from pathlib import Path
 
 import numpy
+
+
+class RandomType(Enum):
+    molecules = auto()
+    unrestricted = auto()
+    restricted = auto()
+    rotated = auto()
 
 
 def root_directory() -> Path:

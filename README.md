@@ -30,7 +30,49 @@ pre-commit install
 ```
 
 ## Usage
-The following command line scripts are installed with the package
+The following command line scripts are installed with the package.
+
+### rxn-data-pipeline
+Wrapper for all other scripts. Allows constructing flexible data pipelines. Entrypoint for Hydra structured configuration.
+
+For an overview of all available configuration parameters and default values, run: `rxn-data-pipeline --cfg job`.
+
+Configuration using command line arguments:
+```bash
+rxn-data-pipeline data.path=/path/to/data/rxns-small.csv data.proc_dir=/path/to/proc/dir
+```
+
+Configuration using YAML:
+```yaml
+# ./example_config.yaml
+defaults:
+  - base_config
+
+data:
+  path: /tmp/inference/input.csv
+  proc_dir: /tmp/rxn-preproc/exp
+common:
+  sequence:
+    # Define which steps and in which order to execute:
+    - STANDARDIZE
+    - PREPROCESS
+    - SPLIT
+    - TOKENIZE
+  fragment_bond: TILDE
+preprocess:
+  min_products: 0
+tokenize:
+  input_output_pairs:
+    - inp: ${data.proc_dir}/${data.name}.processed.train.csv
+      out: ${data.proc_dir}/${data.name}.processed.train
+    - inp: ${data.proc_dir}/${data.name}.processed.validation.csv
+      out: ${data.proc_dir}/${data.name}.processed.validation
+    - inp: ${data.proc_dir}/${data.name}.processed.test.csv
+      out: ${data.proc_dir}/${data.name}.processed.test
+```
+```bash
+rxn-data-pipeline --config-dir . --config-name example_config
+```
 
 ### rxn-standardize
 Usage:
@@ -101,7 +143,7 @@ Options:
 ```
 
 ## Running in Docker
-The package is readily dockerized using the supplied ```Dockerfile```. 
+The package is readily dockerized using the supplied ```Dockerfile```.
 It is necessary to provide a GitHub token as the `GHE_TOKEN_ARG` argument.
 ```bash
 docker build --build-arg GHE_TOKEN_ARG=${GHE_TOKEN} --target ${TARGET} -t rxn_reaction_preprocessing .

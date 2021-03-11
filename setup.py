@@ -3,7 +3,6 @@
 # IBM Research Zurich Licensed Internal Code
 # (C) Copyright IBM Corp. 2021
 # ALL RIGHTS RESERVED
-
 # Sham for missing PEP 517 support
 import os
 
@@ -18,6 +17,7 @@ setuptools.setup(
         'pandas >= 1.1.1',
         'tabulate >= 0.8.7',
         'xxhash >= 2.0.0',
+        'hydra-core >= 1.1.0.dev4',
         'rxn_chemutils '
         '@ git+https://{}@github.ibm.com/rxn/rxn_chemutils@latest'.format(os.environ['GHE_TOKEN']),
     ]
