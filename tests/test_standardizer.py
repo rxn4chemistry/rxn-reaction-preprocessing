@@ -2,7 +2,6 @@
 # IBM Research Zurich Licensed Internal Code
 # (C) Copyright IBM Corp. 2021
 # ALL RIGHTS RESERVED
-
 from pathlib import Path
 
 import pandas as pd
