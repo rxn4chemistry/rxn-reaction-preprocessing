@@ -17,6 +17,11 @@ class RandomType(Enum):
     rotated = auto()
 
 
+class ReactionSection(Enum):
+    precursors = auto()
+    products = auto()
+
+
 def root_directory() -> Path:
     """
     Returns the path to the root directory of the repository

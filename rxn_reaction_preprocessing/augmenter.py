@@ -16,6 +16,7 @@ from rxn_chemutils.smiles_randomization import randomize_smiles_unrestricted
 from rxn_reaction_preprocessing.config import AugmentConfig
 from rxn_reaction_preprocessing.smiles_tokenizer import SmilesTokenizer
 from rxn_reaction_preprocessing.utils import RandomType
+from rxn_reaction_preprocessing.utils import ReactionSection
 
 
 def molecules_permutation_given_index(molecules_list: List[str],
@@ -32,14 +33,16 @@ def molecules_permutation_given_index(molecules_list: List[str],
 
 class Augmenter:
 
-    def __init__(self, df: pd.DataFrame, fragment_bond: str = '.'):
+    def __init__(self, df: pd.DataFrame, reaction_column_name: str, fragment_bond: str = '.'):
         """Creates a new instance of the Augmenter class.
 
         Args:
             df (pd.DataFrame): A pandas DataFrame containing the molecules SMILES.
-            fragment_bond (str): The fragment bond tolen contained in the SMILES.
+            reaction_column_name: The name of the DataFrame column containing the reaction SMILES.
+            fragment_bond (str): The fragment bond token contained in the SMILES.
         """
         self.df = df
+        self.__reaction_column_name = reaction_column_name
         self.tokenizer = SmilesTokenizer()
         self.fragment_bond = fragment_bond
 
@@ -149,8 +152,8 @@ class Augmenter:
     def augment(
         self,
         random_type: RandomType = RandomType.unrestricted,
-        permutations: int = 1,
-        tokenize: bool = True
+        rxn_section_to_augment: ReactionSection = ReactionSection.precursors,
+        permutations: int = 1
     ) -> pd.DataFrame:
         """
         Creates samples for the augmentation. Returns a a pandas Series containing the augmented samples.
@@ -163,49 +166,87 @@ class Augmenter:
                               "rotated" for rotated randomization
                               For details on the differences:
                               https://github.com/undeadpixel/reinvent-randomized and https://github.com/GLambard/SMILES-X
+            rxn_section_to_augment (ReactionSection): The section of the rxn SMILES to augment.
+                              "precursors" for augmenting only the precursors
+                              "products" for augmenting only the products
             permutations (int): The number of permutations to generate for each SMILES
-            tokenize (bool): Whether to return the tokenized version of the SMILES
 
         Returns:
             pd.DataFrame: A pandas Series containing the augmented samples.
         """
 
-        self.df[f'{random_type.name}'] = self.df.apply(lambda smiles: smiles.replace(' ', ''))
+        if rxn_section_to_augment is ReactionSection.precursors:
 
-        if random_type != RandomType.molecules:
-            self.df[f'{random_type.name}'] = self.df['smiles'].apply(
-                lambda smiles: self.__randomize_smiles(smiles, random_type, permutations)
+            self.df[f'precursors_{random_type.name}'] = self.df[self.__reaction_column_name].apply(
+                lambda smiles: smiles.replace(' ', '').split('>>')[0]
             )
+            if 'products' not in self.df.keys():
+                self.df['products'] = self.df[self.__reaction_column_name].apply(
+                    lambda smiles: smiles.replace(' ', '').split('>>')[1]
+                )
+            columns_to_augment = [f'precursors_{random_type.name}']
+            columns_to_join = [f'precursors_{random_type.name}', 'products']
+
+        elif rxn_section_to_augment is ReactionSection.products:
+
+            self.df[f'products_{random_type.name}'] = self.df[self.__reaction_column_name].apply(
+                lambda smiles: smiles.replace(' ', '').split('>>')[1]
+            )
+            if 'precursors' not in self.df.keys():
+                self.df['precursors'] = self.df[self.__reaction_column_name].apply(
+                    lambda smiles: smiles.replace(' ', '').split('>>')[0]
+                )
+            columns_to_augment = [f'products_{random_type.name}']
+            columns_to_join = ['precursors', f'products_{random_type.name}']
         else:
-            self.df[f'{random_type.name}'] = self.df['smiles'].apply(
-                lambda smiles: self.__randomize_molecules(smiles, permutations)
-            )
-        if tokenize:
-            self.df[f'{random_type.name}'] = self.df[f'{random_type.name}'].apply(
-                lambda smiles: [self.tokenizer.tokenize(smi) for smi in smiles]
-            )
-        return self.df.explode(f'{random_type.name}').reset_index(drop=True)
+
+            raise ValueError(f'Invalid reaction section to augment: {rxn_section_to_augment.name}')
+
+        for column in columns_to_augment:
+            if random_type != RandomType.molecules:
+                self.df[column] = self.df[column].apply(
+                    lambda smiles: self.__randomize_smiles(smiles, random_type, permutations)
+                )
+            else:
+                self.df[column] = self.df[column].apply(
+                    lambda smiles: self.__randomize_molecules(smiles, permutations)
+                )
+
+        # Exploding the dataframe columns where I have the list of augmented versions of a SMILES (the list length is
+        # the number of permutations)
+        self.df = self.df.set_index(
+            [col for col in self.df.keys() if col not in columns_to_augment]
+        ).apply(pd.Series.explode).reset_index()
+
+        self.df[f'rxn_{random_type.name}'] = self.df.apply(
+            lambda x: '>>'.join(x[columns_to_join]), axis=1
+        )
+
+        return self.df
 
     #
     # Public Static Methods
     #
 
     @staticmethod
-    def read_csv(filepath: str, fragment_bond: str = '.'):
+    def read_csv(
+        filepath: str, reaction_column_name: str, fragment_bond: str = '.'
+    ) -> 'Augmenter':
         """A helper function to read a list or csv of SMILES.
 
         Args:
             filepath (str): The path to the text file containing the molecules SMILES.
+            reaction_column_name: The name of the reaction column (or the name that wil be given to the reaction column if the input file has no headers).
             fragment_bond (str): The fragment token in the reaction SMILES
 
         Returns:
             Augmenter: A new augmenter instance.
         """
-        df = pd.read_csv(filepath, lineterminator='\n', header=None)
+        df = pd.read_csv(filepath, lineterminator='\n')
         if len(df.columns) == 1:
-            df.rename(columns={df.columns[0]: 'smiles'}, inplace=True)
+            df.rename(columns={df.columns[0]: reaction_column_name}, inplace=True)
 
-        return Augmenter(df, fragment_bond)
+        return Augmenter(df, reaction_column_name, fragment_bond)
 
 
 def augment(cfg: AugmentConfig) -> None:
@@ -214,10 +255,14 @@ def augment(cfg: AugmentConfig) -> None:
         raise ValueError(f'Input file for standardization does not exist: {cfg.input_file_path}')
 
     # Create a instance of the Augmenter.
-    ag = Augmenter.read_csv(cfg.input_file_path, cfg.fragment_bond.value)
+    ag = Augmenter.read_csv(cfg.input_file_path, cfg.reaction_column_name, cfg.fragment_bond.value)
 
     # Perform augmentation
-    augm = ag.augment(cfg.random_type, cfg.permutations, cfg.tokenize)
+    augm = ag.augment(
+        random_type=cfg.random_type,
+        rxn_section_to_augment=cfg.rxn_section_to_augment,
+        permutations=cfg.permutations
+    )
 
     # Exporting augmented samples
-    augm[f'{cfg.random_type.name}'].to_csv(output_file_path, index=False, header=False)
+    augm.to_csv(output_file_path, index=False)

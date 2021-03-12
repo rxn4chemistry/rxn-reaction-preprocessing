@@ -17,6 +17,7 @@ from omegaconf import OmegaConf
 from omegaconf import SI
 
 from rxn_reaction_preprocessing.utils import RandomType
+from rxn_reaction_preprocessing.utils import ReactionSection
 
 OmegaConf.register_new_resolver('stem', lambda p: Path(p).stem)
 
@@ -124,6 +125,8 @@ class AugmentConfig:
     tokenize: bool = True
     random_type: RandomType = RandomType.unrestricted
     permutations: int = 1
+    reaction_column_name: str = 'rxn'
+    rxn_section_to_augment: ReactionSection = ReactionSection.precursors
     fragment_bond: FragmentBond = SI('${common.fragment_bond}')
 
 
