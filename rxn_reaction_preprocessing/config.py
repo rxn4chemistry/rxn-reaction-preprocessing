@@ -3,14 +3,14 @@
 # IBM Research Zurich Licensed Internal Code
 # (C) Copyright IBM Corp. 2021
 # ALL RIGHTS RESERVED
-from dataclasses import dataclass
-from dataclasses import field
 from enum import auto
 from enum import Enum
 from pathlib import Path
 from typing import Any
 from typing import List
 
+from dataclasses import dataclass
+from dataclasses import field
 from hydra.core.config_store import ConfigStore
 from omegaconf import MISSING
 from omegaconf import OmegaConf
@@ -18,6 +18,7 @@ from omegaconf import SI
 
 from rxn_reaction_preprocessing.utils import RandomType
 from rxn_reaction_preprocessing.utils import ReactionSection
+from rxn_reaction_preprocessing.utils import standardization_files_directory
 
 OmegaConf.register_new_resolver('stem', lambda p: Path(p).stem)
 
@@ -72,6 +73,12 @@ class StandardizeConfig:
         output_file_path: The output file path containing the result after standardization.
     """
     input_file_path: str = SI('${data.path}')
+    annotation_file_paths: List[str] = field(
+        default_factory=lambda: [
+            str(standardization_files_directory() / 'pistachio-210428.json'),
+            str(standardization_files_directory() / 'catalyst-annotation-210424.json')
+        ]
+    )
     output_file_path: str = SI('${data.proc_dir}/${data.name}.standardized.csv')
     fragment_bond: FragmentBond = SI('${common.fragment_bond}')
 

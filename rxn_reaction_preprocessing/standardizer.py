@@ -3,80 +3,24 @@
 # (C) Copyright IBM Corp. 2021
 # ALL RIGHTS RESERVED
 """ A utility class to apply standardization to the data """
-import json
-import re
 from pathlib import Path
 from typing import List
 from typing import Optional
-from typing import Pattern
-from typing import Tuple
 
 import pandas as pd
 from rdkit import RDLogger
 from rxn_chemutils.miscellaneous import is_valid_smiles
+from rxn_chemutils.reaction_equation import canonicalize_compounds
 from rxn_chemutils.reaction_equation import ReactionEquation
 
+from rxn_reaction_preprocessing.annotations.missing_annotation_detector import MissingAnnotationDetector
+from rxn_reaction_preprocessing.annotations.molecule_annotation import load_annotations
+from rxn_reaction_preprocessing.annotations.molecule_annotation import MoleculeAnnotation
+from rxn_reaction_preprocessing.annotations.molecule_replacer import MoleculeReplacer
+from rxn_reaction_preprocessing.annotations.rejected_molecules_filter import RejectedMoleculesFilter
 from rxn_reaction_preprocessing.config import StandardizeConfig
-from rxn_reaction_preprocessing.utils import standardization_files_directory
 
 RDLogger.DisableLog('rdApp.*')
-
-
-class Patterns:
-
-    def __init__(self, jsonpath: str, fragment_bond: str = None):
-        """Creates a new instance of the Patterns class.
-
-        Args:
-            jsonpath (str): path to json file containing the molecule SMILES strings to be found in the format
-            Dict[str,List[List[str]]]
-            and the substitution to replace in the reaction SMILES
-            fragment_bond (str): the fragment bond used in the patterns.
-        """
-        with open(jsonpath) as j:
-            self.patterns = json.load(j)
-        self.fragment_bond = fragment_bond
-        self.__escape_special_chars_and_isolate()
-        self.compiled_patterns: List[Tuple[Pattern[str], str]] = []
-
-    def __escape_special_chars_and_isolate(self) -> None:
-        """
-        Modifies the patterns stored in the object by escaping special chars in the molecule smiles strings to find and
-        appending/prepending the isolation regex pattern. Isolation = the patterns are applied to entire molecules
-        or entire fragments of molecules
-        """
-        special_chars = ['\\', '.', '+', '*', '?', '^', '$', '(', ')', '[', ']', '}', '{', '|']
-
-        for key, elem in self.patterns.items():
-            for i in range(len(elem)):
-                for char in special_chars:
-                    self.patterns[key][i][0] = self.patterns[key][i][0].replace(
-                        char,
-                        r'\{}'.format(char)  # rf'\{char}' fails on my system (dpr)
-                    )
-                self.patterns[key][i][
-                    0] = r'(?:^|(?<=\~|\.|>))' + self.patterns[key][i][0] + r'(?=\~|\.|>|$)'
-
-    def __compile_patterns(self) -> List[Tuple[Pattern[str], str]]:
-        """
-        Generates a list of Tuples with the precompiled patterns and the substitution SMILES string.
-
-        Returns:
-            List[Tuple[Pattern[str], str]]: a list of Tuples with the precompiled patterns and the substitution SMILES
-             string
-        """
-        compiled_patterns = []
-        for elem in self.patterns.values():
-            for pat in elem:
-                regex = re.compile(pat[0])
-                compiled_patterns.append((regex, pat[1]))
-        return compiled_patterns
-
-    def compile_patterns(self):
-        """
-        public method, see self.__compile_patterns()
-        """
-        return self.__compile_patterns()
 
 
 class Standardizer:
@@ -84,70 +28,86 @@ class Standardizer:
     def __init__(
         self,
         df: pd.DataFrame,
-        patterns: Patterns,
+        annotations: List[MoleculeAnnotation],
         reaction_column_name: str,
-        fragment_bond: Optional[str] = None
+        fragment_bond: Optional[str] = None,
     ):
         """Creates a new instance of the Standardizer class.
 
         Args:
-            df (pd.DataFrame): A pandas DataFrame containing the reaction SMILES.
-            patterns (Patterns): An instance of the Patterns class, containing a dictionary of the patterns and the
-            substitutions to be found and replaced in the reaction SMILES as well as the fragment used in the patterns.
-            reaction_column_name (str): The name of the DataFrame column containing the reaction SMARTS.
-            fragment_bond (str): the fragment bond used.
+            df: A pandas DataFrame containing the reaction SMILES.
+            annotations: A list of MoleculeAnnotation objects used to perform the substitutions/rejections
+            reaction_column_name: The name of the DataFrame column containing the reaction SMILES.
+            fragment_bond: the fragment bond used in the dataframe.
         """
         self.df = df
-        self.patterns = patterns
+        self.annotations = annotations
+        self.missing_annotation_detector = MissingAnnotationDetector.from_molecule_annotations(
+            self.annotations
+        )
+        self.molecule_filter = RejectedMoleculesFilter.from_molecule_annotations(self.annotations)
+        self.molecule_replacer = MoleculeReplacer.from_molecule_annotations(self.annotations)
         self.__reaction_column_name = reaction_column_name
         self.fragment_bond = fragment_bond
-        self.current_smiles = ''
 
-        # Dealing with the possible mismatch between the fragment-bond token in the patterns and in the provided data
-        if self.fragment_bond and self.fragment_bond != '.' and self.patterns.fragment_bond and \
-                self.fragment_bond != self.patterns.fragment_bond:
-            for key, elem in self.patterns.patterns.items():
-                for i in range(len(elem)):
-                    self.patterns.patterns[key][i][0] = self.patterns.patterns[key][i][0]\
-                        .replace(self.patterns.fragment_bond, self.fragment_bond)
-                    self.patterns.patterns[key][i][1] = self.patterns.patterns[key][i][1]\
-                        .replace(self.patterns.fragment_bond, self.fragment_bond)
-            self.patterns.fragment_bond = self.fragment_bond
-            self.patterns.compiled_patterns = self.patterns.compile_patterns()
-        else:
-            self.patterns.compiled_patterns = self.patterns.compile_patterns()
-            self.fragment_bond = self.patterns.fragment_bond
-
-    def __standardize_reaction_smiles(self, smiles: str):
+    def __detect_missing_annotations(self) -> None:
         """
-        Standardizes a single reaction SMILES
-
-        Args:
-            smiles (str): a reaction SMILES
+        Runs over the df and checks if some reactions still need some annotations.
+        Replaces the reaction with '>>' if the annotation is needed and adds a column 'rxn_needed_annotations'
         """
-        self.current_smiles = smiles
-        new_smiles = smiles
-        for i in range(len(self.patterns.compiled_patterns)):
-            regex = self.patterns.compiled_patterns[i][0]
-            new_smiles = regex.sub(self.patterns.compiled_patterns[i][1], new_smiles)
-
-        return self.__validate_mild(new_smiles)
-
-    def standardize(self):
-        """
-         Standardizes the entries of self.df[_valid_column]
-        """
-        self.df.rename(
-            columns={self.__reaction_column_name: f'{self.__reaction_column_name}_before_std'},
-            inplace=True
+        self.df['rxn_needed_annotations'] = self.df[self.__reaction_column_name].apply(
+            lambda x: list(
+                self.missing_annotation_detector.
+                missing_in_reaction_smiles(x, fragment_bond=self.fragment_bond)
+            )
         )
-        self.df[f'{self.__reaction_column_name}'] = self.df[f'{self.__reaction_column_name}_before_std'].\
-            apply(lambda x: self.__standardize_reaction_smiles(x))
+        self.df[self.__reaction_column_name] = self.df.apply(
+            lambda x: x[self.__reaction_column_name] if not x['rxn_needed_annotations'] else '>>',
+            axis=1
+        )
+
+    def __filter_reactions_with_rejected_molecules(self) -> None:
+        """
+        Runs over the df and checks if some reactions contain rejected molecules.
+        Replaces the reaction with '>>' if it needs to be discarded
+        """
+        self.df['rxn_contains_rejected_molecules'] = self.df[self.__reaction_column_name].apply(
+            lambda x: not self.molecule_filter.
+            is_valid_reaction_smiles(x, fragment_bond=self.fragment_bond)
+        )
+        self.df[self.__reaction_column_name] = self.df.apply(
+            lambda x: x[self.__reaction_column_name]
+            if not x['rxn_contains_rejected_molecules'] else '>>',
+            axis=1
+        )
+
+    def __replace_molecules_in_reactions(self) -> None:
+        """
+        Runs over the df and for each reaction replaces the molecules that have an annotation.
+        """
+        self.df[self.__reaction_column_name] = self.df[self.__reaction_column_name].apply(
+            lambda x: self.molecule_replacer.
+            replace_in_reaction_smiles(x, fragment_bond=self.fragment_bond)
+        )
+
+    def standardize(self, canonicalize: bool = True):
+        """
+         Standardizes the entries of self.df[self.__reaction_column_name]
+        """
+        self.df[f'{self.__reaction_column_name}_before_std'] = self.df[
+            f'{self.__reaction_column_name}']
+        self.df[f'{self.__reaction_column_name}'] = self.df[
+            f'{self.__reaction_column_name}'].apply(
+                lambda x: self.__validate_mild(x, canonicalize=canonicalize)
+            )
+        self.__detect_missing_annotations()
+        self.__filter_reactions_with_rejected_molecules()
+        self.__replace_molecules_in_reactions()
         return self
 
-    def __validate_mild(self, smiles: str) -> str:
+    def __validate_mild(self, smiles: str, canonicalize: bool) -> str:
         """
-        Checks if the input reaction SMILES is valid. Returns the input SMILES if it is.
+        Checks if the input reaction SMILES is valid. Returns the canonical SMILES if it is.
         If it is not it returns '>>'.
 
         Args:
@@ -156,28 +116,35 @@ class Standardizer:
             str: the canonical version of the reaction SMILES
         """
         reaction_equation = ReactionEquation.from_string(smiles, self.fragment_bond)
-        if all(is_valid_smiles(molecule) for group in reaction_equation for molecule in group):
-            return smiles
-        else:
+        if not all(is_valid_smiles(molecule) for group in reaction_equation for molecule in group):
             return '>>'
+
+        if not canonicalize:
+            return smiles
+
+        return canonicalize_compounds(reaction_equation).to_string(
+            fragment_bond=self.fragment_bond
+        )
 
     @staticmethod
     def read_csv(
-        filepath: str, patterns: Patterns, reaction_column_name: str, fragment_bond: str = None
+        filepath: str,
+        annotations: List[MoleculeAnnotation],
+        reaction_column_name: str,
+        fragment_bond: str = None
     ):
         """
         A helper function to read a list or csv of VALID reactions (in the sense of RDKIT).
 
         Args:
             filepath (str): The path to the text file containing the reactions.
-            patterns (Patterns): An instance of the Patterns class, containing a dictionary of the patterns and the
-             substitutions to be found and replaced in the reaction SMILES as well as the fragment used in the patterns.
-            reaction_column_name (str): The name of the reaction column (or the name that wil be given to the reaction
-            column if the input file has no headers).
-            fragment_bond (str): the fragment bond used.
+            annotations: A list of MoleculeAnnotation objects used to perform the substitutions/rejections
+            reaction_column_name: The name of the reaction column (or the name that wil be given to the reaction
+                column if the input file has no headers)
+            fragment_bond: the fragment bond used.
 
         Returns:
-            : A new preprocessor instance.
+            : A new standardizer instance.
         """
         df = pd.read_csv(filepath, lineterminator='\n')
         if len(df.columns) == 1:
@@ -185,9 +152,9 @@ class Standardizer:
 
         return Standardizer(
             df,
-            patterns=patterns,
+            annotations=annotations,
             reaction_column_name=reaction_column_name,
-            fragment_bond=fragment_bond
+            fragment_bond=fragment_bond,
         )
 
 
@@ -196,18 +163,21 @@ def standardize(cfg: StandardizeConfig) -> None:
     if not Path(cfg.input_file_path).exists():
         raise ValueError(f'Input file for standardization does not exist: {cfg.input_file_path}')
 
-    # Create a instance of the Patterns.
-    # for now jsonpath and fragment_bond (the one present in the jsonfile) fixed
-    json_file_path = str(standardization_files_directory() / 'pistachio-200302.json')
-    pt = Patterns(json_file_path, fragment_bond='~')
+    # Create a list of MoleculeAnnotations from the json files provided.
+    annotations: List[MoleculeAnnotation] = []
+    for file_path in cfg.annotation_file_paths:
+        annotations.extend(load_annotations(file_path))
 
     # Create an instance of the Standardizer
     std = Standardizer.read_csv(
-        cfg.input_file_path, pt, reaction_column_name='rxn', fragment_bond=cfg.fragment_bond.value
+        cfg.input_file_path,
+        annotations,
+        reaction_column_name='rxn',
+        fragment_bond=cfg.fragment_bond.value
     )
 
     # Perform standardization
-    std.standardize()
+    std.standardize(canonicalize=True)
 
     # Exporting standardized samples
     std.df.to_csv(output_file_path)

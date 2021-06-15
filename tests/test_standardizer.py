@@ -7,10 +7,10 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from rxn_reaction_preprocessing import Patterns
 from rxn_reaction_preprocessing import Standardizer
+from rxn_reaction_preprocessing.annotations.molecule_annotation import load_annotations
 
-patterns_file = str(Path(__file__).parent / 'test_patterns.json')
+annotations_file = str(Path(__file__).parent / 'annotations/test_molecule_annotations.json')
 
 
 @pytest.fixture
@@ -19,131 +19,78 @@ def standardizer():
         {
             'rxn':
                 [
-                    '[Li]O>>[Na]Cl',
-                    'CC.CCC>>',
-                    'CC(C)(C)O[K]~CCC>>[Li]O',
-                    r'CC(=O)/C=C(\C)O[V](=O)O/C(C)=C/C(C)=O~O=C(O[K])O[K].[Li]O>>O[K]',
+                    '[Na]Cl.CC[Zn]CC~Cc1ccccc1>>[Na]Cl',  # substitution needed
+                    '[Na]Cl.Cc1ccccc1~CC[Zn]CC>>[Na]Cl',  # substitution needed but performed only if canonicalization
+                    'CC.CCC>>CCO',  # no substitution
+                    'CC.[Na+5].CC>>[Na+]~[OH-]',  # invalid smiles -> '>>'
+                    'CC(C)(C)O[K].CCO~CCO>>[Li]O',  # rejected reaction -> '>>'
+                    r'CC(=O)/C=C(\C)O[V](=O)O/C(C)=C/C(C)=O.CCCC[N+](CCCC)(CCCC)CCCC~CCCC[N+](CCCC)(CCCC)CCCC~C1(=C(SC(=S)S1)[S-])[S-]~C1(=C(SC(=S)S1)[S-])[S-]~[Pd+2]>>O[K]',
+                    # requires annotation -> '>>'
                 ],
         }
     )
-    pt = Patterns(jsonpath=patterns_file, fragment_bond='~')
-    return Standardizer(df, pt, 'rxn', fragment_bond=None)
+    annotations = load_annotations(annotations_file)
+    return Standardizer(df, annotations, 'rxn', fragment_bond='~')
 
 
 @pytest.fixture
-def standardizer_with_same_fragment():
+def standardizer_without_fragment():
     df = pd.DataFrame(
         {
             'rxn':
                 [
-                    '[Li]O.O[Na]>>[Na]Cl', 'CC(C)(C)O[K].CCC>>[Li]O',
-                    r'CC(=O)/C=C(\C)O[V](=O)O/C(C)=C/C(C)=O.O=C(O[K])O[K].[Li]O>>O[K]',
-                    'CO.COC(=O)C(C)(C)c1ccc(C(=O)CCCN2CCC(C(O)(c3ccccc3)c3ccccc3)CC2)cc1.Cl.O[Na]>>CC(C)(C(=O)O)c1ccc(C(=O)CCCN2CCC(C(O)(c3ccccc3)c3ccccc3)CC2)cc1~Cl'
+                    '[Na]Cl.CC[Zn]CC.Cc1ccccc1>>[Na]Cl',  # requires annotation -> '>>'
+                    '[Na]Cl.Cc1ccccc1.CC[Zn]CC>>[Na]Cl',  # requires annotation -> '>>'
+                    'CC.CCC>>CCO',  # no substitution
+                    'CC[Na5+].CC>>[Na+].[OH-]',  # invalid smiles -> '>>'
+                    'CC(C)(C)O[K].CCO.CCO>>[Li]O',  # not rejected
+                    r'CC(=O)/C=C(\C)O[V](=O)O/C(C)=C/C(C)=O.CCCC[N+](CCCC)(CCCC)CCCC.CCCC[N+](CCCC)(CCCC)CCCC.C1(=C(SC(=S)S1)[S-])[S-].C1(=C(SC(=S)S1)[S-])[S-].[Pd+2]>>O[K]',
+                    # requires annotation -> '>>'
                 ],
         }
     )
-    pt = Patterns(jsonpath=patterns_file, fragment_bond='~')
-    return Standardizer(df, pt, 'rxn', fragment_bond='~')
-
-
-@pytest.fixture
-def standardizer_with_different_fragment():
-    df = pd.DataFrame(
-        {
-            'rxn':
-                [
-                    '[Li]O>>[Na]Cl',
-                    'CC(C)(C)O[K]$CCC>>[Li]O',
-                    r'CC(=O)/C=C(\C)O[V](=O)O/C(C)=C/C(C)=O$O=C(O[K])O[K].[Li]O>>O[K]',
-                ],
-        }
-    )
-    pt = Patterns(jsonpath=patterns_file, fragment_bond='~')
-    return Standardizer(df, pt, 'rxn', fragment_bond='$')
-
-
-def test_patterns():
-    pt = Patterns(jsonpath=patterns_file, fragment_bond='~')
-
-    assert type(pt.patterns) is dict
-    assert list(pt.patterns.keys()) == ['exception_patterns', 'potassium_compounds']
-
-
-def test_patterns_manipulation():
-    modified = [
-        [
-            r'(?:^|(?<=\~|\.|>))O\[K\](?=\~|\.|>|$)',
-            r'(?:^|(?<=\~|\.|>))\[Li\]O(?=\~|\.|>|$)',
-            r'(?:^|(?<=\~|\.|>))O\[Na\](?=\~|\.|>|$)',
-        ],
-        [
-            r'(?:^|(?<=\~|\.|>))O=C\(O\[K\]\)O\[K\](?=\~|\.|>|$)',
-            r'(?:^|(?<=\~|\.|>))CC\(C\)\(C\)O\[K\](?=\~|\.|>|$)',
-            '(?:^|(?<=\\~|\\.|>))CC\\(=O\\)/C=C\\(\\\\C\\)O\\[V\\]\\'
-            '(=O\\)O/C\\(C\\)=C/C\\(C\\)=O(?=\\~|\\.|>|$)'
-        ]
-    ]
-
-    pt = Patterns(jsonpath=patterns_file, fragment_bond='~')
-
-    for i, elem in enumerate(pt.patterns.values()):
-        for j, pat in enumerate(elem):
-            assert pat[0] == modified[i][j]
+    annotations = load_annotations(annotations_file)
+    return Standardizer(df, annotations, 'rxn', fragment_bond=None)
 
 
 def test_standardization(standardizer):
     new_df = standardizer.standardize().df
     converted_rxns = [
-        '[Li+]~[OH-]>>[Na]Cl',
-        'CC.CCC>>',
-        'CC(C)(C)[O-]~[K+]~CCC>>[Li+]~[OH-]',
-        'CC(=O)C=C(C)[O-]~CC(=O)C=C(C)[O-]~O=[V+2]~O=C([O-])[O-]~[K+]~[K+].[Li+]~[OH-]>>[K+]~[OH-]',
+        '[Na]Cl.CC[Zn]CC.Cc1ccccc1>>[Na]Cl',
+        '[Na]Cl.CC[Zn]CC.Cc1ccccc1>>[Na]Cl',
+        'CC.CCC>>CCO',
+        '>>',  # invalid smiles
+        '>>',  # rejected reaction
+        '>>'  # annotation needed
     ]
 
     assert all([new_df['rxn'].values[i] == converted_rxns[i] for i in range(len(converted_rxns))])
 
 
-def test_standardization_invalid_smiles():
-    df = pd.DataFrame(
-        {
-            'rxn': [
-                '[Li]O>>[Na]Cl',
-                'CC(C)(C)O[K]~CCC>>[Li]O',
-                r'C[N.[Li]O>>O[K]',
-            ],
-        }
-    )
-    pt = Patterns(jsonpath=patterns_file, fragment_bond='~')
-
-    new_df = Standardizer(df, pt, 'rxn', fragment_bond=None).standardize().df
+def test_standardization_non_canonical(standardizer):
+    new_df = standardizer.standardize(canonicalize=False).df
     converted_rxns = [
-        '[Li+]~[OH-]>>[Na]Cl',
-        'CC(C)(C)[O-]~[K+]~CCC>>[Li+]~[OH-]',
+        '[Na]Cl.CC[Zn]CC.Cc1ccccc1>>[Na]Cl',
+        '>>',  # does not reorder fragments, so it will need annotation
+        'CC.CCC>>CCO',
+        '>>',  # invalid smiles
+        '>>',  # rejected reaction
+        '>>'  # annotation needed
+    ]
+
+    assert all([new_df['rxn'].values[i] == converted_rxns[i] for i in range(len(converted_rxns))])
+
+
+def test_standardization_without_fragment(standardizer_without_fragment):
+    new_df = standardizer_without_fragment.standardize().df
+
+    converted_rxns = [
+        '>>',  # does not find 'CC[Zn]CC' alone. Needs annotation
         '>>',
+        'CC.CCC>>CCO',
+        '>>',  # invalid smiles
+        'CC(C)(C)O[K].CCO.CCO>>[Li]O',
+        # not rejected: the check is done at the molecule level and not at the reaction level
+        '>>'
     ]
-
-    assert all([new_df['rxn'].values[i] == converted_rxns[i] for i in range(len(converted_rxns))])
-
-
-def test_standardization_with_same_fragment(standardizer_with_same_fragment):
-    new_df = standardizer_with_same_fragment.standardize().df
-
-    converted_rxns = [
-        '[Li+]~[OH-].[Na+]~[OH-]>>[Na]Cl', 'CC(C)(C)[O-]~[K+].CCC>>[Li+]~[OH-]',
-        'CC(=O)C=C(C)[O-]~CC(=O)C=C(C)[O-]~O=[V+2].O=C([O-])[O-]~[K+]~[K+].[Li+]~[OH-]>>[K+]~[OH-]',
-        'CO.COC(=O)C(C)(C)c1ccc(C(=O)CCCN2CCC(C(O)(c3ccccc3)c3ccccc3)CC2)cc1.Cl.[Na+]~[OH-]>>CC(C)(C(=O)O)c1ccc(C(=O)CCCN2CCC(C(O)(c3ccccc3)c3ccccc3)CC2)cc1~Cl'
-    ]
-
-    assert all([new_df['rxn'].values[i] == converted_rxns[i] for i in range(len(converted_rxns))])
-
-
-def test_standardization_with_different_fragment(standardizer_with_different_fragment):
-    new_df = standardizer_with_different_fragment.standardize().df
-
-    converted_rxns = [
-        '[Li+]$[OH-]>>[Na]Cl',
-        'CC(C)(C)[O-]$[K+]$CCC>>[Li+]$[OH-]',
-        'CC(=O)C=C(C)[O-]$CC(=O)C=C(C)[O-]$O=[V+2]$O=C([O-])[O-]$[K+]$[K+].[Li+]$[OH-]>>[K+]$[OH-]',
-    ]
-
     assert all([new_df['rxn'].values[i] == converted_rxns[i] for i in range(len(converted_rxns))])

@@ -1,350 +1,798 @@
-{
-    "potassium_compounds": [
-        [
-            "O=C([O-])[O-]~[K+]~[K+]",
-            "O=C(O[K])O[K]"
+[
+    {
+        "original_smiles": "O=C([O-])[O-]~[K+]~[K+]",
+        "updated_smiles": "O=C(O[K])O[K]",
+        "decision": "accept",
+        "categories": [
+            "K"
         ],
-        [
-            "CC(C)(C)[O-]~[K+]",
-            "CC(C)(C)O[K]"
+        "comments": []
+    },
+    {
+        "original_smiles": "CC(C)(C)[O-]~[K+]",
+        "updated_smiles": "CC(C)(C)O[K]",
+        "decision": "accept",
+        "categories": [
+            "K"
         ],
-        [
-            "CCC(C)[O-]~[K+]",
-            "CC(C)CO[K]"
+        "comments": []
+    },
+    {
+        "original_smiles": "CCC(C)[O-]~[K+]",
+        "updated_smiles": "CC(C)CO[K]",
+        "decision": "accept",
+        "categories": [
+            "K"
         ],
-        [
-            "CCCC[O-]~[K+]",
-            "CCCCO[K]"
+        "comments": []
+    },
+    {
+        "original_smiles": "CCCC[O-]~[K+]",
+        "updated_smiles": "CCCCO[K]",
+        "decision": "accept",
+        "categories": [
+            "K"
         ],
-        [
-            "O=P([O-])([O-])[O-]~[K+]~[K+]~[K+]",
-            "O=P(O[K])(O[K])O[K]"
+        "comments": []
+    },
+    {
+        "original_smiles": "O=P([O-])([O-])[O-]~[K+]~[K+]~[K+]",
+        "updated_smiles": "O=P(O[K])(O[K])O[K]",
+        "decision": "accept",
+        "categories": [
+            "K"
         ],
-        [
-            "[I-]~[K+]",
-            "[K]I"
+        "comments": []
+    },
+    {
+        "original_smiles": "[I-]~[K+]",
+        "updated_smiles": "[K]I",
+        "decision": "accept",
+        "categories": [
+            "K"
         ],
-        [
-            "[F-]~[K+]",
-            "F[K]"
+        "comments": []
+    },
+    {
+        "original_smiles": "[F-]~[K+]",
+        "updated_smiles": "F[K]",
+        "decision": "accept",
+        "categories": [
+            "K"
         ],
-        [
-            "[K+]~[OH-]",
-            "O[K]"
+        "comments": []
+    },
+    {
+        "original_smiles": "[K+]~[OH-]",
+        "updated_smiles": "O[K]",
+        "decision": "accept",
+        "categories": [
+            "K"
         ],
-        [
-            "[C-]#N~[K+]",
-            "N#C[K]"
+        "comments": []
+    },
+    {
+        "original_smiles": "[C-]#N~[K+]",
+        "updated_smiles": "N#C[K]",
+        "decision": "accept",
+        "categories": [
+            "K"
         ],
-        [
-            "C[Si](C)(C)[N-][Si](C)(C)C~[K+]",
-            "C[Si](C)(C)N([K])[Si](C)(C)C"
+        "comments": []
+    },
+    {
+        "original_smiles": "C[Si](C)(C)[N-][Si](C)(C)C~[K+]",
+        "updated_smiles": "C[Si](C)(C)N([K])[Si](C)(C)C",
+        "decision": "accept",
+        "categories": [
+            "K"
         ],
-        [
-            "[Br-]~[K+]",
-            "[K]Br"
+        "comments": []
+    },
+    {
+        "original_smiles": "[Br-]~[K+]",
+        "updated_smiles": "[K]Br",
+        "decision": "accept",
+        "categories": [
+            "K"
         ],
-        [
-            "O=S(=O)([O-])O~[K+]",
-            "O=S(=O)(O)O[K]"
+        "comments": []
+    },
+    {
+        "original_smiles": "O=S(=O)([O-])O~[K+]",
+        "updated_smiles": "O=S(=O)(O)O[K]",
+        "decision": "accept",
+        "categories": [
+            "K"
         ],
-        [
-            "O=S([O-])OO~[K+]",
-            "O=S(OO)O[K]"
+        "comments": []
+    },
+    {
+        "original_smiles": "O=S([O-])OO~[K+]",
+        "updated_smiles": "O=S(OO)O[K]",
+        "decision": "accept",
+        "categories": [
+            "K"
         ],
-        [
-            "[I]~[K]",
-            "[K]I"
+        "comments": []
+    },
+    {
+        "original_smiles": "[I]~[K]",
+        "updated_smiles": "[K]I",
+        "decision": "accept",
+        "categories": [
+            "K"
         ],
-        [
-            "[I-]~[K+]",
-            "[K]I"
+        "comments": []
+    },
+    {
+        "original_smiles": "[I-]~[K+]",
+        "updated_smiles": "[K]I",
+        "decision": "accept",
+        "categories": [
+            "K"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "C[C-](C)C~[Li+]",
+        "updated_smiles": "[Li]C(C)(C)C",
+        "decision": "accept",
+        "categories": [
+            "Li"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "C[CH-]CC~[Li+]",
+        "updated_smiles": "[Li]C(C)CC",
+        "decision": "accept",
+        "categories": [
+            "Li"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "[CH2-]C(C)C~[Li+]",
+        "updated_smiles": "[Li]CC(C)C",
+        "decision": "accept",
+        "categories": [
+            "Li"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "[CH2-]CCC~[Li+]",
+        "updated_smiles": "[Li]CCCC",
+        "decision": "accept",
+        "categories": [
+            "Li"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "[2H]O[Li]",
+        "updated_smiles": "[Li]O",
+        "decision": "accept",
+        "categories": [
+            "Li"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "[Li+]~[OH-]",
+        "updated_smiles": "[Li]O",
+        "decision": "accept",
+        "categories": [
+            "Li"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "CCC[N-]CCC~[Li+]",
+        "updated_smiles": "[Li]N(CCC)CCC",
+        "decision": "accept",
+        "categories": [
+            "Li"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "C[Si](C)(C)[N-][Si](C)(C)C~[Li+]",
+        "updated_smiles": "[Li]N([Si](C)(C)C)[Si](C)(C)C",
+        "decision": "accept",
+        "categories": [
+            "Li"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "CC(C)[N-]C(C)C~[Li+]",
+        "updated_smiles": "[Li]N(C(C)C)C(C)C",
+        "decision": "accept",
+        "categories": [
+            "Li"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "[Cl-]~[Li+]",
+        "updated_smiles": "[Li]Cl",
+        "decision": "accept",
+        "categories": [
+            "Li"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "[B+3]~[H-]~[H-]~[H-]~[H-]~[Li+]",
+        "updated_smiles": "[BH4-]~[Li+]",
+        "decision": "accept",
+        "categories": [
+            "Li"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "[2H]C([2H])([2H])[Li]",
+        "updated_smiles": "[Li]C",
+        "decision": "accept",
+        "categories": [
+            "Li"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "[CH3-]~[Li+]",
+        "updated_smiles": "[Li]C",
+        "decision": "accept",
+        "categories": [
+            "Li"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "[Br-]~[Li+]",
+        "updated_smiles": "[Li]Br",
+        "decision": "accept",
+        "categories": [
+            "Li"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "CCCCCC~[CH2-]CCC~[Li+]",
+        "updated_smiles": "CCCCCC.[Li]CCCC",
+        "decision": "accept",
+        "categories": [
+            "Li"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "CCCCCC~[CH2]CCC~[Li]",
+        "updated_smiles": "CCCCCC.[Li]CCCC",
+        "decision": "accept",
+        "categories": [
+            "Li"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "[2H][O-]~[Na+]",
+        "updated_smiles": "O[Na]",
+        "decision": "accept",
+        "categories": [
+            "Na"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "[Na+]~[OH-]",
+        "updated_smiles": "O[Na]",
+        "decision": "accept",
+        "categories": [
+            "Na"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "[24NaH]",
+        "updated_smiles": "[NaH]",
+        "decision": "accept",
+        "categories": [
+            "Na"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "[7NaH]",
+        "updated_smiles": "[NaH]",
+        "decision": "accept",
+        "categories": [
+            "Na"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "[H-]~[Na+]",
+        "updated_smiles": "[NaH]",
+        "decision": "accept",
+        "categories": [
+            "Na"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "[Na][H]",
+        "updated_smiles": "[NaH]",
+        "decision": "accept",
+        "categories": [
+            "Na"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "O=C([O-])O~[Na+]",
+        "updated_smiles": "O=C(O)O[Na]",
+        "decision": "accept",
+        "categories": [
+            "Na"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "[2H][B-]([2H])([2H])[2H]~[Na+]",
+        "updated_smiles": "[BH4-]~[Na+]",
+        "decision": "accept",
+        "categories": [
+            "Na"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "[B+3]~[H-]~[H-]~[H-]~[H-]~[Na+]",
+        "updated_smiles": "[BH4-]~[Na+]",
+        "decision": "accept",
+        "categories": [
+            "Na"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "O=C([O-])[O-]~[Na+]~[Na+]",
+        "updated_smiles": "O=C(O[Na])O[Na]",
+        "decision": "accept",
+        "categories": [
+            "Na"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "CC(=O)OOC(C)=O~O=C(O)CB[Na]",
+        "updated_smiles": "CC(=O)O[BH-](OC(C)=O)OC(C)=O~[Na+]",
+        "decision": "accept",
+        "categories": [
+            "Na"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "B~N#C[Na]",
+        "updated_smiles": "[BH3-]C#N~[Na+]",
+        "decision": "accept",
+        "categories": [
+            "Na"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "BC#N~[H-]~[Na+]",
+        "updated_smiles": "[BH3-]C#N~[Na+]",
+        "decision": "accept",
+        "categories": [
+            "Na"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "[2H]C([2H])([2H])O[Na]",
+        "updated_smiles": "CO[Na]",
+        "decision": "accept",
+        "categories": [
+            "Na"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "C[O-]~[Na+]",
+        "updated_smiles": "CO[Na]",
+        "decision": "accept",
+        "categories": [
+            "Na"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "CC(=O)[O-]~[Na+]",
+        "updated_smiles": "CC(=O)O[Na]",
+        "decision": "accept",
+        "categories": [
+            "Na"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "C1CCOC1~[NaH]",
+        "updated_smiles": "C1CCOC1.[NaH]",
+        "decision": "accept",
+        "categories": [
+            "Na"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "C1CCOC1~[H-]~[Na+]",
+        "updated_smiles": "C1CCOC1.[NaH]",
+        "decision": "accept",
+        "categories": [
+            "Na"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "CC(C)(C)[O-]~[Na+]",
+        "updated_smiles": "CC(C)(C)O[Na]",
+        "decision": "accept",
+        "categories": [
+            "Na"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "CC(C)C[O-]~[Na+]",
+        "updated_smiles": "CC(C)CO[Na]",
+        "decision": "accept",
+        "categories": [
+            "Na"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "CCC(C)[O-]~[Na+]",
+        "updated_smiles": "CCC(C)O[Na]",
+        "decision": "accept",
+        "categories": [
+            "Na"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "CCCC[O-]~[Na+]",
+        "updated_smiles": "CCCCO[Na]",
+        "decision": "accept",
+        "categories": [
+            "Na"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "[I]~[Na]",
+        "updated_smiles": "[Na]I",
+        "decision": "accept",
+        "categories": [
+            "Na"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "[I-]~[Na+]",
+        "updated_smiles": "[Na]I",
+        "decision": "accept",
+        "categories": [
+            "Na"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "O~[Cl-]~[Na+]",
+        "updated_smiles": "O~[Na]Cl",
+        "decision": "accept",
+        "categories": [
+            "Na"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "[N-]=[N+]=[N-]~[Na+]",
+        "updated_smiles": "[N-]=[N+]=N[Na]",
+        "decision": "accept",
+        "categories": [
+            "Na"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "O=N[O-]~[Na+]",
+        "updated_smiles": "O=NO[Na]",
+        "decision": "accept",
+        "categories": [
+            "Na"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "[Cl-]~[Na+]",
+        "updated_smiles": "[Na]Cl",
+        "decision": "accept",
+        "categories": [
+            "Na"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "[Na+]~[OH-]",
+        "updated_smiles": "O[Na]",
+        "decision": "accept",
+        "categories": [
+            "Na"
+        ],
+        "comments": []
+    },
+    {
+        "original_smiles": "O=COO[Na]",
+        "updated_smiles": null,
+        "decision": "reject",
+        "categories": [
+            "Na"
+        ],
+        "comments": [
+            "from 'sodium methaneperoxoate', not sure what it is and inconsistent formula in Pistachio"
         ]
-    ],
-    "lithium_compounds": [
-        [
-            "C[C-](C)C~[Li+]",
-            "[Li]C(C)(C)C"
+    },
+    {
+        "original_smiles": "O=CO[O-]~[Na+]",
+        "updated_smiles": null,
+        "decision": "reject",
+        "categories": [
+            "Na"
         ],
-        [
-            "C[CH-]CC~[Li+]",
-            "[Li]C(C)CC"
-        ],
-        [
-            "[CH2-]C(C)C~[Li+]",
-            "[Li]CC(C)C"
-        ],
-        [
-            "[CH2-]CCC~[Li+]",
-            "[Li]CCCC"
-        ],
-        [
-            "[2H]O[Li]",
-            "[Li]O"
-        ],
-        [
-            "[Li+]~[OH-]",
-            "[Li]O"
-        ],
-        [
-            "CCC[N-]CCC~[Li+]",
-            "[Li]N(CCC)CCC"
-        ],
-        [
-            "C[Si](C)(C)[N-][Si](C)(C)C~[Li+]",
-            "[Li]N([Si](C)(C)C)[Si](C)(C)C"
-        ],
-        [
-            "CC(C)[N-]C(C)C~[Li+]",
-            "[Li]N(C(C)C)C(C)C"
-        ],
-        [
-            "[Cl-]~[Li+]",
-            "[Li]Cl"
-        ],
-        [
-            "[B+3]~[H-]~[H-]~[H-]~[H-]~[Li+]",
-            "[BH4-]~[Li+]"
-        ],
-        [
-            "[2H]C([2H])([2H])[Li]",
-            "[Li]C"
-        ],
-        [
-            "[CH3-]~[Li+]",
-            "[Li]C"
-        ],
-        [
-            "[Br-]~[Li+]",
-            "[Li]Br"
-        ],
-        [
-            "CCCCCC~[CH2-]CCC~[Li+]",
-            "CCCCCC.[Li]CCCC"
-        ],
-        [
-            "CCCCCC~[CH2]CCC~[Li]",
-            "CCCCCC.[Li]CCCC"
+        "comments": [
+            "from 'sodium methaneperoxoate', not sure what it is and inconsistent formula in Pistachio"
         ]
-    ],
-    "sodium_compounds": [
-        [
-            "[2H][O-]~[Na+]",
-            "O[Na]"
+    },
+    {
+        "original_smiles": "CN([Si-](C)C)[Si](C)(C)C~[Na+]",
+        "updated_smiles": "C[Si](C)(C)N([Na])[Si](C)(C)C",
+        "decision": "accept",
+        "categories": [
+            "Si"
         ],
-        [
-            "[Na+]~[OH-]",
-            "O[Na]"
+        "comments": []
+    },
+    {
+        "original_smiles": "C[Si](C)(C)[N-][Si](C)(C)C~[Na+]",
+        "updated_smiles": "C[Si](C)(C)N([Na])[Si](C)(C)C",
+        "decision": "accept",
+        "categories": [
+            "Si"
         ],
-        [
-            "[24NaH]",
-            "[NaH]"
+        "comments": []
+    },
+    {
+        "original_smiles": "[C-]#[N+][Si](C)(C)C",
+        "updated_smiles": "C[Si](C)(C)C#N",
+        "decision": "accept",
+        "categories": [
+            "Si"
         ],
-        [
-            "[7NaH]",
-            "[NaH]"
+        "comments": []
+    },
+    {
+        "original_smiles": "[O-2]~[O-2]~[Si+4]",
+        "updated_smiles": "O=[Si]=O",
+        "decision": "accept",
+        "categories": [
+            "Si"
         ],
-        [
-            "[H-]~[Na+]",
-            "[NaH]"
+        "comments": []
+    },
+    {
+        "original_smiles": "[O][Si][O]",
+        "updated_smiles": "O=[Si]=O",
+        "decision": "accept",
+        "categories": [
+            "Si"
         ],
-        [
-            "[Na][H]",
-            "[NaH]"
+        "comments": []
+    },
+    {
+        "original_smiles": "C[S+](C)[O-]",
+        "updated_smiles": "CS(C)=O",
+        "decision": "accept",
+        "categories": [
+            "S"
         ],
-        [
-            "O=C([O-])O~[Na+]",
-            "O=C(O)O[Na]"
+        "comments": []
+    },
+    {
+        "original_smiles": "[2H]C([2H])([2H])S(=O)C([2H])([2H])[2H]",
+        "updated_smiles": "CS(C)=O",
+        "decision": "accept",
+        "categories": [
+            "S"
         ],
-        [
-            "[2H][B-]([2H])([2H])[2H]~[Na+]",
-            "[BH4-]~[Na+]"
+        "comments": []
+    },
+    {
+        "original_smiles": "[2H]C([2H])([2H])[S]([O])C([2H])([2H])[2H]",
+        "updated_smiles": "CS(C)=O",
+        "decision": "accept",
+        "categories": [
+            "S"
         ],
-        [
-            "[B+3]~[H-]~[H-]~[H-]~[H-]~[Na+]",
-            "[BH4-]~[Na+]"
+        "comments": []
+    },
+    {
+        "original_smiles": "[2H]OS(=O)(=O)O[2H]",
+        "updated_smiles": "O=S(=O)(O)O",
+        "decision": "accept",
+        "categories": [
+            "S"
         ],
-        [
-            "O=C([O-])[O-]~[Na+]~[Na+]",
-            "O=C(O[Na])O[Na]"
+        "comments": []
+    },
+    {
+        "original_smiles": "ClOSCl",
+        "updated_smiles": "O=S(Cl)Cl",
+        "decision": "accept",
+        "categories": [
+            "S"
         ],
-        [
-            "CC(=O)OOC(C)=O~O=C(O)CB[Na]",
-            "CC(=O)O[BH-](OC(C)=O)OC(C)=O~[Na+]"
+        "comments": []
+    },
+    {
+        "original_smiles": "[O][S](Cl)Cl",
+        "updated_smiles": "O=S(Cl)Cl",
+        "decision": "accept",
+        "categories": [
+            "S"
         ],
-        [
-            "B~N#C[Na]",
-            "[BH3-]C#N~[Na+]"
+        "comments": []
+    },
+    {
+        "original_smiles": "[2H]C([2H])([2H])S(=O)(=O)Cl",
+        "updated_smiles": "CS(=O)(=O)Cl",
+        "decision": "accept",
+        "categories": [
+            "S"
         ],
-        [
-            "BC#N~[H-]~[Na+]",
-            "[BH3-]C#N~[Na+]"
+        "comments": []
+    },
+    {
+        "original_smiles": "O=S(=O)([O-])[O-]~[Na+]~[Na+]",
+        "updated_smiles": "O=S(=O)(O[Na])O[Na]",
+        "decision": "accept",
+        "categories": [
+            "S"
         ],
-        [
-            "[2H]C([2H])([2H])O[Na]",
-            "CO[Na]"
+        "comments": []
+    },
+    {
+        "original_smiles": "CO[SH](=O)=O",
+        "updated_smiles": "CS(=O)(=O)O",
+        "decision": "accept",
+        "categories": [
+            "S"
         ],
-        [
-            "C[O-]~[Na+]",
-            "CO[Na]"
+        "comments": []
+    },
+    {
+        "original_smiles": "O=S(=O)([O-])[O-]~[Mg+2]",
+        "updated_smiles": "O=S1(=O)O[Mg]O1",
+        "decision": "accept",
+        "categories": [
+            "S"
         ],
-        [
-            "CC(=O)[O-]~[Na+]",
-            "CC(=O)O[Na]"
+        "comments": []
+    },
+    {
+        "original_smiles": "[2H]C([2H])([2H])OS(=O)(=O)OC([2H])([2H])[2H]",
+        "updated_smiles": "COS(=O)(=O)OC",
+        "decision": "accept",
+        "categories": [
+            "S"
         ],
-        [
-            "C1CCOC1~[NaH]",
-            "C1CCOC1.[NaH]"
+        "comments": []
+    },
+    {
+        "original_smiles": "[N-]=C=S~[NH4+]",
+        "updated_smiles": "N#C[S-]~[NH4+]",
+        "decision": "accept",
+        "categories": [
+            "S"
         ],
-        [
-            "C1CCOC1~[H-]~[Na+]",
-            "C1CCOC1.[NaH]"
+        "comments": []
+    },
+    {
+        "original_smiles": "[NH-]C(N)=[SH+]",
+        "updated_smiles": "NC(N)=S",
+        "decision": "accept",
+        "categories": [
+            "S"
         ],
-        [
-            "CC(C)(C)[O-]~[Na+]",
-            "CC(C)(C)O[Na]"
+        "comments": []
+    },
+    {
+        "original_smiles": "CC(O)S",
+        "updated_smiles": "OCCS",
+        "decision": "accept",
+        "categories": [
+            "S"
         ],
-        [
-            "CC(C)C[O-]~[Na+]",
-            "CC(C)CO[Na]"
+        "comments": []
+    },
+    {
+        "original_smiles": "CSCO",
+        "updated_smiles": "OCCS",
+        "decision": "accept",
+        "categories": [
+            "S"
         ],
-        [
-            "CCC(C)[O-]~[Na+]",
-            "CCC(C)O[Na]"
+        "comments": []
+    },
+    {
+        "original_smiles": "N=C(N)S",
+        "updated_smiles": "NC(N)=S",
+        "decision": "accept",
+        "categories": [
+            "S"
         ],
-        [
-            "CCCC[O-]~[Na+]",
-            "CCCCO[Na]"
+        "comments": []
+    },
+    {
+        "original_smiles": "N=C(N)S",
+        "updated_smiles": "NC(N)=S",
+        "decision": "accept",
+        "categories": [
+            "S"
         ],
-        [
-            "[I]~[Na]",
-            "[Na]I"
+        "comments": []
+    },
+    {
+        "original_smiles": "[ClH]",
+        "updated_smiles": "Cl",
+        "decision": "accept",
+        "categories": [
+            "additional_patterns"
         ],
-        [
-            "[I-]~[Na+]",
-            "[Na]I"
+        "comments": []
+    },
+    {
+        "original_smiles": "[BrH]",
+        "updated_smiles": "Br",
+        "decision": "accept",
+        "categories": [
+            "additional_patterns"
         ],
-        [
-            "O~[Cl-]~[Na+]",
-            "O~[Na]Cl"
+        "comments": []
+    },
+    {
+        "original_smiles": "C=O~OSO",
+        "updated_smiles": null,
+        "decision": "reject",
+        "categories": [
+            "additional_patterns"
         ],
-        [
-            "[N-]=[N+]=[N-]~[Na+]",
-            "[N-]=[N+]=N[Na]"
+        "comments": []
+    },
+    {
+        "original_smiles": "O~O",
+        "updated_smiles": "O",
+        "decision": "accept",
+        "categories": [
+            "additional_patterns"
         ],
-        [
-            "O=N[O-]~[Na+]",
-            "O=NO[Na]"
-        ],
-        [
-            "[Cl-]~[Na+]",
-            "[Na]Cl"
-        ],
-        [
-            "[Na+]~[OH-]",
-            "O[Na]"
-        ]
-    ],
-    "silicum_compounds": [
-        [
-            "CN([Si-](C)C)[Si](C)(C)C~[Na+]",
-            "C[Si](C)(C)N([Na])[Si](C)(C)C"
-        ],
-        [
-            "C[Si](C)(C)[N-][Si](C)(C)C~[Na+]",
-            "C[Si](C)(C)N([Na])[Si](C)(C)C"
-        ],
-        [
-            "[C-]#[N+][Si](C)(C)C",
-            "C[Si](C)(C)C#N"
-        ],
-        [
-            "[O-2]~[O-2]~[Si+4]",
-            "O=[Si]=O"
-        ],
-        [
-            "[O][Si][O]",
-            "O=[Si]=O"
-        ]
-    ],
-    "sulphur_compounds": [
-        [
-            "C[S+](C)[O-]",
-            "CS(C)=O"
-        ],
-        [
-            "[2H]C([2H])([2H])S(=O)C([2H])([2H])[2H]",
-            "CS(C)=O"
-        ],
-        [
-            "[2H]C([2H])([2H])[S]([O])C([2H])([2H])[2H]",
-            "CS(C)=O"
-        ],
-        [
-            "[2H]OS(=O)(=O)O[2H]",
-            "O=S(=O)(O)O"
-        ],
-        [
-            "ClOSCl",
-            "O=S(Cl)Cl"
-        ],
-        [
-            "[O][S](Cl)Cl",
-            "O=S(Cl)Cl"
-        ],
-        [
-            "[2H]C([2H])([2H])S(=O)(=O)Cl",
-            "CS(=O)(=O)Cl"
-        ],
-        [
-            "O=S(=O)([O-])[O-]~[Na+]~[Na+]",
-            "O=S(=O)(O[Na])O[Na]"
-        ],
-        [
-            "CO[SH](=O)=O",
-            "CS(=O)(=O)O"
-        ],
-        [
-            "O=S(=O)([O-])[O-]~[Mg+2]",
-            "O=S1(=O)O[Mg]O1"
-        ],
-        [
-            "[2H]C([2H])([2H])OS(=O)(=O)OC([2H])([2H])[2H]",
-            "COS(=O)(=O)OC"
-        ],
-        [
-            "[N-]=C=S~[NH4+]",
-            "N#C[S-]~[NH4+]"
-        ],
-        [
-            "[NH-]C(N)=[SH+]",
-            "NC(N)=S"
-        ],
-        [
-            "CC(O)S",
-            "OCCS"
-        ],
-        [
-            "CSCO",
-            "OCCS"
-        ],
-        [
-            "N=C(N)S",
-            "NC(N)=S"
-        ],
-        [
-            "N=C(N)S",
-            "NC(N)=S"
-        ]
-    ],
-    "additional_patterns": [
-        [
-            "[ClH]",
-            "Cl"
-        ],
-        [
-            "[BrH]",
-            "Br"
-        ]
-    ]
-}
+        "comments": ["ice water"]
+    }
+]
