@@ -76,7 +76,7 @@ class StandardizeConfig:
     annotation_file_paths: List[str] = field(
         default_factory=lambda: [
             str(standardization_files_directory() / 'pistachio-210428.json'),
-            str(standardization_files_directory() / 'catalyst-annotation-210424.json')
+            str(standardization_files_directory() / 'catalyst-annotation-210428.json')
         ]
     )
     output_file_path: str = SI('${data.proc_dir}/${data.name}.standardized.csv')
@@ -187,33 +187,19 @@ class TokenizeConfig:
 
 @dataclass
 class Config:
-    defaults: List[Any] = field(
-        default_factory=lambda: [
-            {
-                'data': 'base_data'
-            }, {
-                'common': 'base_common'
-            }, {
-                'standardize': 'base_standardize'
-            }, {
-                'preprocess': 'base_preprocess'
-            }, {
-                'augment': 'base_augment'
-            }, {
-                'split': 'base_split'
-            }, {
-                'tokenize': 'base_tokenize'
-            }
-        ]
-    )
+    data: DataConfig = field(default_factory=DataConfig)
+    common: CommonConfig = field(default_factory=CommonConfig)
+    standardize: StandardizeConfig = field(default_factory=StandardizeConfig)
+    preprocess: PreprocessConfig = field(default_factory=PreprocessConfig)
+    augment: AugmentConfig = field(default_factory=AugmentConfig)
+    split: SplitConfig = field(default_factory=SplitConfig)
+    tokenize: TokenizeConfig = field(default_factory=TokenizeConfig)
 
-    data: DataConfig = MISSING
-    common: CommonConfig = MISSING
-    standardize: StandardizeConfig = MISSING
-    preprocess: PreprocessConfig = MISSING
-    augment: AugmentConfig = MISSING
-    split: SplitConfig = MISSING
-    tokenize: TokenizeConfig = MISSING
+    @classmethod
+    def from_generic_config(cls, config: Any) -> 'Config':
+        cfg_dict = OmegaConf.merge(OmegaConf.structured(Config), config)
+        cfg = OmegaConf.to_object(cfg_dict)
+        return cfg  # type: ignore
 
 
 cs = ConfigStore.instance()
