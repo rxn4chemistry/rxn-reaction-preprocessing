@@ -24,7 +24,7 @@ def data():
 
 
 def test_split(data):
-    train, validate, test = StableDataSplitter.split(data, 'col_1', split_ratio=0.05)
+    train, validate, test = StableDataSplitter.split(data, 'rxn', 'col_1', split_ratio=0.05)
     assert train.sum() == 889
     assert validate.sum() == 48
     assert test.sum() == 63
@@ -81,8 +81,10 @@ def test_split(data):
 
 
 def test_split_with_different_seed(data):
-    train1, validate1, test1 = StableDataSplitter.split(data, 'col_1', split_ratio=0.05)
-    train2, validate2, test2 = StableDataSplitter.split(data, 'col_1', split_ratio=0.05, seed=123)
+    train1, validate1, test1 = StableDataSplitter.split(data, 'rxn', 'col_1', split_ratio=0.05)
+    train2, validate2, test2 = StableDataSplitter.split(
+        data, 'rxn', 'col_1', split_ratio=0.05, seed=123
+    )
 
     # The generated splits must be different if the seed was different
     assert not train2.equals(train1)

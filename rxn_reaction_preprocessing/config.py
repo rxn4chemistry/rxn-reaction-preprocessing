@@ -57,11 +57,13 @@ class CommonConfig:
     Fields:
         sequence: Ordered sequence of data transformation steps to perform.
         fragment_bond: Token used to denote a fragment bond in the SMILES of the reactions to process.
+        reaction_column_name: Name of the reaction column for the data file.
     """
     sequence: List[Step] = field(
         default_factory=lambda: [Step.STANDARDIZE, Step.PREPROCESS, Step.SPLIT, Step.TOKENIZE]
     )
     fragment_bond: FragmentBond = FragmentBond.DOT
+    reaction_column_name: str = 'rxn'
 
 
 @dataclass
@@ -71,6 +73,8 @@ class StandardizeConfig:
     Fields:
         input_file_path: The input file path (one SMILES per line).
         output_file_path: The output file path containing the result after standardization.
+        fragment_bond: Token used to denote a fragment bond in the reaction SMILES.
+        reaction_column_name: Name of the reaction column for the data file.
     """
     input_file_path: str = SI('${data.path}')
     annotation_file_paths: List[str] = field(
@@ -81,6 +85,7 @@ class StandardizeConfig:
     )
     output_file_path: str = SI('${data.proc_dir}/${data.name}.standardized.csv')
     fragment_bond: FragmentBond = SI('${common.fragment_bond}')
+    reaction_column_name: str = SI('${common.reaction_column_name}')
 
 
 @dataclass
@@ -100,6 +105,8 @@ class PreprocessConfig:
         max_products: The maximum number of products.
         max_products_tokens: The maximum number of products tokens.
         max_absolute_formal_charge: The maximum absolute formal charge.
+        fragment_bond: Token used to denote a fragment bond in the reaction SMILES.
+        reaction_column_name: Name of the reaction column for the data file.
     """
     input_file_path: str = SI('${standardize.output_file_path}')
     output_file_path: str = SI('${data.proc_dir}/${data.name}.processed.csv')
@@ -114,6 +121,7 @@ class PreprocessConfig:
     max_products_tokens: int = 200
     max_absolute_formal_charge: int = 2
     fragment_bond: FragmentBond = SI('${common.fragment_bond}')
+    reaction_column_name: str = SI('${common.reaction_column_name}')
 
 
 @dataclass
@@ -126,13 +134,18 @@ class AugmentConfig:
         tokenize: if tokenization is to be performed
         random_type: The randomization type to be applied
         permutations: number of randomic permutations for input SMILES
+        reaction_column_name: Name of the reaction column for the data file.
+        rxn_section_to_augment: The section of the rxn SMILES to augment.
+            "precursors" for augmenting only the precursors
+            "products" for augmenting only the products
+        fragment_bond: Token used to denote a fragment bond in the reaction SMILES.
     """
     input_file_path: str = SI('${preprocess.output_file_path}')
     output_file_path: str = SI('${data.proc_dir}/${data.name}.augmented.csv')
     tokenize: bool = True
     random_type: RandomType = RandomType.unrestricted
     permutations: int = 1
-    reaction_column_name: str = 'rxn'
+    reaction_column_name: str = SI('${common.reaction_column_name}')
     rxn_section_to_augment: ReactionSection = ReactionSection.precursors
     fragment_bond: FragmentBond = SI('${common.fragment_bond}')
 
@@ -145,12 +158,15 @@ class SplitConfig:
         input_file_path: The input file path.
         output_directory: The directory containing the files after splitting.
         split_ratio: The split ratio between training, and test and validation sets.
+        reaction_column_name: Name of the reaction column for the data file.
+        index_column: Name of the column used to generate the hash ensuring stable splitting.
         seed: Seed for the hashing function used for splitting.
     """
     input_file_path: str = SI('${preprocess.output_file_path}')
     output_directory: str = SI('${data.proc_dir}')
     split_ratio: float = 0.05
-    index_column: str = 'rxn'
+    reaction_column_name: str = SI('${common.reaction_column_name}')
+    index_column: str = SI('${split.reaction_column_name}')
     seed: int = 42
 
 
@@ -162,10 +178,11 @@ class InputOutputTuple:
 
 @dataclass
 class TokenizeConfig:
-    """Configuration for the tokenization tranformation step.
+    """Configuration for the tokenization transformation step.
 
     Fields:
         input_output_pairs: Paths to the input and output files.
+        reaction_column_name: Name of the reaction column for the data file.
     """
     input_output_pairs: List[InputOutputTuple] = field(
         default_factory=lambda: [
@@ -183,6 +200,7 @@ class TokenizeConfig:
             ),
         ]
     )
+    reaction_column_name: str = SI('${common.reaction_column_name}')
 
 
 @dataclass

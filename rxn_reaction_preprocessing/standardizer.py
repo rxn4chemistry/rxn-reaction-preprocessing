@@ -94,12 +94,10 @@ class Standardizer:
         """
          Standardizes the entries of self.df[self.__reaction_column_name]
         """
-        self.df[f'{self.__reaction_column_name}_before_std'] = self.df[
-            f'{self.__reaction_column_name}']
-        self.df[f'{self.__reaction_column_name}'] = self.df[
-            f'{self.__reaction_column_name}'].apply(
-                lambda x: self.__validate_mild(x, canonicalize=canonicalize)
-            )
+        self.df[f'{self.__reaction_column_name}_before_std'] = self.df[self.__reaction_column_name]
+        self.df[self.__reaction_column_name
+                ] = self.df[self.__reaction_column_name
+                            ].apply(lambda x: self.__validate_mild(x, canonicalize=canonicalize))
         self.__detect_missing_annotations()
         self.__filter_reactions_with_rejected_molecules()
         self.__replace_molecules_in_reactions()
@@ -172,7 +170,7 @@ def standardize(cfg: StandardizeConfig) -> None:
     std = Standardizer.read_csv(
         cfg.input_file_path,
         annotations,
-        reaction_column_name='rxn',
+        reaction_column_name=cfg.reaction_column_name,
         fragment_bond=cfg.fragment_bond.value
     )
 

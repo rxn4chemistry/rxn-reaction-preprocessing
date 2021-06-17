@@ -362,13 +362,16 @@ def preprocess(cfg: PreprocessConfig) -> None:
         max_absolute_formal_charge=cfg.max_absolute_formal_charge,
     )
 
-    pp = Preprocessor.read_csv(cfg.input_file_path, 'rxn', fragment_bond=cfg.fragment_bond.value)
+    pp = Preprocessor.read_csv(
+        cfg.input_file_path, cfg.reaction_column_name, fragment_bond=cfg.fragment_bond.value
+    )
 
     # Remove duplicate reactions (useful for large dataset, this step is repeated later)
     pp.remove_duplicates()
 
     # In a first step the data is cleaned, in this case isotope information is removed
-    pp.df.rxn = pp.df.rxn.apply(remove_isotope_information)
+    pp.df[cfg.reaction_column_name
+          ] = pp.df[cfg.reaction_column_name].apply(remove_isotope_information)
 
     # Apply the two functions above to all reactions, the remove_duplicate_molecules argument
     # is set to true to remove duplicate molecules within each reaction part
