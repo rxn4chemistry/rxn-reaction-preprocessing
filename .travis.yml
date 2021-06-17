@@ -2,22 +2,11 @@ language: python
 python:
   - 3.6
 install:
-  # update package repositories
-  - sudo apt-get update
-  # setup conda
-  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-  - bash miniconda.sh -b -p $HOME/miniconda
-  - source "$HOME/miniconda/etc/profile.d/conda.sh"
-  - hash -r
-  - conda config --set always_yes yes --set changeps1 no
-  - conda update -q conda
-  # check conda info
-  - conda info -a
-  # setup the environment
-  - conda create -c rdkit -n rxn-reaction-preprocessing rdkit python=3.6
-  - conda activate rxn-reaction-preprocessing
-  # install rxn-reaction-preprocessing
-  - pip install .[dev]
+  - pip install -e .[dev]
+  # install RDKit. This is not as a setup dependency in order not to install it
+  # in downstream packages and avoid potential conflicts with the conda
+  # installation of RDKit
+  - pip install rdkit-pypi==2021.3.2
 script:
   - flake8
   - |
