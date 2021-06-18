@@ -2,10 +2,13 @@ import json
 from enum import auto
 from pathlib import Path
 from typing import Any
+from typing import Dict
+from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Union
 
+import attr
 from rxn_chemutils.molecule_list import molecule_list_from_string
 from rxn_utilities.rxn_types import RxnEnum
 
@@ -15,11 +18,18 @@ class AnnotationDecision(RxnEnum):
     REJECT = auto()
 
 
+@attr.s(auto_attribs=True, init=False)
 class MoleculeAnnotation:
     """
     Specifies a molecule annotation, i.e. a SMILES string that may have an
     updated SMILES, whether to keep it or not, etc.
     """
+
+    original_smiles: str
+    updated_smiles: Optional[str]
+    decision: AnnotationDecision
+    categories: List[str]
+    extra_info: Dict[str, Any]
 
     def __init__(
         self, original_smiles: str, updated_smiles: Optional[str], decision: str,
@@ -39,11 +49,14 @@ class MoleculeAnnotation:
                 variables.
         """
 
-        self.original_smiles = original_smiles
-        self.updated_smiles = updated_smiles
-        self.decision = AnnotationDecision.from_string(decision)
-        self.categories = categories
-        self.extra_info = extra_info
+        decision_enum = AnnotationDecision.from_string(decision)
+        self.__attrs_init__(  # type: ignore
+            original_smiles=original_smiles,
+            updated_smiles=updated_smiles,
+            decision=decision_enum,
+            categories=categories,
+            extra_info=extra_info
+        )
 
     @property
     def original_without_fragment_bond(self) -> str:
@@ -77,3 +90,19 @@ def load_annotations(json_file: Union[Path, str]) -> List[MoleculeAnnotation]:
         json_content = json.load(f)
 
     return [MoleculeAnnotation(**block) for block in json_content]
+
+
+def load_annotations_multiple(json_files: Iterable[Union[Path, str]]) -> List[MoleculeAnnotation]:
+    """
+    Load the molecule annotations from multiple JSON files.
+
+    Args:
+        json_files: paths to the JSON file containing the annotations.
+
+    Returns:
+        List of annotations.
+    """
+    annotations = []
+    for json_file in json_files:
+        annotations.extend(load_annotations(json_file))
+    return annotations

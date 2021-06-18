@@ -30,7 +30,7 @@ def standardizer():
         }
     )
     annotations = load_annotations(annotations_file)
-    return Standardizer(df, annotations, 'rxn', fragment_bond='~')
+    return Standardizer(df, annotations, True, 'rxn', fragment_bond='~')
 
 
 @pytest.fixture
@@ -50,7 +50,7 @@ def standardizer_without_fragment():
         }
     )
     annotations = load_annotations(annotations_file)
-    return Standardizer(df, annotations, 'rxn', fragment_bond=None)
+    return Standardizer(df, annotations, True, 'rxn', fragment_bond=None)
 
 
 def test_standardization(standardizer):
@@ -92,5 +92,22 @@ def test_standardization_without_fragment(standardizer_without_fragment):
         'CC(C)(C)O[K].CCO.CCO>>[Li]O',
         # not rejected: the check is done at the molecule level and not at the reaction level
         '>>'
+    ]
+    assert all([new_df['rxn'].values[i] == converted_rxns[i] for i in range(len(converted_rxns))])
+
+
+def test_standardization_without_discarding_unannotated(standardizer_without_fragment):
+    standardizer_without_fragment.discard_unannotated_metals = False
+
+    # To compare with the previous test: here the
+    new_df = standardizer_without_fragment.standardize().df
+
+    converted_rxns = [
+        '[Na]Cl.CC[Zn]CC.Cc1ccccc1>>[Na]Cl',
+        '[Na]Cl.Cc1ccccc1.CC[Zn]CC>>[Na]Cl',
+        'CC.CCC>>CCO',
+        '>>',  # invalid smiles
+        'CC(C)(C)O[K].CCO.CCO>>[Li]O',
+        r'CC(=O)/C=C(\C)O[V](=O)O/C(C)=C/C(C)=O.CCCC[N+](CCCC)(CCCC)CCCC.CCCC[N+](CCCC)(CCCC)CCCC.S=c1sc([S-])c([S-])s1.S=c1sc([S-])c([S-])s1.[Pd+2]>>O[K]',
     ]
     assert all([new_df['rxn'].values[i] == converted_rxns[i] for i in range(len(converted_rxns))])

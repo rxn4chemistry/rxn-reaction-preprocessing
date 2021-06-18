@@ -14,7 +14,7 @@ from rxn_chemutils.reaction_equation import canonicalize_compounds
 from rxn_chemutils.reaction_equation import ReactionEquation
 
 from rxn_reaction_preprocessing.annotations.missing_annotation_detector import MissingAnnotationDetector
-from rxn_reaction_preprocessing.annotations.molecule_annotation import load_annotations
+from rxn_reaction_preprocessing.annotations.molecule_annotation import load_annotations_multiple
 from rxn_reaction_preprocessing.annotations.molecule_annotation import MoleculeAnnotation
 from rxn_reaction_preprocessing.annotations.molecule_replacer import MoleculeReplacer
 from rxn_reaction_preprocessing.annotations.rejected_molecules_filter import RejectedMoleculesFilter
@@ -29,6 +29,7 @@ class Standardizer:
         self,
         df: pd.DataFrame,
         annotations: List[MoleculeAnnotation],
+        discard_unannotated_metals: bool,
         reaction_column_name: str,
         fragment_bond: Optional[str] = None,
     ):
@@ -37,11 +38,14 @@ class Standardizer:
         Args:
             df: A pandas DataFrame containing the reaction SMILES.
             annotations: A list of MoleculeAnnotation objects used to perform the substitutions/rejections
+            discard_unannotated_metals: whether reactions containing unannotated
+                molecules with transition metals must be rejected.
             reaction_column_name: The name of the DataFrame column containing the reaction SMILES.
             fragment_bond: the fragment bond used in the dataframe.
         """
         self.df = df
         self.annotations = annotations
+        self.discard_unannotated_metals = discard_unannotated_metals
         self.missing_annotation_detector = MissingAnnotationDetector.from_molecule_annotations(
             self.annotations
         )
@@ -61,10 +65,12 @@ class Standardizer:
                 missing_in_reaction_smiles(x, fragment_bond=self.fragment_bond)
             )
         )
-        self.df[self.__reaction_column_name] = self.df.apply(
-            lambda x: x[self.__reaction_column_name] if not x['rxn_needed_annotations'] else '>>',
-            axis=1
-        )
+        if self.discard_unannotated_metals:
+            self.df[self.__reaction_column_name] = self.df.apply(
+                lambda x: x[self.__reaction_column_name]
+                if not x['rxn_needed_annotations'] else '>>',
+                axis=1
+            )
 
     def __filter_reactions_with_rejected_molecules(self) -> None:
         """
@@ -128,6 +134,7 @@ class Standardizer:
     def read_csv(
         filepath: str,
         annotations: List[MoleculeAnnotation],
+        discard_unannotated_metals: bool,
         reaction_column_name: str,
         fragment_bond: str = None
     ):
@@ -137,6 +144,8 @@ class Standardizer:
         Args:
             filepath (str): The path to the text file containing the reactions.
             annotations: A list of MoleculeAnnotation objects used to perform the substitutions/rejections
+            discard_unannotated_metals: whether reactions containing unannotated
+                molecules with transition metals must be rejected.
             reaction_column_name: The name of the reaction column (or the name that wil be given to the reaction
                 column if the input file has no headers)
             fragment_bond: the fragment bond used.
@@ -151,6 +160,7 @@ class Standardizer:
         return Standardizer(
             df,
             annotations=annotations,
+            discard_unannotated_metals=discard_unannotated_metals,
             reaction_column_name=reaction_column_name,
             fragment_bond=fragment_bond,
         )
@@ -162,14 +172,13 @@ def standardize(cfg: StandardizeConfig) -> None:
         raise ValueError(f'Input file for standardization does not exist: {cfg.input_file_path}')
 
     # Create a list of MoleculeAnnotations from the json files provided.
-    annotations: List[MoleculeAnnotation] = []
-    for file_path in cfg.annotation_file_paths:
-        annotations.extend(load_annotations(file_path))
+    annotations = load_annotations_multiple(cfg.annotation_file_paths)
 
     # Create an instance of the Standardizer
     std = Standardizer.read_csv(
         cfg.input_file_path,
         annotations,
+        discard_unannotated_metals=cfg.discard_unannotated_metals,
         reaction_column_name=cfg.reaction_column_name,
         fragment_bond=cfg.fragment_bond.value
     )

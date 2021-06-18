@@ -4,6 +4,7 @@ import pytest
 
 from rxn_reaction_preprocessing.annotations.molecule_annotation import AnnotationDecision
 from rxn_reaction_preprocessing.annotations.molecule_annotation import load_annotations
+from rxn_reaction_preprocessing.annotations.molecule_annotation import load_annotations_multiple
 from rxn_reaction_preprocessing.annotations.molecule_annotation import MoleculeAnnotation
 
 
@@ -58,3 +59,19 @@ def test_import_from_file():
 
     fourth = annotations[3]
     assert fourth.decision is AnnotationDecision.REJECT
+
+
+def test_import_from_multiple_files():
+    annotation_file = str(Path(__file__).parent / 'test_molecule_annotations.json')
+
+    # Loading 1 file only delivers the same if called from path or from list of paths
+    load_single = load_annotations(annotation_file)
+    load_multiple_1 = load_annotations_multiple([annotation_file])
+    assert load_single == load_multiple_1
+
+    # No removal of duplicates; loading from two files is the same as loading separately
+    load_multiple_2 = load_annotations_multiple([annotation_file, annotation_file])
+    assert load_multiple_2 == load_single + load_single
+
+    # Empty list
+    assert load_annotations_multiple([]) == []

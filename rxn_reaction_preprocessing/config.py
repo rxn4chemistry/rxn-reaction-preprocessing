@@ -22,6 +22,11 @@ from rxn_reaction_preprocessing.utils import standardization_files_directory
 
 OmegaConf.register_new_resolver('stem', lambda p: Path(p).stem)
 
+DEFAULT_ANNOTATION_FILES = [
+    str(standardization_files_directory() / 'pistachio-210428.json'),
+    str(standardization_files_directory() / 'catalyst-annotation-210428.json')
+]
+
 
 @dataclass
 class DataConfig:
@@ -73,16 +78,15 @@ class StandardizeConfig:
     Fields:
         input_file_path: The input file path (one SMILES per line).
         output_file_path: The output file path containing the result after standardization.
+        annotation_file_paths: The files to load the annotated molecules from.
+        discard_unannotated_metals: whether reactions containing unannotated
+            molecules with transition metals must be rejected.
         fragment_bond: Token used to denote a fragment bond in the reaction SMILES.
         reaction_column_name: Name of the reaction column for the data file.
     """
     input_file_path: str = SI('${data.path}')
-    annotation_file_paths: List[str] = field(
-        default_factory=lambda: [
-            str(standardization_files_directory() / 'pistachio-210428.json'),
-            str(standardization_files_directory() / 'catalyst-annotation-210428.json')
-        ]
-    )
+    annotation_file_paths: List[str] = field(default_factory=lambda: DEFAULT_ANNOTATION_FILES)
+    discard_unannotated_metals: bool = True
     output_file_path: str = SI('${data.proc_dir}/${data.name}.standardized.csv')
     fragment_bond: FragmentBond = SI('${common.fragment_bond}')
     reaction_column_name: str = SI('${common.reaction_column_name}')
