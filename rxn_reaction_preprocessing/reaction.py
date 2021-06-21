@@ -6,6 +6,7 @@
 from enum import auto
 from enum import Enum
 from typing import Any
+from typing import Iterable
 from typing import List
 from typing import Set
 from typing import Tuple
@@ -181,6 +182,20 @@ class Reaction:
     def __mols_equal(self, first_mol: Mol, second_mol: Mol) -> bool:
         return self.__mol_to_smiles(first_mol) == self.__mol_to_smiles(second_mol)
 
+    def __get_mols_as_smiles(self, mols: Iterable[Mol]) -> List[str]:
+        return [rdk.MolToSmiles(mol, **self.__smiles_to_mol_kwargs) for mol in mols if mol]
+
+    def __get_formal_charge_for_mols(self, mols: Iterable[Mol]) -> int:
+        return sum(rdk.GetFormalCharge(mol) for mol in mols)
+
+    def __get_atoms_for_mols(self, mols: Iterable[Mol]) -> Set[str]:
+        """Returns the list of atoms, non repetitive, for a list of RDKit Mols.
+
+        Returns:
+            A list of tokens for the atoms.
+        """
+        return {atom.GetSymbol() for mol in mols for atom in mol.GetAtoms()}
+
     #
     # Pubilc Methods
     #
@@ -191,10 +206,7 @@ class Reaction:
         Returns:
             A list of SMILES of the reactants.
         """
-        return [
-            rdk.MolToSmiles(reactant, **self.__smiles_to_mol_kwargs) for reactant in self.reactants
-            if reactant
-        ]
+        return self.__get_mols_as_smiles(self.reactants)
 
     def get_agents_as_smiles(self) -> List[str]:
         """Returns the agents of this reactions as a list of SMILES.
@@ -202,9 +214,7 @@ class Reaction:
         Returns:
             A list of SMILES of the agents.
         """
-        return [
-            rdk.MolToSmiles(agent, **self.__smiles_to_mol_kwargs) for agent in self.agents if agent
-        ]
+        return self.__get_mols_as_smiles(self.agents)
 
     def get_products_as_smiles(self) -> List[str]:
         """Returns the products of this reactions as a list of SMILES.
@@ -212,10 +222,7 @@ class Reaction:
         Returns:
             A list of SMILES of the products.
         """
-        return [
-            rdk.MolToSmiles(product, **self.__smiles_to_mol_kwargs) for product in self.products
-            if product
-        ]
+        return self.__get_mols_as_smiles(self.products)
 
     def get_reactants_formal_charge(self) -> int:
         """Returns the the formal charge for the reactants of this reaction.
@@ -223,11 +230,7 @@ class Reaction:
         Returns:
             Formal charge of the reactants.
         """
-        return rdk.GetFormalCharge(
-            rdk.MolFromSmiles(
-                '.'.join(self.get_reactants_as_smiles()).replace(self.__fragment_bond, '.')
-            )
-        )
+        return self.__get_formal_charge_for_mols(self.reactants)
 
     def get_agents_formal_charge(self) -> int:
         """Returns the the formal charge for the agents of this reaction.
@@ -235,11 +238,7 @@ class Reaction:
         Returns:
             Formal charge of the agents.
         """
-        return rdk.GetFormalCharge(
-            rdk.MolFromSmiles(
-                '.'.join(self.get_agents_as_smiles()).replace(self.__fragment_bond, '.')
-            )
-        )
+        return self.__get_formal_charge_for_mols(self.agents)
 
     def get_products_formal_charge(self) -> int:
         """Returns the the formal charge for the products of this reaction.
@@ -247,11 +246,7 @@ class Reaction:
         Returns:
             Formal charge of the products.
         """
-        return rdk.GetFormalCharge(
-            rdk.MolFromSmiles(
-                '.'.join(self.get_products_as_smiles()).replace(self.__fragment_bond, '.')
-            )
-        )
+        return self.__get_formal_charge_for_mols(self.products)
 
     def get_reactants_atoms(self) -> Set[str]:
         """Returns the list of atoms, non repetitive, for the reactants of this reaction as a Set of strings.
@@ -259,10 +254,7 @@ class Reaction:
         Returns:
             A list of tokens for the atoms.
         """
-        reactants = rdk.MolFromSmiles(
-            '.'.join(self.get_reactants_as_smiles()).replace(self.__fragment_bond, '.')
-        )
-        return {atom.GetSymbol() for atom in reactants.GetAtoms()}
+        return self.__get_atoms_for_mols(self.reactants)
 
     def get_agents_atoms(self) -> Set[str]:
         """Returns the list of atoms, non repetitive, for the agents of this reaction as a Set of strings.
@@ -270,10 +262,7 @@ class Reaction:
         Returns:
             A list of tokens for the atoms.
         """
-        agents = rdk.MolFromSmiles(
-            '.'.join(self.get_agents_as_smiles()).replace(self.__fragment_bond, '.')
-        )
-        return {atom.GetSymbol() for atom in agents.GetAtoms()}
+        return self.__get_atoms_for_mols(self.agents)
 
     def get_products_atoms(self) -> Set[str]:
         """Returns the list of atoms, non repetitive, for the products of this reaction as a Set of strings.
@@ -281,10 +270,7 @@ class Reaction:
         Returns:
             A list of tokens for the atoms.
         """
-        products = rdk.MolFromSmiles(
-            '.'.join(self.get_products_as_smiles()).replace(self.__fragment_bond, '.')
-        )
-        return {atom.GetSymbol() for atom in products.GetAtoms()}
+        return self.__get_atoms_for_mols(self.products)
 
     def find(self, pattern: str) -> Tuple[List[int], List[int], List[int]]:
         """Find the occurences of a SMARTS pattern within the reaction and returns a tuple of lists of indices in the reactants, agents, and products.

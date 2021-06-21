@@ -81,3 +81,16 @@ def test_filter_smarts_keep(preprocessor):
     preprocessor.filter_smarts('[O--]', ReactionPart.reactants, keep=True, verbose=True)
     assert preprocessor.df._rxn_valid_messages.iloc[0] == ['pattern_[O--]']
     assert preprocessor.df._rxn_valid_messages.iloc[1] == ['pattern_[O--]']
+
+
+def test_preprocess_with_rdkit_bug_for_concatenated_smiles():
+    # In an earlier version, preprocessing failed for rare cases when RDKit cannot
+    # convert concatenated SMILES into an RDKit Mol.
+    # See https://github.ibm.com/rxn/rxn_reaction_preprocessing/issues/62
+
+    df = pd.DataFrame({'rxn': ['c1ccccc1.C123C45C16C21C34C561>>CC']})
+    preprocessor = Preprocessor(df, 'rxn')
+    mrf = MixedReactionFilter()
+
+    # This used to raise an exception
+    preprocessor.filter(mrf)
