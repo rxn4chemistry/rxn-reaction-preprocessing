@@ -19,6 +19,7 @@ from rxn_reaction_preprocessing.annotations.molecule_annotation import MoleculeA
 from rxn_reaction_preprocessing.annotations.molecule_replacer import MoleculeReplacer
 from rxn_reaction_preprocessing.annotations.rejected_molecules_filter import RejectedMoleculesFilter
 from rxn_reaction_preprocessing.config import StandardizeConfig
+from rxn_reaction_preprocessing.stereochemistry_operations import remove_chiral_centers
 
 RDLogger.DisableLog('rdApp.*')
 
@@ -32,6 +33,7 @@ class Standardizer:
         discard_unannotated_metals: bool,
         reaction_column_name: str,
         fragment_bond: Optional[str] = None,
+        remove_stereo_if_not_defined_in_precursors: bool = False,
     ):
         """Creates a new instance of the Standardizer class.
 
@@ -42,6 +44,7 @@ class Standardizer:
                 molecules with transition metals must be rejected.
             reaction_column_name: The name of the DataFrame column containing the reaction SMILES.
             fragment_bond: the fragment bond used in the dataframe.
+            remove_stereo_if_not_defined_in_precursors: Remove chiral centers from products.
         """
         self.df = df
         self.annotations = annotations
@@ -53,6 +56,7 @@ class Standardizer:
         self.molecule_replacer = MoleculeReplacer.from_molecule_annotations(self.annotations)
         self.__reaction_column_name = reaction_column_name
         self.fragment_bond = fragment_bond
+        self.remove_stereo_if_not_defined_in_precursors = remove_stereo_if_not_defined_in_precursors
 
     def __detect_missing_annotations(self) -> None:
         """
@@ -96,6 +100,22 @@ class Standardizer:
             replace_in_reaction_smiles(x, fragment_bond=self.fragment_bond)
         )
 
+    def __remove_stereo_if_not_defined_in_precursors(self, canonicalize: bool = True) -> None:
+        """
+        Runs over df and removes stereocenters from products if not explainable by precursors.
+        """
+
+        def check_and_remove_product_stereo(rxn):
+            reactants, reagents, products = rxn.split('>')
+            if '@' in products and not ('@' in reactants or '@' in reagents):
+                rxn = remove_chiral_centers(rxn)  # replaces with the group
+                if canonicalize:  # make sure it is canonical
+                    rxn = self.__validate_mild(rxn, canonicalize=canonicalize)
+            return rxn
+
+        self.df[self.__reaction_column_name] = self.df[
+            self.__reaction_column_name].apply(lambda x: check_and_remove_product_stereo(x))
+
     def standardize(self, canonicalize: bool = True):
         """
          Standardizes the entries of self.df[self.__reaction_column_name]
@@ -107,6 +127,8 @@ class Standardizer:
         self.__detect_missing_annotations()
         self.__filter_reactions_with_rejected_molecules()
         self.__replace_molecules_in_reactions()
+        if self.remove_stereo_if_not_defined_in_precursors:
+            self.__remove_stereo_if_not_defined_in_precursors(canonicalize=canonicalize)
         return self
 
     def __validate_mild(self, smiles: str, canonicalize: bool) -> str:
@@ -136,7 +158,8 @@ class Standardizer:
         annotations: List[MoleculeAnnotation],
         discard_unannotated_metals: bool,
         reaction_column_name: str,
-        fragment_bond: str = None
+        fragment_bond: str = None,
+        remove_stereo_if_not_defined_in_precursors: bool = False
     ):
         """
         A helper function to read a list or csv of VALID reactions (in the sense of RDKIT).
@@ -163,6 +186,7 @@ class Standardizer:
             discard_unannotated_metals=discard_unannotated_metals,
             reaction_column_name=reaction_column_name,
             fragment_bond=fragment_bond,
+            remove_stereo_if_not_defined_in_precursors=remove_stereo_if_not_defined_in_precursors
         )
 
 
@@ -180,7 +204,8 @@ def standardize(cfg: StandardizeConfig) -> None:
         annotations,
         discard_unannotated_metals=cfg.discard_unannotated_metals,
         reaction_column_name=cfg.reaction_column_name,
-        fragment_bond=cfg.fragment_bond.value
+        fragment_bond=cfg.fragment_bond.value,
+        remove_stereo_if_not_defined_in_precursors=cfg.remove_stereo_if_not_defined_in_precursors
     )
 
     # Perform standardization

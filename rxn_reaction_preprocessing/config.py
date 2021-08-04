@@ -83,6 +83,7 @@ class StandardizeConfig:
             molecules with transition metals must be rejected.
         fragment_bond: Token used to denote a fragment bond in the reaction SMILES.
         reaction_column_name: Name of the reaction column for the data file.
+        remove_stereo_if_not_defined_in_precursors: Remove chiral centers from product.
     """
     input_file_path: str = SI('${data.path}')
     annotation_file_paths: List[str] = field(default_factory=lambda: DEFAULT_ANNOTATION_FILES)
@@ -90,6 +91,7 @@ class StandardizeConfig:
     output_file_path: str = SI('${data.proc_dir}/${data.name}.standardized.csv')
     fragment_bond: FragmentBond = SI('${common.fragment_bond}')
     reaction_column_name: str = SI('${common.reaction_column_name}')
+    remove_stereo_if_not_defined_in_precursors: bool = False
 
 
 @dataclass
