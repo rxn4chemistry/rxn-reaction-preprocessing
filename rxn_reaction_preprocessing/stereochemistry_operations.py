@@ -7,7 +7,7 @@
 import re
 
 CHIRAL_CENTER_PATTERN = re.compile(
-    r'\[([^\],@]+)@[^\]]*]'
+    r'\[([^\],@]+)@+([^\]]*)]'
 )  # Matches stereo centres, and groups what comes before @
 
 
@@ -17,4 +17,4 @@ def remove_chiral_centers(smiles: str) -> str:
     Args:
         smiles: non-atom-mapped smiles string.
     """
-    return re.sub(CHIRAL_CENTER_PATTERN, r'\g<1>', smiles)
+    return re.sub(CHIRAL_CENTER_PATTERN, r'[\g<1>\g<2>]', smiles)
