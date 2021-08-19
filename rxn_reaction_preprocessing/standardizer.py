@@ -9,16 +9,15 @@ from typing import Optional
 
 import pandas as pd
 from rdkit import RDLogger
-from rxn_chemutils.miscellaneous import is_valid_smiles
-from rxn_chemutils.reaction_equation import canonicalize_compounds
+from rxn_chemutils.exceptions import InvalidSmiles
 from rxn_chemutils.reaction_equation import ReactionEquation
 
-from rxn_reaction_preprocessing.annotations.missing_annotation_detector import MissingAnnotationDetector
 from rxn_reaction_preprocessing.annotations.molecule_annotation import load_annotations_multiple
 from rxn_reaction_preprocessing.annotations.molecule_annotation import MoleculeAnnotation
-from rxn_reaction_preprocessing.annotations.molecule_replacer import MoleculeReplacer
-from rxn_reaction_preprocessing.annotations.rejected_molecules_filter import RejectedMoleculesFilter
 from rxn_reaction_preprocessing.config import StandardizeConfig
+from rxn_reaction_preprocessing.molecule_standardizer import MissingAnnotation
+from rxn_reaction_preprocessing.molecule_standardizer import MoleculeStandardizer
+from rxn_reaction_preprocessing.molecule_standardizer import RejectedMolecule
 from rxn_reaction_preprocessing.stereochemistry_operations import remove_chiral_centers
 
 RDLogger.DisableLog('rdApp.*')
@@ -47,109 +46,94 @@ class Standardizer:
             remove_stereo_if_not_defined_in_precursors: Remove chiral centers from products.
         """
         self.df = df
-        self.annotations = annotations
-        self.discard_unannotated_metals = discard_unannotated_metals
-        self.missing_annotation_detector = MissingAnnotationDetector.from_molecule_annotations(
-            self.annotations
+        self.molecule_standardizer = MoleculeStandardizer(
+            annotations=annotations,
+            discard_missing_annotations=discard_unannotated_metals,
+            canonicalize=True
         )
-        self.molecule_filter = RejectedMoleculesFilter.from_molecule_annotations(self.annotations)
-        self.molecule_replacer = MoleculeReplacer.from_molecule_annotations(self.annotations)
-        self.__reaction_column_name = reaction_column_name
         self.fragment_bond = fragment_bond
         self.remove_stereo_if_not_defined_in_precursors = remove_stereo_if_not_defined_in_precursors
 
-    def __detect_missing_annotations(self) -> None:
-        """
-        Runs over the df and checks if some reactions still need some annotations.
-        Replaces the reaction with '>>' if the annotation is needed and adds a column 'rxn_needed_annotations'
-        """
-        self.df['rxn_needed_annotations'] = self.df[self.__reaction_column_name].apply(
-            lambda x: list(
-                self.missing_annotation_detector.
-                missing_in_reaction_smiles(x, fragment_bond=self.fragment_bond)
-            )
-        )
-        if self.discard_unannotated_metals:
-            self.df[self.__reaction_column_name] = self.df.apply(
-                lambda x: x[self.__reaction_column_name]
-                if not x['rxn_needed_annotations'] else '>>',
-                axis=1
-            )
+        self.rxn_column = reaction_column_name
+        self.rxn_before_std_column = f'{self.rxn_column}_before_std'
+        self.invalid_smiles_column = f'{self.rxn_column}_invalid_smiles'
+        self.rejected_smiles_column = f'{self.rxn_column}_rejected_smiles'
+        self.missing_annotations_column = f'{self.rxn_column}_missing_annotations'
 
-    def __filter_reactions_with_rejected_molecules(self) -> None:
+    def __remove_stereo_if_not_defined_in_precursors(self, rxn_smiles: str) -> str:
         """
-        Runs over the df and checks if some reactions contain rejected molecules.
-        Replaces the reaction with '>>' if it needs to be discarded
+        Remove stereocenters from products if not explainable by precursors.
         """
-        self.df['rxn_contains_rejected_molecules'] = self.df[self.__reaction_column_name].apply(
-            lambda x: not self.molecule_filter.
-            is_valid_reaction_smiles(x, fragment_bond=self.fragment_bond)
-        )
-        self.df[self.__reaction_column_name] = self.df.apply(
-            lambda x: x[self.__reaction_column_name]
-            if not x['rxn_contains_rejected_molecules'] else '>>',
-            axis=1
-        )
+        if not self.remove_stereo_if_not_defined_in_precursors:
+            return rxn_smiles
 
-    def __replace_molecules_in_reactions(self) -> None:
-        """
-        Runs over the df and for each reaction replaces the molecules that have an annotation.
-        """
-        self.df[self.__reaction_column_name] = self.df[self.__reaction_column_name].apply(
-            lambda x: self.molecule_replacer.
-            replace_in_reaction_smiles(x, fragment_bond=self.fragment_bond)
-        )
+        reactants, reagents, products = rxn_smiles.split('>')
+        if '@' in products and not ('@' in reactants or '@' in reagents):
+            rxn_smiles = remove_chiral_centers(rxn_smiles)  # replaces with the group
+        return rxn_smiles
 
-    def __remove_stereo_if_not_defined_in_precursors(self, canonicalize: bool = True) -> None:
+    def standardize(self, canonicalize: bool = True) -> 'Standardizer':
         """
-        Runs over df and removes stereocenters from products if not explainable by precursors.
+        Standardizes the entries of self.df[self.__reaction_column_name]
         """
+        self.molecule_standardizer.canonicalize = canonicalize
 
-        def check_and_remove_product_stereo(rxn):
-            reactants, reagents, products = rxn.split('>')
-            if '@' in products and not ('@' in reactants or '@' in reagents):
-                rxn = remove_chiral_centers(rxn)  # replaces with the group
-                if canonicalize:  # make sure it is canonical
-                    rxn = self.__validate_mild(rxn, canonicalize=canonicalize)
-            return rxn
+        # Make a copy of the non-standardized reaction SMILES. Achieved by
+        # renaming to enable the "join" operation below without conflict.
+        self.df.rename(columns={self.rxn_column: self.rxn_before_std_column}, inplace=True)
 
-        self.df[self.__reaction_column_name] = self.df[
-            self.__reaction_column_name].apply(lambda x: check_and_remove_product_stereo(x))
+        new_columns: pd.DataFrame = self.df.apply(self.process_row, axis=1)
+        new_columns.columns = [
+            self.rxn_column, self.invalid_smiles_column, self.rejected_smiles_column,
+            self.missing_annotations_column
+        ]
+        # Merge the new columns
+        self.df = self.df.join(new_columns)
 
-    def standardize(self, canonicalize: bool = True):
-        """
-         Standardizes the entries of self.df[self.__reaction_column_name]
-        """
-        self.df[f'{self.__reaction_column_name}_before_std'] = self.df[self.__reaction_column_name]
-        self.df[self.__reaction_column_name
-                ] = self.df[self.__reaction_column_name
-                            ].apply(lambda x: self.__validate_mild(x, canonicalize=canonicalize))
-        self.__detect_missing_annotations()
-        self.__filter_reactions_with_rejected_molecules()
-        self.__replace_molecules_in_reactions()
-        if self.remove_stereo_if_not_defined_in_precursors:
-            self.__remove_stereo_if_not_defined_in_precursors(canonicalize=canonicalize)
         return self
 
-    def __validate_mild(self, smiles: str, canonicalize: bool) -> str:
+    def process_row(self, x: pd.Series) -> pd.Series:
         """
-        Checks if the input reaction SMILES is valid. Returns the canonical SMILES if it is.
-        If it is not it returns '>>'.
+        Function applied to every row of the dataframe to get the new columns.
 
-        Args:
-            smiles (str): a reaction SMILES
         Returns:
-            str: the canonical version of the reaction SMILES
+            Pandas Series with 1) the standardized reaction SMILES, 2) the list
+                of invalid molecules, 3) the list of rejected molecules (from
+                the annotations), 4) the list of missing annotations.
         """
-        reaction_equation = ReactionEquation.from_string(smiles, self.fragment_bond)
-        if not all(is_valid_smiles(molecule) for group in reaction_equation for molecule in group):
-            return '>>'
+        # Get RXN SMILES from the column
+        rxn_smiles = x[self.rxn_before_std_column]
 
-        if not canonicalize:
-            return smiles
+        # Remove stereo information from products, if needed
+        rxn_smiles = self.__remove_stereo_if_not_defined_in_precursors(rxn_smiles)
 
-        return canonicalize_compounds(reaction_equation).to_string(
-            fragment_bond=self.fragment_bond
+        missing_annotations = []
+        invalid_smiles = []
+        rejected_smiles = []
+
+        reaction_equation = ReactionEquation.from_string(rxn_smiles, self.fragment_bond)
+        standardized_reaction = ReactionEquation([], [], [])
+
+        # Iterate over the reactants, agents, products and update the
+        # standardized reaction at the same time
+        for original_role_group, new_role_group in zip(reaction_equation, standardized_reaction):
+            for smiles in original_role_group:
+                try:
+                    new_role_group.extend(self.molecule_standardizer(smiles))
+                except InvalidSmiles:
+                    invalid_smiles.append(smiles)
+                except RejectedMolecule:
+                    rejected_smiles.append(smiles)
+                except MissingAnnotation:
+                    missing_annotations.append(smiles)
+
+        # If there was any error: replace by empty reaction equation (">>")
+        if invalid_smiles or rejected_smiles or missing_annotations:
+            standardized_reaction = ReactionEquation([], [], [])
+
+        standardized_smiles = standardized_reaction.to_string(self.fragment_bond)
+        return pd.Series(
+            [standardized_smiles, invalid_smiles, rejected_smiles, missing_annotations]
         )
 
     @staticmethod
