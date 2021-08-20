@@ -84,50 +84,38 @@ class MixedReactionFilter:
         )
 
     def validate_reasons(self, reaction: Reaction) -> Tuple[bool, List[str]]:
-        valid = True
         reasons = []
 
         if self.max_reactants_exceeded(reaction):
-            valid = False
             reasons.append('max_reactants_exceeded')
         if self.max_agents_exceeded(reaction):
-            valid = False
             reasons.append('max_agents_exceeded')
         if self.max_products_exceeded(reaction):
-            valid = False
             reasons.append('max_products_exceeded')
         if self.min_reactants_subceeded(reaction):
-            valid = False
             reasons.append('min_reactants_subceeded')
         if self.min_agents_subceeded(reaction):
-            valid = False
             reasons.append('min_agents_subceeded')
         if self.min_products_subceeded(reaction):
-            valid = False
             reasons.append('min_products_subceeded')
         if self.products_subset_of_reactants(reaction):
-            valid = False
             reasons.append('products_subset_of_reactants')
         if self.products_single_atoms(reaction):
-            valid = False
             reasons.append('products_single_atoms')
         if self.max_reactant_tokens_exceeded(reaction):
-            valid = False
             reasons.append('max_reactant_tokens_exceeded')
         if self.max_agent_tokens_exceeded(reaction):
-            valid = False
             reasons.append('max_agent_tokens_exceeded')
         if self.max_product_tokens_exceeded(reaction):
-            valid = False
             reasons.append('max_product_tokens_exceeded')
         if self.formal_charge_exceeded(reaction):
-            valid = False
             reasons.append('formal_charge_exceeded')
         if self.different_atom_types(reaction):
-            valid = False
             reasons.append('different_atom_types')
 
-        return (valid, reasons)
+        valid = len(reasons) == 0
+
+        return valid, reasons
 
     def max_reactants_exceeded(self, reaction: Reaction) -> bool:
         """Checks whether the number of reactants exceeds the maximum.

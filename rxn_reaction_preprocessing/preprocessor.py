@@ -289,7 +289,7 @@ class Preprocessor:
                 print(f'\033[93m- {counts[False]} invalid reactions removed.\033[0m')
 
         if self.__valid_message_column in self.df.columns:
-            reasons: 'typing.Counter[str]' = Counter()
+            reasons: typing.Counter[str] = Counter()
             for _, value in self.df[self.__valid_message_column].items():
                 reasons.update(value)
 
@@ -342,7 +342,7 @@ def preprocess(cfg: PreprocessConfig) -> None:
         reaction.agents = []
         return reaction
 
-    def remove_duplicates(reaction: Reaction) -> Reaction:
+    def remove_precursors_from_products_and_sort(reaction: Reaction) -> Reaction:
         # Remove products that are also reactants
         reaction.remove_precursors_from_products()
         return reaction.sort()
@@ -376,7 +376,7 @@ def preprocess(cfg: PreprocessConfig) -> None:
     # Apply the two functions above to all reactions, the remove_duplicate_molecules argument
     # is set to true to remove duplicate molecules within each reaction part
     pp.apply(merge_reactants_and_reagents)
-    pp.apply(remove_duplicates, remove_duplicate_molecules=True)
+    pp.apply(remove_precursors_from_products_and_sort, remove_duplicate_molecules=True)
 
     # Remove duplicate reactions
     pp.remove_duplicates()
