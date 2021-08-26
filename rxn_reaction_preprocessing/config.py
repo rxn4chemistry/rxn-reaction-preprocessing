@@ -24,7 +24,8 @@ OmegaConf.register_new_resolver('stem', lambda p: Path(p).stem)
 
 DEFAULT_ANNOTATION_FILES = [
     str(standardization_files_directory() / 'pistachio-210428.json'),
-    str(standardization_files_directory() / 'catalyst-annotation-210428.json')
+    str(standardization_files_directory() / 'catalyst-annotation-210428.json'),
+    str(standardization_files_directory() / 'catalyst_annotation_210826.json')
 ]
 
 
