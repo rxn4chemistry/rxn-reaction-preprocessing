@@ -20,6 +20,7 @@ def test_extended_transition_metals():
     assert 'C' not in elements_to_check
     assert 'Na' not in elements_to_check
     assert 'Cl' not in elements_to_check
+    assert 'Sn' not in elements_to_check
 
 
 def test_annotation_criterion():
@@ -36,6 +37,9 @@ def test_annotation_criterion():
 
     # Not requiring annotations: Pd (because specified above)
     assert not annotation_criterion('CC[Pd]OC(=O)C')
+
+    # Not requiring annotations: Sn
+    assert not annotation_criterion('CCCC[Sn](CCCC)(CCCC)Cl')
 
     # Requiring annotation: other transition metals
     assert annotation_criterion('CC[Ni]OC(=O)C')

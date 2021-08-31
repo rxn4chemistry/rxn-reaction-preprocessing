@@ -367,7 +367,9 @@ def preprocess(cfg: PreprocessConfig) -> None:
     )
 
     # Remove duplicate reactions (useful for large dataset, this step is repeated later)
+    print(f'\033[92m- {len(pp.df)} initial reactions.\033[0m')
     pp.remove_duplicates()
+    print(f'\033[92m- {len(pp.df)} reactions after first deduplication.\033[0m')
 
     # In a first step the data is cleaned, in this case isotope information is removed
     pp.df[cfg.reaction_column_name
@@ -380,6 +382,7 @@ def preprocess(cfg: PreprocessConfig) -> None:
 
     # Remove duplicate reactions
     pp.remove_duplicates()
+    print(f'\033[92m- {len(pp.df)} reactions after second deduplication.\033[0m')
 
     # Apply the mixed reaction filter instance defined above, enable verbose mode
     pp.filter(mrf, True)

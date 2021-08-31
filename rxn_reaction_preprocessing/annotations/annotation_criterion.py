@@ -83,8 +83,8 @@ class AnnotationCriterion:
             ),
             # first-row transition metals + Ga
             range(21, 32),
-            # second-row transition metals + In + Sn
-            range(39, 51),
+            # second-row transition metals + In
+            range(39, 50),
             # lanthanides + third-row transition metals + Tl + Pb + Bi + Po
             range(57, 85),
             # actinides + fourth-row transition metals

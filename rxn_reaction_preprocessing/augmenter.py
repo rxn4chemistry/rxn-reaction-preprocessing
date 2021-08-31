@@ -134,7 +134,7 @@ class Augmenter:
             raise ValueError
 
         molecules_list = smiles.split('.')
-        total_permutations = range(math.factorial(len(molecules_list)))
+        total_permutations = range(min(math.factorial(len(molecules_list)), 4000000))
         permutation_indices = random.sample(
             total_permutations, min(permutations, len(molecules_list))
         )
@@ -263,6 +263,5 @@ def augment(cfg: AugmentConfig) -> None:
         rxn_section_to_augment=cfg.rxn_section_to_augment,
         permutations=cfg.permutations
     )
-
     # Exporting augmented samples
     augm.to_csv(output_file_path, index=False)
