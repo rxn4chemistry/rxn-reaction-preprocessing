@@ -3,13 +3,13 @@
 # (C) Copyright IBM Corp. 2020
 # ALL RIGHTS RESERVED
 import pytest
+from rxn_chemutils.reaction_equation import ReactionEquation
 
-from rxn_reaction_preprocessing import MixedReactionFilter
-from rxn_reaction_preprocessing import Reaction
+from rxn_reaction_preprocessing.mixed_reaction_filter import MixedReactionFilter
 
 
 @pytest.fixture
-def filter():
+def filter() -> MixedReactionFilter:
     return MixedReactionFilter(
         max_reactants=5,
         max_agents=0,
@@ -25,37 +25,40 @@ def filter():
 
 
 @pytest.fixture
-def good_reaction():
-    return Reaction(
-        'O=[N+]([O-])c1cc(-c2nc3ccccc3o2)ccc1F.C~C>>Nc1cc(-c2nc3ccccc3o2)ccc1NCC(=O)N1CCOCC1'
+def good_reaction() -> ReactionEquation:
+    return ReactionEquation.from_string(
+        'O=[N+]([O-])c1cc(-c2nc3ccccc3o2)ccc1F.C~C>>Nc1cc(-c2nc3ccccc3o2)ccc1NCC(=O)N1CCOCC1',
+        fragment_bond='~'
     )
 
 
 @pytest.fixture
-def bad_reaction():
-    return Reaction('[C].C.[O--].[O--].O.O=[N+]([O-])c1cc(-c2nc3ccccc3o2)ccc1F.C.C>O>O.C')
+def bad_reaction() -> ReactionEquation:
+    return ReactionEquation.from_string(
+        '[C].C.[O--].[O--].O.O=[N+]([O-])c1cc(-c2nc3ccccc3o2)ccc1F.C.C>O>O.C'
+    )
 
 
 @pytest.fixture
-def small_reaction():
-    return Reaction('C>O>')
+def small_reaction() -> ReactionEquation:
+    return ReactionEquation.from_string('C>O>')
 
 
 @pytest.fixture
-def big_reaction():
-    return Reaction(
+def big_reaction() -> ReactionEquation:
+    return ReactionEquation.from_string(
         'CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC>CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC>CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC'
     )
 
 
 @pytest.fixture
-def reaction_with_no_product():
-    return Reaction('CCC.CCCO>OC>')
+def reaction_with_no_product() -> ReactionEquation:
+    return ReactionEquation.from_string('CCC.CCCO>OC>')
 
 
 @pytest.fixture
-def alchemic_reaction():
-    return Reaction('C>[Hg]>[Au]')
+def alchemic_reaction() -> ReactionEquation:
+    return ReactionEquation.from_string('C>[Hg]>[Au]')
 
 
 def test_max_reactants_exceeded(filter, good_reaction, bad_reaction):
@@ -124,3 +127,12 @@ def test_formal_charge_exceeded(filter, good_reaction, bad_reaction):
 def test_different_atom_types(filter, good_reaction, alchemic_reaction):
     assert not filter.different_atom_types(good_reaction)
     assert filter.different_atom_types(alchemic_reaction)
+
+
+def test_invalid_smiles(filter: MixedReactionFilter):
+    # "[J]" is not a valid molecule
+    reaction_with_invalid_smiles = ReactionEquation.from_string('CCCCO.CCCCN.[J]>>CCCCOCCCCN')
+    assert not filter.validate(reaction_with_invalid_smiles)
+
+    assert filter.validate_reasons(reaction_with_invalid_smiles
+                                   ) == (False, ['rdkit_molfromsmiles_failed'])

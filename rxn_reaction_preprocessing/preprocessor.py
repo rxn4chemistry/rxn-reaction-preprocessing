@@ -13,6 +13,7 @@ from typing import List
 import numpy as np
 import pandas as pd
 from rdkit import RDLogger
+from rxn_chemutils.reaction_equation import ReactionEquation
 from tabulate import tabulate
 
 from .mixed_reaction_filter import MixedReactionFilter
@@ -64,33 +65,33 @@ class Preprocessor:
 
     def __filter_func(
         self,
-        reaction: Reaction,
+        reaction_smiles: str,
         filter: MixedReactionFilter,
     ) -> bool:
         """The default filter function.
 
         Args:
-            reaction: An input reaction.
+            reaction_smiles: An input reaction SMILES.
             filter: An instance of MixedReactionFilter to test the reaction against.
 
         Returns:
             A boolean indicating whether or not the reaction is valid according to the supplied parameters.
         """
-        # If reactions contains *any* None values for molecules
-        if reaction.has_none():
-            return False
 
+        reaction = ReactionEquation.from_string(
+            reaction_smiles, fragment_bond=self.__fragment_bond
+        )
         return filter.validate(reaction)
 
     def __filter_func_verbose(
         self,
-        reaction: Reaction,
+        reaction_smiles: str,
         filter: MixedReactionFilter,
     ) -> List[str]:
         """The default verbose filter function.
 
         Args:
-            reaction: An input reaction.
+            reaction_smiles: An input reaction SMILES.
             filter: An instance of MixedReactionFilter to test the reaction against.
 
         Returns:
@@ -98,10 +99,9 @@ class Preprocessor:
         """
         invalid_reasons = []
 
-        # If reactions contains *any* None values for molecules
-        if reaction.has_none():
-            invalid_reasons.append('rdkit_molfromsmiles_failed')
-
+        reaction = ReactionEquation.from_string(
+            reaction_smiles, fragment_bond=self.__fragment_bond
+        )
         _, filter_reasons = filter.validate_reasons(reaction)
         invalid_reasons.extend(filter_reasons)
 
@@ -114,8 +114,8 @@ class Preprocessor:
         self,
         filter: MixedReactionFilter,
         verbose: bool = False,
-        filter_func: Callable[[Reaction, MixedReactionFilter], bool] = None,
-        filter_func_verbose: Callable[[Reaction, MixedReactionFilter], List[str]] = None,
+        filter_func: Callable[[str, MixedReactionFilter], bool] = None,
+        filter_func_verbose: Callable[[str, MixedReactionFilter], List[str]] = None,
     ):
         """Applies filter functions to the reaction. Alternatives for the default filter functions can be supplied. The default filters remove reactions containing molecules that could not be parse by rdkit's MolFromSmiles.
 
@@ -142,10 +142,7 @@ class Preprocessor:
                 self.df[self.__valid_message_column] = np.empty((len(self.df), 0)).tolist()
 
             self.df[self.__valid_message_column] += self.df.apply(
-                lambda row: filter_func_verbose(
-                    Reaction(row[self.__reaction_column_name], fragment_bond=self.__fragment_bond),
-                    filter
-                ),
+                lambda row: filter_func_verbose(row[self.__reaction_column_name], filter),
                 axis=1,
             )
 
@@ -156,11 +153,7 @@ class Preprocessor:
         else:
             self.df[self.__valid_column] = np.logical_and(
                 self.df.apply(
-                    lambda row: filter_func(
-                        Reaction(
-                            row[self.__reaction_column_name], fragment_bond=self.__fragment_bond
-                        ), filter
-                    ),
+                    lambda row: filter_func(row[self.__reaction_column_name], filter),
                     axis=1,
                 ),
                 self.df[self.__valid_column],
