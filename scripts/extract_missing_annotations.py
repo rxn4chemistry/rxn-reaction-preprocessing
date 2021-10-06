@@ -1,17 +1,18 @@
-import click
 import ast
+from collections import Counter
+
+import click
 import pandas as pd
 from rdkit import RDLogger
-from collections import Counter
 from rxn_chemutils.conversion import canonicalize_smiles
 
 RDLogger.DisableLog('rdApp.*')
 
 
 @click.command()
-@click.argument("input_csv", type=str, required=True)
-@click.argument("output_csv", type=str, required=True)
-@click.option("--threshold-counts", '-tc', type=int, default=5)
+@click.argument('input_csv', type=str, required=True)
+@click.argument('output_csv', type=str, required=True)
+@click.option('--threshold-counts', '-tc', type=int, default=5)
 def main(input_csv: str, output_csv: str, threshold_counts: int):
     """
     Script to count and list the number of molecules that still need an annotation.
@@ -23,9 +24,9 @@ def main(input_csv: str, output_csv: str, threshold_counts: int):
     df = pd.read_csv(input_csv)
     print(df.head())
 
-    print(f"Length of dataset before duplicates removal: {len(df)}")
+    print(f'Length of dataset before duplicates removal: {len(df)}')
     df.drop_duplicates(['original_atom_mapped_rxn'], inplace=True)
-    print(f"Length of dataset after duplicates removal: {len(df)}")
+    print(f'Length of dataset after duplicates removal: {len(df)}')
     # converting a "list string" to a list
     df.rxn_missing_annotations = df.rxn_missing_annotations.apply(lambda x: ast.literal_eval(x))
 
@@ -37,22 +38,22 @@ def main(input_csv: str, output_csv: str, threshold_counts: int):
 
     c = Counter(missing_annotations)
     print(c.most_common(10))
-    print(f"Number of missing annotations: {len(c)}")
+    print(f'Number of missing annotations: {len(c)}')
 
     catalysts = []
     counts = []
 
-    for k, c in c.items():
-        if c >= threshold_counts:
-            catalysts.append(k)
-            counts.append(c)
-    print(f"Number of missing annotations with count >={threshold_counts}: {len(catalysts)}")
+    for key, count in c.items():
+        if count >= threshold_counts:
+            catalysts.append(key)
+            counts.append(count)
+    print(f'Number of missing annotations with count >={threshold_counts}: {len(catalysts)}')
 
     with open(output_csv, 'w') as f:
-        f.write("catalysts,counts\n")
+        f.write('catalysts,counts\n')
         for x in zip(catalysts, counts):
-            f.write(f"{x[0]},{x[1]}\n")
+            f.write(f'{x[0]},{x[1]}\n')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
