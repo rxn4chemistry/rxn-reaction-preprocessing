@@ -53,8 +53,8 @@ class Augmenter:
     def __randomize_smiles(self, smiles: str, random_type: RandomType,
                            permutations: int) -> List[str]:
         """
-        Randomizes a molecules SMILES string that might contain fragment bonds and returns a number of augmented versions
-        of the SMILES equal to permutations.
+        Randomizes a molecules SMILES string that might contain fragment bonds
+        and returns a number of augmented versions of the SMILES equal to permutations.
 
         Args:
             smiles (str): The molecules SMILES to augment
@@ -117,9 +117,12 @@ class Augmenter:
     @staticmethod
     def __randomize_molecules(smiles: str, permutations: int) -> List[str]:
         """
-        Randomizes the order of the molecules inside a SMILES string that might contain fragment bonds and returns
-        a number of augmented versions of the SMILES equal to permutations.
-        For a number of molecules smaller than permutations, returns a number of permutations equal to the number of molecules
+        Randomizes the order of the molecules inside a SMILES string that might
+        contain fragment bonds and returns a number of augmented versions of the
+        SMILES equal to permutations.
+
+        For a number of molecules smaller than permutations, returns a number of
+        permutations equal to the number of molecules
 
         Args:
             smiles (str): The molecules SMILES to augment
@@ -156,19 +159,21 @@ class Augmenter:
         permutations: int = 1
     ) -> pd.DataFrame:
         """
-        Creates samples for the augmentation. Returns a a pandas Series containing the augmented samples.
+        Creates samples for the augmentation. Returns a a pandas Series containing the
+        augmented samples.
 
         Args:
             random_type (RandomType): The string identifying the type of randomization to apply.
-                              "molecules" for randomization of the molecules (canonical SMILES kept)
-                              "unrestricted" for unrestricted randomization
-                              "restricted" for restricted randomization
-                              "rotated" for rotated randomization
-                              For details on the differences:
-                              https://github.com/undeadpixel/reinvent-randomized and https://github.com/GLambard/SMILES-X
+                "molecules" for randomization of the molecules (canonical SMILES kept)
+                "unrestricted" for unrestricted randomization
+                "restricted" for restricted randomization
+                "rotated" for rotated randomization
+                For details on the differences:
+                https://github.com/undeadpixel/reinvent-randomized and
+                https://github.com/GLambard/SMILES-X
             rxn_section_to_augment (ReactionSection): The section of the rxn SMILES to augment.
-                              "precursors" for augmenting only the precursors
-                              "products" for augmenting only the products
+                "precursors" for augmenting only the precursors
+                "products" for augmenting only the products
             permutations (int): The number of permutations to generate for each SMILES
 
         Returns:
@@ -212,8 +217,8 @@ class Augmenter:
                     lambda smiles: self.__randomize_molecules(smiles, permutations)
                 )
 
-        # Exploding the dataframe columns where I have the list of augmented versions of a SMILES (the list length is
-        # the number of permutations)
+        # Exploding the dataframe columns where I have the list of augmented
+        # versions of a SMILES (the list length is the number of permutations)
         self.df = self.df.set_index(
             [col for col in self.df.keys() if col not in columns_to_augment]
         ).apply(pd.Series.explode).reset_index()
@@ -236,7 +241,8 @@ class Augmenter:
 
         Args:
             filepath (str): The path to the text file containing the molecules SMILES.
-            reaction_column_name: The name of the reaction column (or the name that wil be given to the reaction column if the input file has no headers).
+            reaction_column_name: The name of the reaction column (or the name that wil be given
+                to the reaction column if the input file has no headers).
             fragment_bond (str): The fragment token in the reaction SMILES
 
         Returns:

@@ -11,6 +11,7 @@ import pandas as pd
 from rdkit import RDLogger
 from rxn_chemutils.exceptions import InvalidSmiles
 from rxn_chemutils.reaction_equation import ReactionEquation
+from rxn_chemutils.reaction_smiles import parse_any_reaction_smiles
 
 from rxn_reaction_preprocessing.annotations.molecule_annotation import load_annotations_multiple
 from rxn_reaction_preprocessing.annotations.molecule_annotation import MoleculeAnnotation
@@ -111,11 +112,13 @@ class Standardizer:
         invalid_smiles = []
         rejected_smiles = []
 
-        reaction_equation = ReactionEquation.from_string(rxn_smiles, self.fragment_bond)
-        standardized_reaction = ReactionEquation([], [], [])
+        # Read the reaction SMILES while allowing for different formats (with
+        # fragment bond, extended reaction SMILES, etc.).
+        reaction_equation = parse_any_reaction_smiles(rxn_smiles)
 
         # Iterate over the reactants, agents, products and update the
         # standardized reaction at the same time
+        standardized_reaction = ReactionEquation([], [], [])
         for original_role_group, new_role_group in zip(reaction_equation, standardized_reaction):
             for smiles in original_role_group:
                 try:
@@ -156,6 +159,7 @@ class Standardizer:
             reaction_column_name: The name of the reaction column (or the name that wil be given to the reaction
                 column if the input file has no headers)
             fragment_bond: the fragment bond used.
+            remove_stereo_if_not_defined_in_precursors: Remove chiral centers from products.
 
         Returns:
             : A new standardizer instance.
@@ -196,4 +200,4 @@ def standardize(cfg: StandardizeConfig) -> None:
     std.standardize(canonicalize=True)
 
     # Exporting standardized samples
-    std.df.to_csv(output_file_path)
+    std.df.to_csv(output_file_path, index=False)

@@ -38,7 +38,8 @@ class Reaction:
 
         Args:
             reaction_smarts: A reaction smarts
-            remove_duplicates: Whether to remove duplicates from within reactants, agents and products. Defaults to False.
+            remove_duplicates: Whether to remove duplicates from within
+                reactants, agents and products. Defaults to False.
             kwargs: Keyword arguments supplied to rdkit MolToSmiles.
             fragment_bond: Token for the modeling of fragment bonds. Defaults to None.
         """
@@ -69,7 +70,8 @@ class Reaction:
     #
 
     def __len__(self):
-        """Returns the number of molecules participating in this reaction (reactants, agents, and products).
+        """Returns the number of molecules participating in this reaction
+        (reactants, agents, and products).
 
         Returns:
             The number of molecules participating in this reaction.
@@ -125,7 +127,8 @@ class Reaction:
         self,
         reaction_smarts: str,
     ) -> Tuple[List[Mol], List[Mol], List[Mol]]:
-        """Creates a tuple of lists of reactants, agents, and products as rdkit Mol instances from a reaction SMARTS.
+        """Creates a tuple of lists of reactants, agents, and products as rdkit
+        Mol instances from a reaction SMARTS.
 
         Args:
             reaction_smarts: A reaction SMARTS.
@@ -166,7 +169,8 @@ class Reaction:
         )
 
     def __mol_to_smiles(self, mol: Mol) -> str:
-        """Encodes a molecule as a SMILES string by applying the rdkit MolToSmiles arguments supplied to this instantce.
+        """Encodes a molecule as a SMILES string by applying the rdkit MolToSmiles arguments
+        supplied to this instantce.
 
         Args:
             mol: An rdkit Mol instance.
@@ -235,7 +239,8 @@ class Reaction:
         return get_formal_charge_for_mols(self.products)
 
     def get_reactants_atoms(self) -> Set[str]:
-        """Returns the list of atoms, non repetitive, for the reactants of this reaction as a Set of strings.
+        """Returns the list of atoms, non repetitive, for the reactants of this
+        reaction as a Set of strings.
 
         Returns:
             A list of tokens for the atoms.
@@ -243,7 +248,8 @@ class Reaction:
         return get_atoms_for_mols(self.reactants)
 
     def get_agents_atoms(self) -> Set[str]:
-        """Returns the list of atoms, non repetitive, for the agents of this reaction as a Set of strings.
+        """Returns the list of atoms, non repetitive, for the agents of this
+        reaction as a Set of strings.
 
         Returns:
             A list of tokens for the atoms.
@@ -251,7 +257,8 @@ class Reaction:
         return get_atoms_for_mols(self.agents)
 
     def get_products_atoms(self) -> Set[str]:
-        """Returns the list of atoms, non repetitive, for the products of this reaction as a Set of strings.
+        """Returns the list of atoms, non repetitive, for the products of this
+        reaction as a Set of strings.
 
         Returns:
             A list of tokens for the atoms.
@@ -259,7 +266,8 @@ class Reaction:
         return get_atoms_for_mols(self.products)
 
     def find(self, pattern: str) -> Tuple[List[int], List[int], List[int]]:
-        """Find the occurences of a SMARTS pattern within the reaction and returns a tuple of lists of indices in the reactants, agents, and products.
+        """Find the occurences of a SMARTS pattern within the reaction and
+        returns a tuple of lists of indices in the reactants, agents, and products.
 
         Args:
             pattern: A SMARTS pattern.
@@ -338,7 +346,8 @@ class Reaction:
         return self
 
     def filter(self, indices: Tuple[List[int], List[int], List[int]]):
-        """Filter for reactants, agents and products based on their index within the respective lists. This is the complement to remove.
+        """Filter for reactants, agents and products based on their index within
+        the respective lists. This is the complement to remove.
 
         Args:
             indices: The indices of the molecules to not be removed from the reaction.
@@ -415,7 +424,8 @@ class Reaction:
         return self
 
     def has_none(self) -> bool:
-        """Checks whether the reactants, agents, or products contain None (usually due to failed rdkit MolFromSmiles).
+        """Checks whether the reactants, agents, or products contain None
+        (usually due to failed rdkit MolFromSmiles).
 
         Returns:
             Whether the reactants, agents, or products contain None.
@@ -434,7 +444,3 @@ class Reaction:
         self.products = [m for m in self.products if m is not None]
 
         return self
-
-    #
-    # Static Methods
-    #

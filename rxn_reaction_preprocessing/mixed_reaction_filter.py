@@ -82,13 +82,15 @@ class MixedReactionFilter:
         ]
 
     def validate(self, reaction: ReactionEquation) -> bool:
-        """Validate a reaction using the rules set on the instance of this MixedReactionFilter class.
+        """Validate a reaction using the rules set on the instance of this
+        MixedReactionFilter class.
 
         Args:
             reaction: The reaction to validate.
 
         Returns:
-            bool: Whether or not the reaction is valid according to the rules set on the instance of this MixedReactionFilter class.
+            bool: Whether or not the reaction is valid according to the rules
+            set on the instance of this MixedReactionFilter class.
         """
 
         def callbacks() -> Generator[Callable[[], bool], None, None]:
@@ -281,13 +283,15 @@ class MixedReactionFilter:
         return len(to_tokens(smiles)) > threshold
 
     def formal_charge_exceeded(self, reaction: Union[MolEquation, ReactionEquation]) -> bool:
-        """Check whether the absolute formal charge of the reactants, agents, or products exceeds a maximum.
+        """Check whether the absolute formal charge of the reactants, agents,
+        or products exceeds a maximum.
 
         Args:
             reaction: The reaction to test.
 
         Returns:
-            bool: Whether the absolute formal charge of the reactants, agents, or products exceeds a maximum.
+            bool: Whether the absolute formal charge of the reactants, agents,
+            or products exceeds a maximum.
         """
         if isinstance(reaction, ReactionEquation):
             reaction = MolEquation.from_reaction_equation(reaction)

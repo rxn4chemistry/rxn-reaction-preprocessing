@@ -24,18 +24,22 @@ class StableDataSplitter:
         split_ratio: float = 0.05,
         seed: int = 0
     ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-        """Creates a stable split into training, validation, and test sets. Returns a boolean mask for each set, to not duplicate the DataFrame while preserving the original.
+        """Creates a stable split into training, validation, and test sets. Returns a boolean mask
+        for each set, to not duplicate the DataFrame while preserving the original.
 
         Args:
-            df (pd.DataFrame): The pandas DataFrame to be split into training, validation, and test sets.
+            df (pd.DataFrame): The pandas DataFrame to be split into training, validation, and
+                test sets.
             reaction_column_name (str): Name of the reaction column for the data file.
-            index_column (str): The name of the column used to generate the hash which ensures stable splitting.
+            index_column (str): The name of the column used to generate the hash which ensures
+                stable splitting.
             split_ratio (float, optional): The split ratio. Defaults to 0.05.
             seed (int): seed to use for hashing. The default of 0 corresponds to the default value
                 in the xxhash implementation.
 
         Returns:
-            Tuple[pd.Series, pd.Series, pd.Series]: A tuple of pandas Series containing a boolean mask of the training, validation and testing set rows within the original DataFrame.
+            Tuple[pd.Series, pd.Series, pd.Series]: A tuple of pandas Series containing a boolean
+                mask of the training, validation and testing set rows within the original DataFrame.
         """
         hash_fn = functools.partial(xxh64_intdigest, seed=seed)
 

@@ -39,10 +39,15 @@ class Preprocessor:
         Args:
             df: A pandas DataFrame containing the reaction SMARTS.
             reaction_column_name: The name of the DataFrame column containing the reaction SMARTS.
-            valid_column: The name of the column to write the validation results to (will be created if it doesn't exist). Defaults to "_rxn_valid".
-            valid_message_column: The name of the column to write the validation messages to in verbose mode (will be created if it doesn't exist). Defaults to "_rxn_valid_messages".
-            fragment_bond: The token that represents fragment bonds in the raction SMILES.
-            clean_data: Whether to run a simple pre-cleaning of the input data (naive check for valid SMARTS reactions based on the number of greater-thans in the string). Defaults to True.
+            valid_column: The name of the column to write the validation results to
+                (will be created if it doesn't exist). Defaults to "_rxn_valid".
+            valid_message_column: The name of the column to write the validation
+                messages to in verbose mode (will be created if it doesn't
+                exist). Defaults to "_rxn_valid_messages".
+            fragment_bond: The token that represents fragment bonds in the reaction SMILES.
+            clean_data: Whether to run a simple pre-cleaning of the input data
+                (naive check for valid SMARTS reactions based on the number of
+                greater-thans in the string). Defaults to True.
         """
         self.df = df
         self.__reaction_column_name = reaction_column_name
@@ -57,7 +62,8 @@ class Preprocessor:
     # Private Methods
     #
     def __clean_data(self):
-        """Drops records from the internal pandas DataFrame that do not contain valid reaction SMARTS (WARNING: Very naive, just checks for two greater-thans)"""
+        """Drops records from the internal pandas DataFrame that do not contain valid reaction
+        SMARTS (WARNING: Very naive, just checks for two greater-thans)"""
         self.df.drop(
             self.df[self.df[self.__reaction_column_name].str.count('>') != 2].index,
             inplace=True,
@@ -75,7 +81,8 @@ class Preprocessor:
             filter: An instance of MixedReactionFilter to test the reaction against.
 
         Returns:
-            A boolean indicating whether or not the reaction is valid according to the supplied parameters.
+            A boolean indicating whether or not the reaction is valid according
+            to the supplied parameters.
         """
 
         reaction = ReactionEquation.from_string(
@@ -117,11 +124,14 @@ class Preprocessor:
         filter_func: Callable[[str, MixedReactionFilter], bool] = None,
         filter_func_verbose: Callable[[str, MixedReactionFilter], List[str]] = None,
     ):
-        """Applies filter functions to the reaction. Alternatives for the default filter functions can be supplied. The default filters remove reactions containing molecules that could not be parse by rdkit's MolFromSmiles.
+        """Applies filter functions to the reaction. Alternatives for the default filter functions
+        can be supplied. The default filters remove reactions containing molecules that could not
+        be parse by rdkit's MolFromSmiles.
 
         Args:
             filter: An instance of MixedReactionFilter to be applied to each reaction.
-            verbose: Whether or not to report the reasons for a reaction being deemed invalid. Defaults to False.
+            verbose: Whether or not to report the reasons for a reaction being
+                deemed invalid. Defaults to False.
             filter_func: A custom filter function. Defaults to None.
             filter_func_verbose: A custom verbose filter function. Defaults to None.
 
@@ -168,13 +178,15 @@ class Preprocessor:
         keep: bool = False,
         verbose: bool = False,
     ):
-        """Filter based on a SMARTS pattern. Unless keep is set to True, filters out reaction where the supplied pattern was found.
+        """Filter based on a SMARTS pattern. Unless keep is set to True, filters
+        out reaction where the supplied pattern was found.
 
         Args:
             pattern: A valid SMARTS pattern.
             reaction_part: Which part of reaction to apply the SMARTS pattern to.
             keep: Whether to mark non-matches as invalid. Defaults to False.
-            verbose: Whether to report the reason for why a reaction is deemed invalid. Defaults to False.
+            verbose: Whether to report the reason for why a reaction is deemed
+                invalid. Defaults to False.
 
         Returns:
             Itself.
@@ -223,8 +235,9 @@ class Preprocessor:
 
         Args:
             func: A function which is applied to each reaction.
-            remove_duplicate_molecules: Whether to remove duplicate molecules when a reaction instance is created from a reaction SMARTS. Defaults to False.
-            smiles_to_mol_kwargs: Additional parameters for the rdkit method MolFromSmiles.
+            remove_duplicate_molecules: Whether to remove duplicate molecules when a reaction
+                instance is created from a reaction SMARTS. Defaults to False.
+            kwargs: Additional parameters for the rdkit method MolFromSmiles.
 
         Returns:
             Itself.
@@ -247,7 +260,8 @@ class Preprocessor:
         return self
 
     def remove_duplicates(self):
-        """A wrapper around pandas' drop_duplicates with the argument subset set to the reaction column name.
+        """A wrapper around pandas' drop_duplicates with the argument subset
+        set to the reaction column name.
 
         Returns:
             Itself.
@@ -307,7 +321,8 @@ class Preprocessor:
 
         Args:
             filepath: The path to the text file containing the reactions.
-            reaction_column_name: The name of the reaction column (or the name that wil be given to the reaction column if the input file has no headers).
+            reaction_column_name: The name of the reaction column (or the name that
+                wil be given to the reaction column if the input file has no headers).
             fragment_bond: The token that represents fragment bonds in the raction SMILES.
 
         Returns:
@@ -387,4 +402,4 @@ def preprocess(cfg: PreprocessConfig) -> None:
     pp.remove_invalids()
 
     # After dropping invalid columns, display stats again (as an example)
-    pp.df.to_csv(output_file_path)
+    pp.df.to_csv(output_file_path, index=False)

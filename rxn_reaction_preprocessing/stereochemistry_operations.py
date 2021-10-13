@@ -7,7 +7,7 @@
 import re
 
 CHIRAL_CENTER_PATTERN = re.compile(
-    r'\[([^\],@]+)@+([^\]]*)]'
+    r'\[([^],@]+)@+([^]]*)]'
 )  # Matches stereo centres, and groups what comes before @
 
 
