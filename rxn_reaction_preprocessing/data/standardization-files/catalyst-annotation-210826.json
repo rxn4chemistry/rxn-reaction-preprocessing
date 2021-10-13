@@ -4632,5 +4632,27 @@
             ""
         ],
         "metal": "Ta"
+    },
+    {
+        "original_smiles": "[Ts]",
+        "updated_smiles": null,
+        "decision": "accept",
+        "categories": [
+            "General"
+        ],
+        "comments": [
+            "Heat token"
+        ]
+    },
+    {
+        "original_smiles": "[Lv]",
+        "updated_smiles": null,
+        "decision": "accept",
+        "categories": [
+            "General"
+        ],
+        "comments": [
+            "Light token"
+        ]
     }
 ]
