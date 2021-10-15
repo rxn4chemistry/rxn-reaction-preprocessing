@@ -54,6 +54,7 @@ data:
 common:
   sequence:
     # Define which steps and in which order to execute:
+    - IMPORT
     - STANDARDIZE
     - PREPROCESS
     - SPLIT

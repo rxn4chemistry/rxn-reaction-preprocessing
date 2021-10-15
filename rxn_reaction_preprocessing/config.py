@@ -6,7 +6,7 @@
 from enum import auto
 from enum import Enum
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 from typing import List
 
 from dataclasses import dataclass
@@ -48,7 +48,13 @@ class FragmentBond(Enum):
     TILDE = '~'
 
 
+class InitialDataFormat(Enum):
+    TXT = auto()
+    CSV = auto()
+
+
 class Step(Enum):
+    IMPORT = auto()
     STANDARDIZE = auto()
     PREPROCESS = auto()
     AUGMENT = auto()
@@ -66,10 +72,48 @@ class CommonConfig:
         reaction_column_name: Name of the reaction column for the data file.
     """
     sequence: List[Step] = field(
-        default_factory=lambda: [Step.STANDARDIZE, Step.PREPROCESS, Step.SPLIT, Step.TOKENIZE]
+        default_factory=lambda: [
+            Step.IMPORT,
+            Step.STANDARDIZE,
+            Step.PREPROCESS,
+            Step.SPLIT,
+            Step.TOKENIZE,
+        ]
     )
     fragment_bond: FragmentBond = FragmentBond.DOT
     reaction_column_name: str = 'rxn'
+
+
+@dataclass
+class RxnImportConfig:
+    """Configuration for the initial import of the reaction data.
+
+    Fields:
+        input_file: the input file path (.txt, .csv).
+        output_csv: the ouptut file path.
+        initial_data_format: whether the input file is in TXT or CSV format.
+        reaction_column_name: name the column containing the reactions if the input
+            is in CSV format. The value is ignored if the input is not in CSV format.
+        reaction_column_name: how to name the column with the reaction SMILES in
+            the output CSV.
+        fragment_bond: token denoting a fragment bond in the reaction SMILES (after import).
+        remove_atom_mapping: whether to remove the atom mapping from the input reaction SMILES.
+        column_for_light: name of the column containing boolean values that indicate
+            whether the reaction happens under light. If specified, the light token will
+            be added to the precursors of the corresponding reactions.
+        column_for_heat: name of the column containing boolean values that indicate
+            whether the reaction happens under heat. If specified, the heat token will
+            be added to the precursors of the corresponding reactions.
+    """
+    input_file: str = SI('${data.path}')
+    output_csv: str = SI('${data.proc_dir}/${data.name}.imported.csv')
+    data_format: InitialDataFormat = InitialDataFormat.CSV
+    input_csv_column_name: str = SI('${common.reaction_column_name}')
+    reaction_column_name: str = SI('${common.reaction_column_name}')
+    fragment_bond: FragmentBond = SI('${common.fragment_bond}')
+    remove_atom_mapping: bool = True
+    column_for_light: Optional[str] = None
+    column_for_heat: Optional[str] = None
 
 
 @dataclass
@@ -77,7 +121,7 @@ class StandardizeConfig:
     """Configuration for the standardization transformation step.
 
     Fields:
-        input_file_path: The input file path (one SMILES per line).
+        input_file_path: The input CSV (one SMILES per line).
         output_file_path: The output file path containing the result after standardization.
         annotation_file_paths: The files to load the annotated molecules from.
         discard_unannotated_metals: whether reactions containing unannotated
@@ -86,7 +130,7 @@ class StandardizeConfig:
         reaction_column_name: Name of the reaction column for the data file.
         remove_stereo_if_not_defined_in_precursors: Remove chiral centers from product.
     """
-    input_file_path: str = SI('${data.path}')
+    input_file_path: str = SI('${rxn_import.output_csv}')
     annotation_file_paths: List[str] = field(default_factory=lambda: DEFAULT_ANNOTATION_FILES)
     discard_unannotated_metals: bool = True
     output_file_path: str = SI('${data.proc_dir}/${data.name}.standardized.csv')
@@ -214,6 +258,7 @@ class TokenizeConfig:
 class Config:
     data: DataConfig = field(default_factory=DataConfig)
     common: CommonConfig = field(default_factory=CommonConfig)
+    rxn_import: RxnImportConfig = field(default_factory=RxnImportConfig)
     standardize: StandardizeConfig = field(default_factory=StandardizeConfig)
     preprocess: PreprocessConfig = field(default_factory=PreprocessConfig)
     augment: AugmentConfig = field(default_factory=AugmentConfig)
@@ -230,6 +275,7 @@ class Config:
 cs = ConfigStore.instance()
 cs.store(group='data', name='base_data', node=DataConfig)
 cs.store(group='common', name='base_common', node=CommonConfig)
+cs.store(group='rxn_import', name='base_rxn_import', node=RxnImportConfig)
 cs.store(group='standardize', name='base_standardize', node=StandardizeConfig)
 cs.store(group='preprocess', name='base_preprocess', node=PreprocessConfig)
 cs.store(group='augment', name='base_augment', node=AugmentConfig)

@@ -11,6 +11,7 @@ from omegaconf import OmegaConf
 from rxn_reaction_preprocessing.augmenter import augment
 from rxn_reaction_preprocessing.config import Config
 from rxn_reaction_preprocessing.config import Step
+from rxn_reaction_preprocessing.importer import rxn_import
 from rxn_reaction_preprocessing.preprocessor import preprocess
 from rxn_reaction_preprocessing.smiles_tokenizer import tokenize
 from rxn_reaction_preprocessing.stable_data_splitter import split
@@ -31,7 +32,9 @@ def data_pipeline(cfg: Config) -> None:
     for step in cfg.common.sequence:
         print(f'Running step: {step.name}')
 
-        if step is Step.STANDARDIZE:
+        if step is Step.IMPORT:
+            rxn_import(cfg.rxn_import)
+        elif step is Step.STANDARDIZE:
             standardize(cfg.standardize)
         elif step is Step.PREPROCESS:
             preprocess(cfg.preprocess)
