@@ -142,3 +142,41 @@ def test_strip_heat_token():
     reaction = ReactionEquation.from_string(f'{LIGHT_TOKEN}.A.B.{HEAT_TOKEN}>>C')
     strip_heat_token(reaction)
     assert reaction.to_string() == f'{LIGHT_TOKEN}.A.B>>C'
+
+
+def test_contains_on_iterables():
+    # The contains_* functions work not only on ReactionEquation instances,
+    # but also on iterables of strings
+
+    # on lists
+    assert not contains_heat_token(['A', 'B', 'C.D'])
+    assert contains_heat_token(['A', 'B', HEAT_TOKEN, 'C.D'])
+    assert not contains_heat_token(['A', f'B.{HEAT_TOKEN}', 'C.D'])
+
+    # on sets
+    assert contains_heat_token({'A', 'B', HEAT_TOKEN, 'C.D'})
+    assert not contains_light_token({'A', 'B', HEAT_TOKEN, 'C.D'})
+
+    # on tuples
+    assert contains_heat_token(('A', 'B', HEAT_TOKEN, 'C.D'))
+    assert not contains_light_token(('A', 'B', HEAT_TOKEN, 'C.D'))
+    assert contains_light_token(('A', 'B', LIGHT_TOKEN, 'C.D'))
+
+
+def test_strip_on_list():
+    # The strip_* functions work not only on ReactionEquation instances,
+    # but also on lists of strings
+
+    smiles_list = ['A', 'B']
+    strip_light_token(smiles_list)
+    assert smiles_list == ['A', 'B']
+
+    smiles_list = ['A', 'B', LIGHT_TOKEN, 'D']
+    strip_heat_token(smiles_list)
+    assert smiles_list == ['A', 'B', LIGHT_TOKEN, 'D']
+    strip_light_token(smiles_list)
+    assert smiles_list == ['A', 'B', 'D']
+
+    smiles_list = [HEAT_TOKEN, 'A', 'B', LIGHT_TOKEN, 'D']
+    strip_all_special_tokens(smiles_list)
+    assert smiles_list == ['A', 'B', 'D']
