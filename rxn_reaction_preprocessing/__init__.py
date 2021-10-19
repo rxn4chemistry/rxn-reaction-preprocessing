@@ -13,4 +13,4 @@ from .stable_data_splitter import StableDataSplitter
 from .standardizer import Standardizer
 
 __name__ = 'rxn-reaction-preprocessing'
-__version__ = '0.3.4'
+__version__ = '0.3.5'
