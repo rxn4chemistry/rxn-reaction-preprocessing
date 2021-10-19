@@ -95,8 +95,8 @@ def reformat_smiles(reaction_smiles: str, fragment_bond: Optional[str]) -> str:
 
 
 def _add_token(
-    row: pd.Series, add_special_token_fn: Callable[[ReactionEquation], None], column_to_check: str,
-    cfg: RxnImportConfig
+    row: pd.Series, add_special_token_fn: Callable[[ReactionEquation], ReactionEquation],
+    column_to_check: str, cfg: RxnImportConfig
 ) -> str:
     """Function to use in pandas.apply to update the reaction SMILES."""
 
@@ -115,14 +115,15 @@ def _add_token(
         return reaction_smiles
 
     reaction = parse_any_reaction_smiles(reaction_smiles)
-    add_special_token_fn(reaction)
+    reaction = add_special_token_fn(reaction)
 
     return reaction.to_string(cfg.fragment_bond.value)
 
 
 def _maybe_add_special_token(
-    df: pd.DataFrame, cfg: RxnImportConfig,
-    add_special_token_fn: Callable[[ReactionEquation], None], special_token_column: Optional[str]
+    df: pd.DataFrame, cfg: RxnImportConfig, add_special_token_fn: Callable[[ReactionEquation],
+                                                                           ReactionEquation],
+    special_token_column: Optional[str]
 ) -> None:
     """
     Common function for adding light or heat tokens.
