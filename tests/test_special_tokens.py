@@ -144,6 +144,19 @@ def test_strip_heat_token():
     assert reaction.to_string() == f'{LIGHT_TOKEN}.A.B>>C'
 
 
+def test_add_on_lists():
+    # The add_* functions work not only on ReactionEquation instances,
+    # but also on lists of strings
+
+    smiles = ['A', 'B', 'C']
+    add_light_token(smiles)
+    assert smiles == ['A', 'B', 'C', LIGHT_TOKEN]
+    add_light_token(smiles)
+    assert smiles == ['A', 'B', 'C', LIGHT_TOKEN, LIGHT_TOKEN]
+    add_heat_token(smiles)
+    assert smiles == ['A', 'B', 'C', LIGHT_TOKEN, LIGHT_TOKEN, HEAT_TOKEN]
+
+
 def test_contains_on_iterables():
     # The contains_* functions work not only on ReactionEquation instances,
     # but also on iterables of strings

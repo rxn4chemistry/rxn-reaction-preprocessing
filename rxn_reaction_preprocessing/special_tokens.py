@@ -36,20 +36,29 @@ ReactionOrIterable = Union[ReactionEquation, Iterable[str]]
 ReactionOrList = Union[ReactionEquation, List[str]]
 
 
-def _add_special_tokens(reaction: ReactionEquation, tokens: Iterable[_SpecialToken]) -> None:
-    """Add the required tokens to the reactants of a reaction (in-place)."""
+def _add_special_tokens_to_list(smiles_list: List[str], tokens: Iterable[_SpecialToken]) -> None:
+    """Add the required tokens to a list of SMILES (in-place)."""
     for token in tokens:
-        reaction.reactants.append(token.value)
+        smiles_list.append(token.value)
 
 
-def add_light_token(reaction: ReactionEquation) -> None:
-    """Add the light token to the precursors of a reaction (in-place)."""
-    _add_special_tokens(reaction, [_SpecialToken.LIGHT])
+def _add_special_tokens(reaction_or_list: ReactionOrList, tokens: Iterable[_SpecialToken]) -> None:
+    """Add the required tokens to the reactants of a reaction or list of SMILES (in-place)."""
+    if isinstance(reaction_or_list, ReactionEquation):
+        _add_special_tokens_to_list(reaction_or_list.reactants, tokens)
+    else:
+        # i.e., already a list
+        _add_special_tokens_to_list(reaction_or_list, tokens)
 
 
-def add_heat_token(reaction: ReactionEquation) -> None:
-    """Add the heat token to the precursors of a reaction (in-place)."""
-    _add_special_tokens(reaction, [_SpecialToken.HEAT])
+def add_light_token(reaction_or_list: ReactionOrList) -> None:
+    """Add the light token to the precursors of a reaction or list of SMILES (in-place)."""
+    _add_special_tokens(reaction_or_list, [_SpecialToken.LIGHT])
+
+
+def add_heat_token(reaction_or_list: ReactionOrList) -> None:
+    """Add the heat token to the precursors of a reaction or list of SMILES (in-place)."""
+    _add_special_tokens(reaction_or_list, [_SpecialToken.HEAT])
 
 
 def _contains_token(reaction_or_iterable: ReactionOrIterable, token: _SpecialToken) -> bool:
