@@ -3,6 +3,7 @@ from rxn_chemutils.conversion import canonicalize_smiles
 from rxn_chemutils.exceptions import InvalidSmiles
 
 from rxn_reaction_preprocessing.annotations.molecule_annotation import MoleculeAnnotation
+from rxn_reaction_preprocessing.cleaner import remove_isotope_information
 from rxn_reaction_preprocessing.molecule_standardizer import MissingAnnotation
 from rxn_reaction_preprocessing.molecule_standardizer import MoleculeStandardizer
 from rxn_reaction_preprocessing.molecule_standardizer import RejectedMolecule
@@ -155,3 +156,15 @@ def test_missing_annotation_check_after_rejection_check():
     standardizer = MoleculeStandardizer(annotations=[], discard_missing_annotations=True)
     with pytest.raises(MissingAnnotation):
         _ = standardizer(rejected_smiles)
+
+
+def test_discarding_isotope_info():
+    # As a check: doing the isotope info removal after canonicalization does
+    # not always lead to a canonical SMILES
+    assert remove_isotope_information(canonicalize_smiles('[14CH3]COC')
+                                      ) != canonicalize_smiles('CCOC')
+
+    # On the other hand, in the molecule standardizer, the standardized
+    # molecules must be canonical even if there was some isotope information.
+    standardizer = MoleculeStandardizer()
+    assert standardizer.standardize('[14CH3]COC') == [canonicalize_smiles('CCOC')]

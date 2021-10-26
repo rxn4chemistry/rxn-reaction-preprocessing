@@ -8,6 +8,7 @@ from rxn_reaction_preprocessing.annotations.missing_annotation_detector import \
 from rxn_reaction_preprocessing.annotations.molecule_annotation import MoleculeAnnotation
 from rxn_reaction_preprocessing.annotations.molecule_replacer import MoleculeReplacer
 from rxn_reaction_preprocessing.annotations.rejected_molecules_filter import RejectedMoleculesFilter
+from rxn_reaction_preprocessing.cleaner import remove_isotope_information
 
 
 class StandardizationError(ValueError):
@@ -96,6 +97,9 @@ class MoleculeStandardizer:
         """
         if '~' in smiles:
             raise ValueError(f'MoleculeStandardizer must be used without "~": {smiles}')
+
+        # Discard isotope information
+        smiles = remove_isotope_information(smiles)
 
         # Check validity of SMILES (may raise InvalidSmiles), and
         # overwrite if canonicalization required

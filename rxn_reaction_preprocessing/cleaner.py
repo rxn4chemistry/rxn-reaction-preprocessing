@@ -1,14 +1,12 @@
 import re
 
+_ISOTOPE_REMOVAL_REGEX = re.compile(r'(?<=\[)([0-9]+)(?=[A-Za-z])')
+
 
 def remove_isotope_information(rxn: str) -> str:
     """
     Function that removes the isotope information from a reaction SMILES.
 
-    For example [13C] ---> [C].
+    For example [13CH3][13CH3] ---> [CH3][CH3].
     """
-    return re.sub(
-        r'(?<=\[)([0-9]+)(?=[A-Za-z])',  # Remove isotopes
-        '',
-        rxn.strip()
-    )
+    return _ISOTOPE_REMOVAL_REGEX.sub('', rxn.strip())

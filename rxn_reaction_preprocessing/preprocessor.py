@@ -16,11 +16,10 @@ from rdkit import RDLogger
 from rxn_chemutils.reaction_equation import ReactionEquation
 from tabulate import tabulate
 
+from .config import PreprocessConfig
 from .mixed_reaction_filter import MixedReactionFilter
 from .reaction import Reaction
 from .reaction import ReactionPart
-from rxn_reaction_preprocessing.cleaner import remove_isotope_information
-from rxn_reaction_preprocessing.config import PreprocessConfig
 
 
 class Preprocessor:
@@ -378,10 +377,6 @@ def preprocess(cfg: PreprocessConfig) -> None:
     print(f'\033[92m- {len(pp.df)} initial reactions.\033[0m')
     pp.remove_duplicates()
     print(f'\033[92m- {len(pp.df)} reactions after first deduplication.\033[0m')
-
-    # In a first step the data is cleaned, in this case isotope information is removed
-    pp.df[cfg.reaction_column_name
-          ] = pp.df[cfg.reaction_column_name].apply(remove_isotope_information)
 
     # Apply the two functions above to all reactions, the remove_duplicate_molecules argument
     # is set to true to remove duplicate molecules within each reaction part
