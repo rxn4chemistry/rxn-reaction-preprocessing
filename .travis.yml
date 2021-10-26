@@ -9,7 +9,6 @@ install:
   - pip install rdkit-pypi==2021.3.2
 script:
   - flake8
-  - |
-    yapf --quiet --style "{based_on_style: pep8, blank_line_before_nested_class_or_def: true, indent_dictionary_value: true, dedent_closing_brackets: true, column_limit: 99}" --recursive .
+  - yapf --quiet --recursive .
   - python -m pytest -sv --cov=rxn_reaction_preprocessing --cov-fail-under=50
   - mypy rxn_reaction_preprocessing
