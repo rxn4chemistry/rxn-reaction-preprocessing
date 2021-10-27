@@ -11,11 +11,11 @@ from rxn_reaction_preprocessing.annotations.rejected_molecules_filter import Rej
 from rxn_reaction_preprocessing.cleaner import remove_isotope_information
 
 
-class StandardizationError(ValueError):
+class MoleculeStandardizationError(ValueError):
     """Base class for standardization exceptions."""
 
 
-class RejectedMolecule(StandardizationError):
+class RejectedMolecule(MoleculeStandardizationError):
     """Exception raised when standardizing a molecule annotated as "Rejected"."""
 
     def __init__(self, smiles):
@@ -26,7 +26,7 @@ class RejectedMolecule(StandardizationError):
         super().__init__(f'Cannot standardize: rejected molecule "{smiles}"')
 
 
-class MissingAnnotation(StandardizationError):
+class MissingAnnotation(MoleculeStandardizationError):
     """Exception raised when standardizing a molecule that should be annotated."""
 
     def __init__(self, smiles):

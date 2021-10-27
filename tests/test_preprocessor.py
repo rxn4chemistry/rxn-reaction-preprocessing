@@ -7,7 +7,6 @@ import pytest
 
 from rxn_reaction_preprocessing import MixedReactionFilter
 from rxn_reaction_preprocessing import Preprocessor
-from rxn_reaction_preprocessing import Reaction
 from rxn_reaction_preprocessing import ReactionPart
 
 
@@ -42,18 +41,6 @@ def filter():
         max_products_tokens=200,
         max_absolute_formal_charge=2,
     )
-
-
-def test_apply(preprocessor):
-
-    def func(reaction: Reaction) -> Reaction:
-        reaction.reactants.extend(reaction.agents)
-        reaction.agents.clear()
-        return reaction
-
-    preprocessor.apply(func)
-
-    assert preprocessor.df.rxn.iloc[0] == '[14C]Cl.O[Na].O>>[Na]Cl.[14C]O'
 
 
 def test_filter(preprocessor, filter):

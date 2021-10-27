@@ -6,7 +6,6 @@
 import typing
 from collections import Counter
 from pathlib import Path
-from typing import Any
 from typing import Callable
 from typing import List
 
@@ -14,12 +13,14 @@ import numpy as np
 import pandas as pd
 from rdkit import RDLogger
 from rxn_chemutils.reaction_equation import ReactionEquation
+from rxn_chemutils.reaction_smiles import parse_any_reaction_smiles
 from tabulate import tabulate
 
 from .config import PreprocessConfig
 from .mixed_reaction_filter import MixedReactionFilter
 from .reaction import Reaction
 from .reaction import ReactionPart
+from .reaction_standardizer import ReactionStandardizer
 
 
 class Preprocessor:
@@ -49,6 +50,7 @@ class Preprocessor:
                 greater-thans in the string). Defaults to True.
         """
         self.df = df
+        self.reaction_standardizer = ReactionStandardizer()
         self.__reaction_column_name = reaction_column_name
         self.__valid_column = valid_column
         self.__valid_message_column = valid_message_column
@@ -224,39 +226,25 @@ class Preprocessor:
 
         return self
 
-    def apply(
-        self,
-        func: Callable[[Reaction], Reaction],
-        remove_duplicate_molecules: bool = False,
-        **kwargs: Any,
-    ):
-        """Applies the supplied function to each reaction.
-
-        Args:
-            func: A function which is applied to each reaction.
-            remove_duplicate_molecules: Whether to remove duplicate molecules when a reaction
-                instance is created from a reaction SMARTS. Defaults to False.
-            kwargs: Additional parameters for the rdkit method MolFromSmiles.
-
-        Returns:
-            Itself.
+    def reaction_standardization(self) -> None:
         """
-        kwargs.setdefault('canonical', True)
+        Reaction standardization, including merging of reactants and reactants,
+        removal of duplicates, sorting, etc.
 
-        self.df[self.__reaction_column_name] = self.df[self.__reaction_column_name].apply(
-            lambda rxn: str(
-                func(
-                    Reaction(
-                        rxn,
-                        remove_duplicates=remove_duplicate_molecules,
-                        fragment_bond=self.__fragment_bond,
-                        **kwargs
-                    )
-                )
-            )
-        )
+        Note that this standardization relies on the molecules in the reaction
+        SMILES to be canonical - which is the case when this function is
+        called as part of the full data processing pipeline.
+        """
 
-        return self
+        def standardize_smiles(rxn_smiles: str) -> str:
+            """Function standardizing the reaction SMILES directly,
+            to pass to pandas.apply()."""
+            reaction = parse_any_reaction_smiles(rxn_smiles)
+            reaction = self.reaction_standardizer(reaction)
+            return reaction.to_string(self.__fragment_bond)
+
+        rxn_column = self.__reaction_column_name
+        self.df[rxn_column] = self.df[rxn_column].apply(standardize_smiles)
 
     def remove_duplicates(self):
         """A wrapper around pandas' drop_duplicates with the argument subset
@@ -341,19 +329,6 @@ def preprocess(cfg: PreprocessConfig) -> None:
     if not Path(cfg.input_file_path).exists():
         raise ValueError(f'Input file for preprocessing does not exist: {cfg.input_file_path}')
 
-    # This is the function that is applied to each reaction.
-    def merge_reactants_and_reagents(reaction: Reaction) -> Reaction:
-        # Move agents to reactants
-        reaction.remove_none()
-        reaction.reactants.extend(reaction.agents)
-        reaction.agents = []
-        return reaction
-
-    def remove_precursors_from_products_and_sort(reaction: Reaction) -> Reaction:
-        # Remove products that are also reactants
-        reaction.remove_precursors_from_products()
-        return reaction.sort()
-
     # Create a instance of the mixed reaction filter with default values.
     # Make arguments for all properties in script
     mrf = MixedReactionFilter(
@@ -378,10 +353,9 @@ def preprocess(cfg: PreprocessConfig) -> None:
     pp.remove_duplicates()
     print(f'\033[92m- {len(pp.df)} reactions after first deduplication.\033[0m')
 
-    # Apply the two functions above to all reactions, the remove_duplicate_molecules argument
-    # is set to true to remove duplicate molecules within each reaction part
-    pp.apply(merge_reactants_and_reagents)
-    pp.apply(remove_precursors_from_products_and_sort, remove_duplicate_molecules=True)
+    # Remove duplicate molecules, sort, etc.
+    # NB: this relies on molecules in the reaction SMILES to be canonical already!
+    pp.reaction_standardization()
 
     # Remove duplicate reactions
     pp.remove_duplicates()
