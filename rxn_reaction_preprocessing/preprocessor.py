@@ -89,7 +89,7 @@ class Preprocessor:
         reaction = ReactionEquation.from_string(
             reaction_smiles, fragment_bond=self.__fragment_bond
         )
-        return filter.validate(reaction)
+        return filter.is_valid(reaction)
 
     def __filter_func_verbose(
         self,

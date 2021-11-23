@@ -9,16 +9,12 @@ from typing import Optional
 
 import pandas as pd
 from rdkit import RDLogger
-from rxn_chemutils.exceptions import InvalidSmiles
-from rxn_chemutils.reaction_equation import ReactionEquation
 from rxn_chemutils.reaction_smiles import parse_any_reaction_smiles
 
-from rxn_reaction_preprocessing.annotations.molecule_annotation import load_annotations_multiple
 from rxn_reaction_preprocessing.annotations.molecule_annotation import MoleculeAnnotation
+from rxn_reaction_preprocessing.annotations.molecule_annotation import load_annotations_multiple
 from rxn_reaction_preprocessing.config import StandardizeConfig
-from rxn_reaction_preprocessing.molecule_standardizer import MissingAnnotation
 from rxn_reaction_preprocessing.molecule_standardizer import MoleculeStandardizer
-from rxn_reaction_preprocessing.molecule_standardizer import RejectedMolecule
 from rxn_reaction_preprocessing.stereochemistry_operations import remove_chiral_centers
 
 RDLogger.DisableLog('rdApp.*')
@@ -108,31 +104,14 @@ class Standardizer:
         # Remove stereo information from products, if needed
         rxn_smiles = self.__remove_stereo_if_not_defined_in_precursors(rxn_smiles)
 
-        missing_annotations = []
-        invalid_smiles = []
-        rejected_smiles = []
-
         # Read the reaction SMILES while allowing for different formats (with
         # fragment bond, extended reaction SMILES, etc.).
         reaction_equation = parse_any_reaction_smiles(rxn_smiles)
 
-        # Iterate over the reactants, agents, products and update the
-        # standardized reaction at the same time
-        standardized_reaction = ReactionEquation([], [], [])
-        for original_role_group, new_role_group in zip(reaction_equation, standardized_reaction):
-            for smiles in original_role_group:
-                try:
-                    new_role_group.extend(self.molecule_standardizer(smiles))
-                except InvalidSmiles:
-                    invalid_smiles.append(smiles)
-                except RejectedMolecule:
-                    rejected_smiles.append(smiles)
-                except MissingAnnotation:
-                    missing_annotations.append(smiles)
-
-        # If there was any error: replace by empty reaction equation (">>")
-        if invalid_smiles or rejected_smiles or missing_annotations:
-            standardized_reaction = ReactionEquation([], [], [])
+        (standardized_reaction, invalid_smiles, rejected_smiles,
+         missing_annotations) = self.molecule_standardizer.standardize_in_equation_with_errors(
+             reaction_equation, propagate_exceptions=False
+         )
 
         standardized_smiles = standardized_reaction.to_string(self.fragment_bond)
         return pd.Series(

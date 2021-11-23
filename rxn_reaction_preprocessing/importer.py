@@ -202,7 +202,7 @@ def rxn_import(cfg: RxnImportConfig) -> None:
     _maybe_add_light_token(df, cfg)
     _maybe_add_heat_token(df, cfg)
 
-    # REmove atom mapping if necessary
+    # Remove atom mapping if necessary
     _maybe_remove_atom_mapping(df, cfg)
 
     df.to_csv(cfg.output_csv, index=False)

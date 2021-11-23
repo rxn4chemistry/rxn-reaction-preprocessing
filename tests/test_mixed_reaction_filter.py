@@ -5,7 +5,9 @@
 import pytest
 from rxn_chemutils.reaction_equation import ReactionEquation
 
-from rxn_reaction_preprocessing.mixed_reaction_filter import MixedReactionFilter
+from rxn_reaction_preprocessing.mixed_reaction_filter import (
+    MixedReactionFilter, ReactionFilterError
+)
 
 
 @pytest.fixture
@@ -132,7 +134,16 @@ def test_different_atom_types(filter, good_reaction, alchemic_reaction):
 def test_invalid_smiles(filter: MixedReactionFilter):
     # "[J]" is not a valid molecule
     reaction_with_invalid_smiles = ReactionEquation.from_string('CCCCO.CCCCN.[J]>>CCCCOCCCCN')
-    assert not filter.validate(reaction_with_invalid_smiles)
+    assert not filter.is_valid(reaction_with_invalid_smiles)
 
     assert filter.validate_reasons(reaction_with_invalid_smiles
                                    ) == (False, ['rdkit_molfromsmiles_failed'])
+
+
+def test_exception(filter, good_reaction, bad_reaction):
+    # Nothing raised
+    _ = filter.validate(good_reaction)
+
+    # exception raised
+    with pytest.raises(ReactionFilterError):
+        _ = filter.validate(bad_reaction)

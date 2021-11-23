@@ -4,7 +4,7 @@
 # ALL RIGHTS RESERVED
 """ A class encapsulating filtering functionality for chemical reactions """
 from functools import partial
-from typing import Callable
+from typing import Callable, Iterable
 from typing import Generator
 from typing import List
 from typing import Tuple
@@ -20,6 +20,21 @@ from .utils import MolEquation
 
 SmilesBasedCheck = Callable[[ReactionEquation], bool]
 MolBasedCheck = Callable[[MolEquation], bool]
+
+
+class ReactionFilterError(ValueError):
+    """Exception raised when calling validate() on reactions not passing one
+    or several filters."""
+
+    def __init__(self, reaction: ReactionEquation, reasons: Iterable[str]):
+        # Store information just in case
+        self.reaction = reaction
+        self.reasons = list(reasons)
+
+        super().__init__(
+            f'Reaction "{self.reaction.to_string("~")}" did not pass the '
+            f'filters: {"; ".join(self.reasons)}'
+        )
 
 
 class MixedReactionFilter:
@@ -81,8 +96,25 @@ class MixedReactionFilter:
             (self.different_atom_types, 'different_atom_types'),
         ]
 
-    def validate(self, reaction: ReactionEquation) -> bool:
-        """Validate a reaction using the rules set on the instance of this
+    def validate(self, reaction: ReactionEquation) -> None:
+        """
+        Make sure that the given reaction is valid; if not, an exception will
+        be raised.
+
+        Raises:
+            ReactionFilterError: if the reaction does not pass the filters.
+
+        Args:
+            reaction: reaction to validate.
+        """
+        valid, reasons = self.validate_reasons(reaction)
+
+        if not valid:
+            raise ReactionFilterError(reaction, reasons)
+
+    def is_valid(self, reaction: ReactionEquation) -> bool:
+        """
+        Whether a reaction is valid based on the rules set on the instance of this
         MixedReactionFilter class.
 
         Args:

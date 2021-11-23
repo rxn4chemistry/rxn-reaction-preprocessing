@@ -1,6 +1,7 @@
 import pytest
 from rxn_chemutils.conversion import canonicalize_smiles
 from rxn_chemutils.exceptions import InvalidSmiles
+from rxn_chemutils.reaction_equation import ReactionEquation
 
 from rxn_reaction_preprocessing.annotations.molecule_annotation import MoleculeAnnotation
 from rxn_reaction_preprocessing.cleaner import remove_isotope_information
@@ -168,3 +169,30 @@ def test_discarding_isotope_info():
     # molecules must be canonical even if there was some isotope information.
     standardizer = MoleculeStandardizer()
     assert standardizer.standardize('[14CH3]COC') == [canonicalize_smiles('CCOC')]
+
+
+def test_standardize_in_equation():
+    annotations = [
+        MoleculeAnnotation(
+            original_smiles='CC', updated_smiles=None, decision='accept', categories=[]
+        ),
+        MoleculeAnnotation(
+            original_smiles='CCC', updated_smiles='CC~C', decision='accept', categories=[]
+        ),
+        MoleculeAnnotation(
+            original_smiles='CCCC', updated_smiles='CC.CC', decision='accept', categories=[]
+        ),
+        MoleculeAnnotation(
+            original_smiles='C', updated_smiles=None, decision='reject', categories=[]
+        )
+    ]
+
+    # Standardizes following the annotations, and additionally canonicalizes OC -> CO
+    standardizer = MoleculeStandardizer(annotations=annotations)
+    reaction = ReactionEquation.from_string('CC.CCC.O>CCCC>OC')
+    assert standardizer.standardize_in_equation(reaction).to_string('~') == 'CC.CC~C.O>CC.CC>CO'
+
+    # Rejected because 'C' is rejected from the annotations
+    rejected_reaction = ReactionEquation.from_string('C.O>>CO')
+    with pytest.raises(RejectedMolecule):
+        standardizer.standardize_in_equation(rejected_reaction)

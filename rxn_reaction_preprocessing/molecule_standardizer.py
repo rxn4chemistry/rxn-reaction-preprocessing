@@ -1,7 +1,9 @@
-from typing import List
+from typing import List, Tuple
 from typing import Optional
 
 from rxn_chemutils.conversion import canonicalize_smiles
+from rxn_chemutils.exceptions import InvalidSmiles
+from rxn_chemutils.reaction_equation import ReactionEquation
 
 from rxn_reaction_preprocessing.annotations.missing_annotation_detector import \
     MissingAnnotationDetector
@@ -118,3 +120,75 @@ class MoleculeStandardizer:
 
         # Replace annotated molecules
         return self.molecule_replacer.replace_molecule_smiles(smiles)
+
+    def standardize_in_equation(self, reaction: ReactionEquation) -> ReactionEquation:
+        """
+        Do the molecule-wise standardization for a reaction equation.
+
+        Relies on standardize_in_equation_with_errors(), for modularity purposes.
+        Will propagate the exceptions raised in that function.
+        """
+
+        # Ignoring the lists of SMILES returned in the tuple (which, by construction,
+        # will always be empty: if not, an exception will have been raised earlier).
+        reaction, *_ = self.standardize_in_equation_with_errors(
+            reaction, propagate_exceptions=True
+        )
+        return reaction
+
+    def standardize_in_equation_with_errors(
+        self,
+        reaction: ReactionEquation,
+        propagate_exceptions: bool = False
+    ) -> Tuple[ReactionEquation, List[str], List[str], List[str]]:
+        """
+        Do the molecule-wise standardization for a reaction equation, and get the reasons for
+        potential failures.
+
+        This function was originally implemented in Standardizer, and then moved here for more
+        modularity.
+
+        Args:
+            reaction: reaction to standardize.
+            propagate_exceptions: if True, will stop execution and raise directly
+                instead of collecting the SMILES leading to the failure. Not ideal,
+                but probably the only way (?) to not have duplicated code in the
+                function standardize_in_equation().
+
+        Returns:
+            Tuple:
+                - the standardized reaction equation (or an empty one if there was a failure).
+                - list of invalid SMILES in the reaction.
+                - list of rejected SMILES in the reaction.
+                - list of missing annotations in the reaction.
+        """
+
+        missing_annotations = []
+        invalid_smiles = []
+        rejected_smiles = []
+
+        # Iterate over the reactants, agents, products and update the
+        # standardized reaction at the same time
+        standardized_reaction = ReactionEquation([], [], [])
+        for original_role_group, new_role_group in zip(reaction, standardized_reaction):
+            for smiles in original_role_group:
+                try:
+                    new_role_group.extend(self.standardize(smiles))
+                except InvalidSmiles:
+                    if propagate_exceptions:
+                        raise
+                    invalid_smiles.append(smiles)
+                except RejectedMolecule:
+                    if propagate_exceptions:
+                        raise
+                    rejected_smiles.append(smiles)
+                except MissingAnnotation:
+                    if propagate_exceptions:
+                        raise
+                    missing_annotations.append(smiles)
+
+        # If there was any error: replace by empty reaction equation (">>")
+        if invalid_smiles or rejected_smiles or missing_annotations:
+            standardized_reaction = ReactionEquation([], [], [])
+
+        return standardized_reaction, invalid_smiles, rejected_smiles, missing_annotations
