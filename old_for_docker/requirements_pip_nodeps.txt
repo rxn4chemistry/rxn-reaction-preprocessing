@@ -1,2 +1,0 @@
-rxn_utilities @ git+https://${GHE_TOKEN}@github.ibm.com/rxn/rxn_utilities@latest
-rxn_chemutils @ git+https://${GHE_TOKEN}@github.ibm.com/rxn/rxn_chemutils@latest
