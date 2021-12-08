@@ -4,8 +4,6 @@
 # (C) Copyright IBM Corp. 2021
 # ALL RIGHTS RESERVED
 # Sham for missing PEP 517 support
-import os
-
 import setuptools
 
 # Since the rxn_chemutils dependency requires an environment variable, the
@@ -18,7 +16,6 @@ setuptools.setup(
         'tabulate >= 0.8.7',
         'xxhash >= 2.0.0',
         'hydra-core >= 1.1.0',
-        'rxn_chemutils '
-        '@ git+https://{}@github.ibm.com/rxn/rxn_chemutils@latest'.format(os.environ['GHE_TOKEN']),
+        'rxn_chemutils >= 0.3.11',
     ]
 )

@@ -2,7 +2,7 @@ language: python
 python:
   - 3.6
 install:
-  - pip install -e .[dev]
+  - pip install -e .[dev] --extra-index-url https://${PYPI_USERNAME}:${PYPI_PASSWORD}@${PYPI_SERVER}/simple
   # install RDKit. This is not as a setup dependency in order not to install it
   # in downstream packages and avoid potential conflicts with the conda
   # installation of RDKit
@@ -12,3 +12,11 @@ script:
   - yapf --quiet --recursive .
   - python -m pytest -sv --cov=rxn_reaction_preprocessing --cov-fail-under=50
   - mypy rxn_reaction_preprocessing
+deploy:
+  provider: pypi
+  server: https://${PYPI_SERVER}
+  distributions: "sdist bdist_wheel"
+  username: ${PYPI_USERNAME}
+  password: ${PYPI_PASSWORD}
+  on:
+    tags: true
