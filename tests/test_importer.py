@@ -268,3 +268,26 @@ def test_atom_mapping_removal(input_file: str, output_file: str):
     cfg.remove_atom_mapping = False
     rxn_import(cfg)
     assert pd.read_csv(output_file)['rxn'].tolist() == reactions
+
+
+def test_invalid_reactions_are_ignored(input_file: str, output_file: str):
+    # Write some reactions to a CSV file. Two of them (indices 1 and 4) are invalid.
+    reactions = ['CC>>CC', 'invalid', 'OO>>OO', 'C.C.O>>CCO', 'CC>>CO>>CN', 'C.[Na+].[Cl-]>>C']
+    valid_reactions = [reactions[i] for i in [0, 2, 3, 5]]
+    pd.DataFrame({'smiles': reactions}).to_csv(input_file, index=False)
+
+    # Do the initial import
+    cfg = RxnImportConfig(
+        input_file=input_file,
+        output_csv=output_file,
+        data_format=InitialDataFormat.CSV,
+        input_csv_column_name='smiles',
+        reaction_column_name='rxn',
+        fragment_bond=FragmentBond.TILDE,
+    )
+    rxn_import(cfg)
+
+    # Verify the content
+    df = pd.read_csv(output_file)
+    assert df['rxn'].tolist() == valid_reactions
+    assert df['smiles'].tolist() == valid_reactions

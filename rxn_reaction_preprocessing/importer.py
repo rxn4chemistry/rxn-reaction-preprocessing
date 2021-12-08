@@ -1,3 +1,4 @@
+import logging
 from functools import partial
 from typing import Optional, Callable
 
@@ -8,6 +9,9 @@ from rxn_chemutils.reaction_smiles import parse_any_reaction_smiles
 
 from rxn_reaction_preprocessing.config import RxnImportConfig, InitialDataFormat
 from rxn_reaction_preprocessing.special_tokens import add_heat_token, add_light_token
+
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 
 class RxnImportError(ValueError):
@@ -86,12 +90,19 @@ def _load_initial(cfg: RxnImportConfig) -> pd.DataFrame:
     raise ValueError(f'Unsupported data type: {cfg.data_format}')
 
 
-def reformat_smiles(reaction_smiles: str, fragment_bond: Optional[str]) -> str:
+def reformat_smiles(reaction_smiles: str, fragment_bond: Optional[str]) -> Optional[str]:
     """Import a reaction SMILES in any format and convert it to an "IBM" RXN
-    SMILES with the specified fragment bond."""
+    SMILES with the specified fragment bond.
 
-    reaction = parse_any_reaction_smiles(reaction_smiles)
-    return reaction.to_string(fragment_bond)
+    `None` is returned if the reaction SMILES is not valid.
+    """
+
+    try:
+        reaction = parse_any_reaction_smiles(reaction_smiles)
+        return reaction.to_string(fragment_bond)
+    except Exception:
+        logger.info(f'Invalid reaction: {reaction_smiles}')
+        return None
 
 
 def _add_token(
@@ -197,6 +208,9 @@ def rxn_import(cfg: RxnImportConfig) -> None:
     # Reformat the reaction SMILES
     fn = partial(reformat_smiles, fragment_bond=cfg.fragment_bond.value)
     df[cfg.reaction_column_name] = df[_final_column_name_for_original(cfg)].apply(fn)
+
+    # Discard lines containing None (for unsuccessful reaction SMILES import)
+    df = df.dropna()
 
     # Add special tokens when necessary
     _maybe_add_light_token(df, cfg)
