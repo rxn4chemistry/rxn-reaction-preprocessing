@@ -3,6 +3,7 @@
 # (C) Copyright IBM Corp. 2020
 # ALL RIGHTS RESERVED
 """ A class encapsulating filtering functionality for chemical reactions """
+import itertools
 from functools import partial
 from typing import Callable, Iterable
 from typing import Generator
@@ -93,6 +94,7 @@ class MixedReactionFilter:
         self.mol_based_checks: List[Tuple[MolBasedCheck, str]] = [
             (self.products_single_atoms, 'products_single_atoms'),
             (self.formal_charge_exceeded, 'formal_charge_exceeded'),
+            (self.invalid_atom_type, 'invalid_atom_type'),
             (self.different_atom_types, 'different_atom_types'),
         ]
 
@@ -333,6 +335,24 @@ class MixedReactionFilter:
             or abs(get_formal_charge_for_mols(reaction.agents)) > self.max_absolute_formal_charge
             or abs(get_formal_charge_for_mols(reaction.products)) > self.max_absolute_formal_charge
         )
+
+    def invalid_atom_type(self, reaction: Union[MolEquation, ReactionEquation]) -> bool:
+        """
+        Check whether the reaction contains atoms with invalid atom types such as the asterisk "*".
+
+        Args:
+            reaction: The reaction to test.
+
+        Returns:
+            bool: Whether the reaction contains invalid atom types.
+        """
+        if isinstance(reaction, ReactionEquation):
+            reaction = MolEquation.from_reaction_equation(reaction)
+
+        # So far, the only invalid atom type is "*"; this function can be
+        # reformulated to account for additional ones if some appear later on.
+        mols = itertools.chain(reaction.reactants, reaction.agents, reaction.products)
+        return '*' in get_atoms_for_mols(mols)
 
     def different_atom_types(self, reaction: Union[MolEquation, ReactionEquation]) -> bool:
         """Check whether the products contain atom types not found in the agents or reactants.

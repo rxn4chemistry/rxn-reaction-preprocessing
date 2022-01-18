@@ -140,6 +140,16 @@ def test_invalid_smiles(filter: MixedReactionFilter):
                                    ) == (False, ['rdkit_molfromsmiles_failed'])
 
 
+def test_smiles_with_asterisks(filter: MixedReactionFilter):
+    reactions_with_asterisks = [
+        ReactionEquation.from_string('CCCCO.CCCCN>>CCCCOCCCCN*'),
+        ReactionEquation.from_string('CCCCO.CCCCN*>>CCCCOCCCCN'),
+        ReactionEquation.from_string('CCCCO.CCCCN*>>CCCCOCCCCN*'),
+    ]
+    for reaction in reactions_with_asterisks:
+        assert not filter.is_valid(reaction)
+
+
 def test_exception(filter, good_reaction, bad_reaction):
     # Nothing raised
     _ = filter.validate(good_reaction)
