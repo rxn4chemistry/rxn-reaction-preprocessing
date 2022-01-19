@@ -4,6 +4,7 @@
 # ALL RIGHTS RESERVED
 import random
 from string import ascii_lowercase
+from typing import List
 
 import pandas as pd
 import pytest
@@ -12,15 +13,17 @@ from rxn_reaction_preprocessing import StableDataSplitter
 from rxn_reaction_preprocessing.utils import reset_random_seed
 
 
-@pytest.fixture
-def data():
+def random_strings(n: int) -> List[str]:
     reset_random_seed()
-    random_strings = [
+    return [
         ''.join([random.choice(ascii_lowercase) for _ in range(random.randint(5, 20))])
-        for _ in range(1000)
+        for _ in range(n)
     ]
 
-    return pd.DataFrame(data={'col_1': random_strings})
+
+@pytest.fixture
+def data():
+    return pd.DataFrame(data={'col_1': random_strings(1000)})
 
 
 def test_split(data):
@@ -95,3 +98,23 @@ def test_split_with_different_seed(data):
     assert train2.sum() == 899
     assert validate2.sum() == 58
     assert test2.sum() == 43
+
+
+def test_split_with_max_valid_samples():
+    df = pd.DataFrame(data={'col_1': random_strings(10000)})
+
+    # Split without restricting the size - leads to roughly 5% in valid and 5% in test
+    train, validate, test = StableDataSplitter.split(
+        df, 'rxn', 'col_1', split_ratio=0.05, max_in_valid=None
+    )
+    assert 8900 < train.sum() < 9100
+    assert 450 < validate.sum() < 550
+    assert 450 < test.sum() < 550
+
+    # Split limiting the size of the validation set to +/- 50 samples
+    train, validate, test = StableDataSplitter.split(
+        df, 'rxn', 'col_1', split_ratio=0.05, max_in_valid=50
+    )
+    assert 9400 < train.sum() < 9600
+    assert 40 < validate.sum() < 60
+    assert 450 < test.sum() < 550

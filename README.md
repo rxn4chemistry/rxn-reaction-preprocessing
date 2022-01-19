@@ -50,6 +50,9 @@ common:
   fragment_bond: TILDE
 preprocess:
   min_products: 0
+split:
+  split_ratio: 0.05
+  max_in_valid: 10000
 tokenize:
   input_output_pairs:
     - inp: ${data.proc_dir}/${data.name}.processed.train.csv

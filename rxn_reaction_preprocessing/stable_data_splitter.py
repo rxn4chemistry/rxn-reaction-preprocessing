@@ -6,7 +6,7 @@
 import functools
 import os
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, Optional
 
 import pandas as pd
 from xxhash import xxh64_intdigest
@@ -22,6 +22,7 @@ class StableDataSplitter:
         reaction_column_name: str,
         index_column: str,
         split_ratio: float = 0.05,
+        max_in_valid: Optional[int] = None,
         seed: int = 0
     ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         """Creates a stable split into training, validation, and test sets. Returns a boolean mask
@@ -30,11 +31,15 @@ class StableDataSplitter:
         Args:
             df (pd.DataFrame): The pandas DataFrame to be split into training, validation, and
                 test sets.
-            reaction_column_name (str): Name of the reaction column for the data file.
-            index_column (str): The name of the column used to generate the hash which ensures
+            reaction_column_name: Name of the reaction column for the data file.
+            index_column: The name of the column used to generate the hash which ensures
                 stable splitting.
-            split_ratio (float, optional): The split ratio. Defaults to 0.05.
-            seed (int): seed to use for hashing. The default of 0 corresponds to the default value
+            split_ratio: The split ratio. Defaults to 0.05.
+            max_in_valid: Maximal number of reactions to keep in the validation set.
+                This can be useful to avoid unnecessarily prolonging training. It
+                is considered as an approximate limit (due to randomness in hashing).
+                Defaults to no restriction.
+            seed: seed to use for hashing. The default of 0 corresponds to the default value
                 in the xxhash implementation.
 
         Returns:
@@ -54,12 +59,17 @@ class StableDataSplitter:
         else:
             raise KeyError(index_column)
 
+        test_ratio = split_ratio
+        valid_ratio = split_ratio
+        if max_in_valid is not None:
+            valid_ratio = max_in_valid / len(df)
+
         return (
-            df['hash'].apply(lambda value: value >= split_ratio * 2 * 2**64),
+            df['hash'].apply(lambda value: value >= (test_ratio + valid_ratio) * 2**64),
             df['hash'].apply(
-                lambda value: (split_ratio * 2**64 <= value) and (value < split_ratio * 2 * 2**64)
+                lambda value: (test_ratio * 2**64 <= value < (test_ratio + valid_ratio) * 2**64)
             ),
-            df['hash'].apply(lambda value: value < split_ratio * 2**64),
+            df['hash'].apply(lambda value: value < test_ratio * 2**64),
         )
 
 

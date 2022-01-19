@@ -14,7 +14,7 @@ from rxn_reaction_preprocessing.special_tokens import HEAT_TOKEN, LIGHT_TOKEN
 @pytest.fixture
 def input_file() -> Generator[str, None, None]:
     """Fixture to create a temporary directory and get the name of a
-    (yet inexisting) input file inside it."""
+    (yet nonexistent) input file inside it."""
     with tempfile.TemporaryDirectory() as temporary_dir:
         temporary_path = Path(temporary_dir)
         input_file = str(temporary_path / 'input.file')
@@ -24,7 +24,7 @@ def input_file() -> Generator[str, None, None]:
 @pytest.fixture
 def output_file() -> Generator[str, None, None]:
     """Fixture to create a temporary directory and get the name of a
-    (yet inexisting) output file inside it."""
+    (yet nonexistent) output file inside it."""
     with tempfile.TemporaryDirectory() as temporary_dir:
         temporary_path = Path(temporary_dir)
         output_file = str(temporary_path / 'output.file')

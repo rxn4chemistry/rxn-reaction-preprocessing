@@ -210,7 +210,12 @@ class SplitConfig:
         output_directory: The directory containing the files after splitting.
         split_ratio: The split ratio between training, and test and validation sets.
         reaction_column_name: Name of the reaction column for the data file.
-        index_column: Name of the column used to generate the hash ensuring stable splitting.
+        index_column: Name of the column used to generate the hash ensuring
+            stable splitting.
+        max_in_valid: Maximal number of reactions to keep in the validation set.
+            This can be useful to avoid unnecessarily prolonging training. It
+            is considered as an approximate limit (due to randomness in hashing).
+            Defaults to no restriction.
         seed: Seed for the hashing function used for splitting.
     """
     input_file_path: str = SI('${preprocess.output_file_path}')
@@ -218,6 +223,7 @@ class SplitConfig:
     split_ratio: float = 0.05
     reaction_column_name: str = SI('${common.reaction_column_name}')
     index_column: str = SI('${split.reaction_column_name}')
+    max_in_valid: Optional[int] = None
     seed: int = 42
 
 
