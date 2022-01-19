@@ -18,6 +18,12 @@ from rxn_chemutils.conversion import smiles_to_mol
 from rxn_chemutils.reaction_equation import ReactionEquation
 
 
+class DataSplit(Enum):
+    TRAIN = auto()
+    VALIDATION = auto()
+    TEST = auto()
+
+
 class RandomType(Enum):
     molecules = auto()
     unrestricted = auto()

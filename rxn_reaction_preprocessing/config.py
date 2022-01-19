@@ -216,7 +216,8 @@ class SplitConfig:
             This can be useful to avoid unnecessarily prolonging training. It
             is considered as an approximate limit (due to randomness in hashing).
             Defaults to no restriction.
-        seed: Seed for the hashing function used for splitting.
+        hash_seed: Seed for the hashing function used for splitting.
+        shuffle_seed: Seed for shuffling the train split.
     """
     input_file_path: str = SI('${preprocess.output_file_path}')
     output_directory: str = SI('${data.proc_dir}')
@@ -224,7 +225,8 @@ class SplitConfig:
     reaction_column_name: str = SI('${common.reaction_column_name}')
     index_column: str = SI('${split.reaction_column_name}')
     max_in_valid: Optional[int] = None
-    seed: int = 42
+    hash_seed: int = 42
+    shuffle_seed: int = 42
 
 
 @dataclass
