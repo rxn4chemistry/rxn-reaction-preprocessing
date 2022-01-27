@@ -9,13 +9,13 @@ from typing import Optional
 
 import pandas as pd
 from rdkit import RDLogger
+from rxn_chemutils.miscellaneous import remove_chiral_centers
 from rxn_chemutils.reaction_smiles import parse_any_reaction_smiles
 
 from rxn_reaction_preprocessing.annotations.molecule_annotation import MoleculeAnnotation
 from rxn_reaction_preprocessing.annotations.molecule_annotation import load_annotations_multiple
 from rxn_reaction_preprocessing.config import StandardizeConfig
 from rxn_reaction_preprocessing.molecule_standardizer import MoleculeStandardizer
-from rxn_reaction_preprocessing.stereochemistry_operations import remove_chiral_centers
 
 RDLogger.DisableLog('rdApp.*')
 
