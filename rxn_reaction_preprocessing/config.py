@@ -131,7 +131,7 @@ class StandardizeConfig:
         remove_stereo_if_not_defined_in_precursors: Remove chiral centers from product.
     """
     input_file_path: str = SI('${rxn_import.output_csv}')
-    annotation_file_paths: List[str] = field(default_factory=lambda: DEFAULT_ANNOTATION_FILES)
+    annotation_file_paths: List[str] = field(default_factory=lambda: [])
     discard_unannotated_metals: bool = True
     output_file_path: str = SI('${data.proc_dir}/${data.name}.standardized.csv')
     fragment_bond: FragmentBond = SI('${common.fragment_bond}')
