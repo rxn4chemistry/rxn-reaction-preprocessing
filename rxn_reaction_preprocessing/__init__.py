@@ -12,5 +12,5 @@ from .smiles_tokenizer import SmilesTokenizer
 from .stable_data_splitter import StableDataSplitter
 from .standardizer import Standardizer
 
-__name__ = 'rxn-reaction-preprocessing'
-__version__ = '0.4.1'
+__name__ = "rxn-reaction-preprocessing"
+__version__ = "0.4.1"  # managed by bump2version
