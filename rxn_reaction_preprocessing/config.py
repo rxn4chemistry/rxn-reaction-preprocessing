@@ -51,6 +51,7 @@ class FragmentBond(Enum):
 class InitialDataFormat(Enum):
     TXT = auto()
     CSV = auto()
+    TSV = auto()
 
 
 class Step(Enum):

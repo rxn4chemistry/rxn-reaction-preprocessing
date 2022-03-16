@@ -58,8 +58,8 @@ def _load_from_txt(cfg: RxnImportConfig) -> pd.DataFrame:
     return df
 
 
-def _load_from_csv(cfg: RxnImportConfig) -> pd.DataFrame:
-    df: pd.DataFrame = pd.read_csv(cfg.input_file)
+def _load_from_csv(cfg: RxnImportConfig, separator: str) -> pd.DataFrame:
+    df: pd.DataFrame = pd.read_csv(cfg.input_file, separator)
 
     if cfg.input_csv_column_name not in df.columns:
         raise InvalidColumn(cfg.input_csv_column_name, cfg.input_file)
@@ -86,7 +86,9 @@ def _load_initial(cfg: RxnImportConfig) -> pd.DataFrame:
     if cfg.data_format is InitialDataFormat.TXT:
         return _load_from_txt(cfg)
     if cfg.data_format is InitialDataFormat.CSV:
-        return _load_from_csv(cfg)
+        return _load_from_csv(cfg, separator=",")
+    if cfg.data_format is InitialDataFormat.TSV:
+        return _load_from_csv(cfg, separator="\t")
     raise ValueError(f'Unsupported data type: {cfg.data_format}')
 
 

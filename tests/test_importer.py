@@ -55,13 +55,40 @@ def test_import_from_txt(input_file: str, output_file: str):
 def test_import_from_csv(input_file: str, output_file: str):
     # Write some reactions to a CSV file
     reactions = ['CC>>CC', 'OO>>OO', 'C.C.O>>CCO', 'C.[Na+].[Cl-]>>C']
-    pd.DataFrame({'smiles': reactions}).to_csv(input_file, index=False)
+    dummy_data = ['A', 'B', 'C', 'D']
+    pd.DataFrame({'smiles': reactions, 'dummy': dummy_data}).to_csv(input_file, index=False)
 
     # Do the initial import
     cfg = RxnImportConfig(
         input_file=input_file,
         output_csv=output_file,
         data_format=InitialDataFormat.CSV,
+        input_csv_column_name='smiles',
+        reaction_column_name='rxn',
+        fragment_bond=FragmentBond.TILDE,
+    )
+    rxn_import(cfg)
+
+    # Verify the content
+    df = pd.read_csv(output_file)
+    assert df['rxn'].tolist() == reactions
+    assert df['smiles'].tolist() == reactions
+
+
+def test_import_from_tsv(input_file: str, output_file: str):
+    # Write some reactions to a TSV file
+    reactions = ['CC>>CC', 'OO>>OO', 'C.C.O>>CCO', 'C.[Na+].[Cl-]>>C']
+    dummy_data = ['A', 'B', 'C', 'D']
+    pd.DataFrame({
+        'smiles': reactions,
+        'dummy': dummy_data
+    }).to_csv(input_file, index=False, sep="\t")
+
+    # Do the initial import
+    cfg = RxnImportConfig(
+        input_file=input_file,
+        output_csv=output_file,
+        data_format=InitialDataFormat.TSV,
         input_csv_column_name='smiles',
         reaction_column_name='rxn',
         fragment_bond=FragmentBond.TILDE,
