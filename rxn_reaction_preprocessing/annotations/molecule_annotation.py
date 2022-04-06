@@ -9,7 +9,7 @@ from typing import Optional
 from typing import Union
 
 import attr
-from rxn_chemutils.molecule_list import molecule_list_from_string
+from rxn_chemutils.multicomponent_smiles import multicomponent_smiles_to_list
 from rxn_utilities.rxn_types import RxnEnum
 
 
@@ -72,7 +72,7 @@ class MoleculeAnnotation:
         """
         if self.updated_smiles is None:
             raise RuntimeError('No updated SMILES!')
-        return molecule_list_from_string(self.updated_smiles, '~')
+        return multicomponent_smiles_to_list(self.updated_smiles, '~')
 
 
 def load_annotations(json_file: Union[Path, str]) -> List[MoleculeAnnotation]:
