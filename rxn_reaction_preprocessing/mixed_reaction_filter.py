@@ -19,6 +19,8 @@ from .utils import get_atoms_for_mols
 from .utils import get_formal_charge_for_mols
 from .utils import MolEquation
 
+POLYMER_HEAD_AND_TAIL_PLACEHOLDER_ATOMS = {'Kr', 'Rn', 'Xe'}
+
 SmilesBasedCheck = Callable[[ReactionEquation], bool]
 MolBasedCheck = Callable[[MolEquation], bool]
 
@@ -357,6 +359,8 @@ class MixedReactionFilter:
     def different_atom_types(self, reaction: Union[MolEquation, ReactionEquation]) -> bool:
         """Check whether the products contain atom types not found in the agents or reactants.
 
+        It handles the presence of placeholders for polymer head and tail representations.
+
         Args:
             reaction: The reaction to test.
 
@@ -367,6 +371,8 @@ class MixedReactionFilter:
             reaction = MolEquation.from_reaction_equation(reaction)
 
         products_atoms = get_atoms_for_mols(reaction.products)
+        # ignore atoms used in polymer representations
+        products_atoms -= POLYMER_HEAD_AND_TAIL_PLACEHOLDER_ATOMS
         agents_atoms = get_atoms_for_mols(reaction.agents)
         reactants_atoms = get_atoms_for_mols(reaction.reactants)
 
