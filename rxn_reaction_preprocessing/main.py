@@ -18,8 +18,7 @@ from rxn_reaction_preprocessing.stable_data_splitter import split
 from rxn_reaction_preprocessing.standardizer import standardize
 
 
-@hydra.main(config_name='base_config', config_path=None)
-def data_pipeline(cfg: Config) -> None:
+def preprocess_data(cfg: Config) -> None:
     """Preprocess data to generate a dataset for training transformer models."""
     print(f'Running with the following configuration:\n\n{OmegaConf.to_yaml(cfg, resolve=True)}\n')
 
@@ -44,6 +43,12 @@ def data_pipeline(cfg: Config) -> None:
             split(cfg.split)
         elif step is Step.TOKENIZE:
             tokenize(cfg.tokenize)
+
+
+@hydra.main(config_name='base_config', config_path=None)
+def data_pipeline(cfg: Config) -> None:
+    """Preprocess data to generate a dataset for training transformer models."""
+    preprocess_data(cfg)
 
 
 if __name__ == '__main__':
