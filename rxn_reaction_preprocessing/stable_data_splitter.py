@@ -6,7 +6,7 @@
 import functools
 import os
 from pathlib import Path
-from typing import Tuple, Optional, Hashable
+from typing import Hashable, Optional, Tuple
 
 import pandas as pd
 from xxhash import xxh64_intdigest
@@ -23,6 +23,7 @@ class StableSplitter:
     Useful for instance to ensure that a reaction product with a given SMILES
     will always be in the same split.
     """
+
     HASH_SIZE = 2**64
 
     def __init__(
@@ -30,7 +31,7 @@ class StableSplitter:
         split_ratio: float,
         max_in_valid: Optional[int] = None,
         total_size: Optional[int] = None,
-        seed: int = 0
+        seed: int = 0,
     ):
         """
         Args:
@@ -52,13 +53,17 @@ class StableSplitter:
         self.valid_ratio = split_ratio
         if max_in_valid is not None:
             if total_size is None:
-                raise ValueError('total_size must be provided if max_in_valid is not None')
+                raise ValueError(
+                    "total_size must be provided if max_in_valid is not None"
+                )
             self.valid_ratio = max_in_valid / total_size
 
         # Compute these here to avoid repeating the calculations all the time
         # in the get_split function
         self._test_threshold = self.test_ratio * self.HASH_SIZE
-        self._validation_threshold = (self.test_ratio + self.valid_ratio) * self.HASH_SIZE
+        self._validation_threshold = (
+            self.test_ratio + self.valid_ratio
+        ) * self.HASH_SIZE
 
     def get_split(self, split_value: Hashable) -> DataSplit:
         value = self.hash_fn(split_value)
@@ -70,7 +75,6 @@ class StableSplitter:
 
 
 class StableDataSplitter:
-
     @staticmethod
     def split(
         df: pd.DataFrame,
@@ -79,7 +83,7 @@ class StableDataSplitter:
         split_ratio: float = 0.05,
         max_in_valid: Optional[int] = None,
         hash_seed: int = 0,
-        shuffle_seed: int = 42
+        shuffle_seed: int = 42,
     ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         """Creates a stable split into training, validation, and test sets. Returns a boolean mask
         for each set, to not duplicate the DataFrame while preserving the original.
@@ -102,7 +106,10 @@ class StableDataSplitter:
             A tuple of three pandas DataFrames for the three splits.
         """
         splitter = StableSplitter(
-            split_ratio=split_ratio, max_in_valid=max_in_valid, total_size=len(df), seed=hash_seed
+            split_ratio=split_ratio,
+            max_in_valid=max_in_valid,
+            total_size=len(df),
+            seed=hash_seed,
         )
 
         # Get a pandas Series for the splits by first getting a pandas Series
@@ -125,10 +132,10 @@ class StableDataSplitter:
     def _pre_hashing_series(
         df: pd.DataFrame, index_column: str, reaction_column_name: str
     ) -> pd.Series:
-        if index_column == 'products':
-            return df[reaction_column_name].apply(lambda value: value.split('>>')[1])
-        elif index_column == 'precursors':
-            return df[reaction_column_name].apply(lambda value: value.split('>>')[0])
+        if index_column == "products":
+            return df[reaction_column_name].apply(lambda value: value.split(">>")[1])
+        elif index_column == "precursors":
+            return df[reaction_column_name].apply(lambda value: value.split(">>")[0])
         elif index_column in df.columns:
             return df[index_column]
         else:
@@ -138,9 +145,11 @@ class StableDataSplitter:
 def split(cfg: SplitConfig) -> None:
     output_directory = Path(cfg.output_directory)
     if not Path(cfg.input_file_path).exists():
-        raise ValueError(f'Input file for standardization does not exist: {cfg.input_file_path}')
+        raise ValueError(
+            f"Input file for standardization does not exist: {cfg.input_file_path}"
+        )
 
-    df = pd.read_csv(cfg.input_file_path, lineterminator='\n')
+    df = pd.read_csv(cfg.input_file_path, lineterminator="\n")
     # Split into train, validation, and test sets, but do not export yet
     train, validation, test = StableDataSplitter.split(
         df,
@@ -155,6 +164,8 @@ def split(cfg: SplitConfig) -> None:
     stem = Path(cfg.input_file_path).stem
 
     # Example of exporting one of the sets
-    train.to_csv(os.path.join(output_directory, stem + '.train.csv'), index=False)
-    validation.to_csv(os.path.join(output_directory, stem + '.validation.csv'), index=False)
-    test.to_csv(os.path.join(output_directory, stem + '.test.csv'), index=False)
+    train.to_csv(os.path.join(output_directory, stem + ".train.csv"), index=False)
+    validation.to_csv(
+        os.path.join(output_directory, stem + ".validation.csv"), index=False
+    )
+    test.to_csv(os.path.join(output_directory, stem + ".test.csv"), index=False)

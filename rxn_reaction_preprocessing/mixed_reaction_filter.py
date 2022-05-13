@@ -5,21 +5,15 @@
 """ A class encapsulating filtering functionality for chemical reactions """
 import itertools
 from functools import partial
-from typing import Callable, Iterable
-from typing import Generator
-from typing import List
-from typing import Tuple
-from typing import Union
+from typing import Callable, Generator, Iterable, List, Tuple, Union
 
 from rxn_chemutils.exceptions import InvalidSmiles
 from rxn_chemutils.reaction_equation import ReactionEquation
 from rxn_chemutils.tokenization import to_tokens
 
-from .utils import get_atoms_for_mols
-from .utils import get_formal_charge_for_mols
-from .utils import MolEquation
+from .utils import MolEquation, get_atoms_for_mols, get_formal_charge_for_mols
 
-POLYMER_HEAD_AND_TAIL_PLACEHOLDER_ATOMS = {'Kr', 'Rn', 'Xe'}
+POLYMER_HEAD_AND_TAIL_PLACEHOLDER_ATOMS = {"Kr", "Rn", "Xe"}
 
 SmilesBasedCheck = Callable[[ReactionEquation], bool]
 MolBasedCheck = Callable[[MolEquation], bool]
@@ -41,7 +35,6 @@ class ReactionFilterError(ValueError):
 
 
 class MixedReactionFilter:
-
     def __init__(
         self,
         max_reactants: int = 10,
@@ -82,22 +75,22 @@ class MixedReactionFilter:
         self.max_absolute_formal_charge = max_absolute_formal_charge
 
         self.smiles_based_checks: List[Tuple[SmilesBasedCheck, str]] = [
-            (self.max_reactants_exceeded, 'max_reactants_exceeded'),
-            (self.max_agents_exceeded, 'max_agents_exceeded'),
-            (self.max_products_exceeded, 'max_products_exceeded'),
-            (self.min_reactants_subceeded, 'min_reactants_subceeded'),
-            (self.min_agents_subceeded, 'min_agents_subceeded'),
-            (self.min_products_subceeded, 'min_products_subceeded'),
-            (self.products_subset_of_reactants, 'products_subset_of_reactants'),
-            (self.max_reactant_tokens_exceeded, 'max_reactant_tokens_exceeded'),
-            (self.max_agent_tokens_exceeded, 'max_agent_tokens_exceeded'),
-            (self.max_product_tokens_exceeded, 'max_product_tokens_exceeded'),
+            (self.max_reactants_exceeded, "max_reactants_exceeded"),
+            (self.max_agents_exceeded, "max_agents_exceeded"),
+            (self.max_products_exceeded, "max_products_exceeded"),
+            (self.min_reactants_subceeded, "min_reactants_subceeded"),
+            (self.min_agents_subceeded, "min_agents_subceeded"),
+            (self.min_products_subceeded, "min_products_subceeded"),
+            (self.products_subset_of_reactants, "products_subset_of_reactants"),
+            (self.max_reactant_tokens_exceeded, "max_reactant_tokens_exceeded"),
+            (self.max_agent_tokens_exceeded, "max_agent_tokens_exceeded"),
+            (self.max_product_tokens_exceeded, "max_product_tokens_exceeded"),
         ]
         self.mol_based_checks: List[Tuple[MolBasedCheck, str]] = [
-            (self.products_single_atoms, 'products_single_atoms'),
-            (self.formal_charge_exceeded, 'formal_charge_exceeded'),
-            (self.invalid_atom_type, 'invalid_atom_type'),
-            (self.different_atom_types, 'different_atom_types'),
+            (self.products_single_atoms, "products_single_atoms"),
+            (self.formal_charge_exceeded, "formal_charge_exceeded"),
+            (self.invalid_atom_type, "invalid_atom_type"),
+            (self.different_atom_types, "different_atom_types"),
         ]
 
     def validate(self, reaction: ReactionEquation) -> None:
@@ -163,7 +156,7 @@ class MixedReactionFilter:
         try:
             mol_equation = MolEquation.from_reaction_equation(reaction)
         except InvalidSmiles:
-            reasons.append('rdkit_molfromsmiles_failed')
+            reasons.append("rdkit_molfromsmiles_failed")
         else:
             for mol_based_fn, error_message in self.mol_based_checks:
                 if mol_based_fn(mol_equation):
@@ -259,7 +252,9 @@ class MixedReactionFilter:
 
         return len(products) > 0 and products.issubset(reactants)
 
-    def products_single_atoms(self, reaction: Union[MolEquation, ReactionEquation]) -> bool:
+    def products_single_atoms(
+        self, reaction: Union[MolEquation, ReactionEquation]
+    ) -> bool:
         """Checks whether the products solely consist of single atoms.
 
         Args:
@@ -284,7 +279,9 @@ class MixedReactionFilter:
         Returns:
             [type]: Whether the number of reactant tokens exceeds the maximum.
         """
-        return self._group_tokens_exceeded(reaction.reactants, self.max_reactants_tokens)
+        return self._group_tokens_exceeded(
+            reaction.reactants, self.max_reactants_tokens
+        )
 
     def max_agent_tokens_exceeded(self, reaction: ReactionEquation) -> bool:
         """Check whether the number of agent tokens exceeds the maximum.
@@ -315,10 +312,14 @@ class MixedReactionFilter:
             [type]: Whether the number of product tokens exceeds the maximum.
         """
 
-        smiles = '.'.join(smiles_list)  # NB: we use '.' here, but '~' would be the same.
+        smiles = ".".join(
+            smiles_list
+        )  # NB: we use '.' here, but '~' would be the same.
         return len(to_tokens(smiles)) > threshold
 
-    def formal_charge_exceeded(self, reaction: Union[MolEquation, ReactionEquation]) -> bool:
+    def formal_charge_exceeded(
+        self, reaction: Union[MolEquation, ReactionEquation]
+    ) -> bool:
         """Check whether the absolute formal charge of the reactants, agents,
         or products exceeds a maximum.
 
@@ -333,9 +334,12 @@ class MixedReactionFilter:
             reaction = MolEquation.from_reaction_equation(reaction)
 
         return (
-            abs(get_formal_charge_for_mols(reaction.reactants)) > self.max_absolute_formal_charge
-            or abs(get_formal_charge_for_mols(reaction.agents)) > self.max_absolute_formal_charge
-            or abs(get_formal_charge_for_mols(reaction.products)) > self.max_absolute_formal_charge
+            abs(get_formal_charge_for_mols(reaction.reactants))
+            > self.max_absolute_formal_charge
+            or abs(get_formal_charge_for_mols(reaction.agents))
+            > self.max_absolute_formal_charge
+            or abs(get_formal_charge_for_mols(reaction.products))
+            > self.max_absolute_formal_charge
         )
 
     def invalid_atom_type(self, reaction: Union[MolEquation, ReactionEquation]) -> bool:
@@ -354,9 +358,11 @@ class MixedReactionFilter:
         # So far, the only invalid atom type is "*"; this function can be
         # reformulated to account for additional ones if some appear later on.
         mols = itertools.chain(reaction.reactants, reaction.agents, reaction.products)
-        return '*' in get_atoms_for_mols(mols)
+        return "*" in get_atoms_for_mols(mols)
 
-    def different_atom_types(self, reaction: Union[MolEquation, ReactionEquation]) -> bool:
+    def different_atom_types(
+        self, reaction: Union[MolEquation, ReactionEquation]
+    ) -> bool:
         """Check whether the products contain atom types not found in the agents or reactants.
 
         It handles the presence of placeholders for polymer head and tail representations.

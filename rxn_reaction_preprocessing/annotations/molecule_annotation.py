@@ -1,12 +1,7 @@
 import json
 from enum import auto
 from pathlib import Path
-from typing import Any
-from typing import Dict
-from typing import Iterable
-from typing import List
-from typing import Optional
-from typing import Union
+from typing import Any, Dict, Iterable, List, Optional, Union
 
 import attr
 from rxn_chemutils.multicomponent_smiles import multicomponent_smiles_to_list
@@ -32,8 +27,12 @@ class MoleculeAnnotation:
     extra_info: Dict[str, Any]
 
     def __init__(
-        self, original_smiles: str, updated_smiles: Optional[str], decision: str,
-        categories: List[str], **extra_info: Any
+        self,
+        original_smiles: str,
+        updated_smiles: Optional[str],
+        decision: str,
+        categories: List[str],
+        **extra_info: Any
     ):
         """
         Args:
@@ -55,13 +54,13 @@ class MoleculeAnnotation:
             updated_smiles=updated_smiles,
             decision=decision_enum,
             categories=categories,
-            extra_info=extra_info
+            extra_info=extra_info,
         )
 
     @property
     def original_without_fragment_bond(self) -> str:
         """Get the original SMILES with dots instead of tildes to delimit fragments."""
-        return self.original_smiles.replace('~', '.')
+        return self.original_smiles.replace("~", ".")
 
     @property
     def updated_without_fragment_bond(self) -> List[str]:
@@ -71,8 +70,8 @@ class MoleculeAnnotation:
         Since dots may be used to delimit solvents from compounds, a list must be returned.
         """
         if self.updated_smiles is None:
-            raise RuntimeError('No updated SMILES!')
-        return multicomponent_smiles_to_list(self.updated_smiles, '~')
+            raise RuntimeError("No updated SMILES!")
+        return multicomponent_smiles_to_list(self.updated_smiles, "~")
 
 
 def load_annotations(json_file: Union[Path, str]) -> List[MoleculeAnnotation]:
@@ -86,13 +85,15 @@ def load_annotations(json_file: Union[Path, str]) -> List[MoleculeAnnotation]:
         List of annotations.
     """
 
-    with open(json_file, 'rt') as f:
+    with open(json_file, "rt") as f:
         json_content = json.load(f)
 
     return [MoleculeAnnotation(**block) for block in json_content]
 
 
-def load_annotations_multiple(json_files: Iterable[Union[Path, str]]) -> List[MoleculeAnnotation]:
+def load_annotations_multiple(
+    json_files: Iterable[Union[Path, str]]
+) -> List[MoleculeAnnotation]:
     """
     Load the molecule annotations from multiple JSON files.
 

@@ -7,7 +7,7 @@ from rxn_reaction_preprocessing.utils import MolEquation
 
 def test_mol_equation():
     # Dummy example to check if the MolEquation contains the correct number of atoms
-    reaction_equation = ReactionEquation.from_string('CC.O>Cl>CCO')
+    reaction_equation = ReactionEquation.from_string("CC.O>Cl>CCO")
     mol_equation = MolEquation.from_reaction_equation(reaction_equation)
     assert len(mol_equation.reactants) == 2
     assert len(mol_equation.agents) == 1
@@ -18,6 +18,6 @@ def test_mol_equation():
     assert mol_equation.products[0].GetNumAtoms() == 3
 
     # Raises InvalidSmiles if any compound is invalid
-    invalid_smiles_equation = ReactionEquation.from_string('JCC.C>>CCO')
+    invalid_smiles_equation = ReactionEquation.from_string("JCC.C>>CCO")
     with pytest.raises(InvalidSmiles):
         _ = MolEquation.from_reaction_equation(invalid_smiles_equation)

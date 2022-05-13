@@ -1,12 +1,12 @@
-from typing import Dict
-from typing import Iterable
+from typing import Dict, Iterable
 
-from rxn_reaction_preprocessing.annotations.molecule_annotation import AnnotationDecision
-from rxn_reaction_preprocessing.annotations.molecule_annotation import MoleculeAnnotation
+from rxn_reaction_preprocessing.annotations.molecule_annotation import (
+    AnnotationDecision,
+    MoleculeAnnotation,
+)
 
 
 class MoleculeNotAnnotated(ValueError):
-
     def __init__(self, smiles):
         super().__init__(f'The molecule "{smiles}" was not annotated.')
 

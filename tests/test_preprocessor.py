@@ -5,26 +5,23 @@
 import pandas as pd
 import pytest
 
-from rxn_reaction_preprocessing import MixedReactionFilter
-from rxn_reaction_preprocessing import Preprocessor
-from rxn_reaction_preprocessing import ReactionPart
+from rxn_reaction_preprocessing import MixedReactionFilter, Preprocessor, ReactionPart
 
 
 @pytest.fixture
 def preprocessor():
     df = pd.DataFrame(
         {
-            'rxn':
-                [
-                    '[14C]Cl.O[Na]>O>[Na]Cl.[14C]O',
-                    '[14C]Cl.O[Na]>>[Na]Cl',
-                    '[C].C.[O--].[O--].O.O=[N+]([O-])c1cc(-c2nc3ccccc3o2)ccc1F.C.C>O>O.C',
-                    '=)(/?',
-                ],
-            'class': [2, 2, 6, 0],
+            "rxn": [
+                "[14C]Cl.O[Na]>O>[Na]Cl.[14C]O",
+                "[14C]Cl.O[Na]>>[Na]Cl",
+                "[C].C.[O--].[O--].O.O=[N+]([O-])c1cc(-c2nc3ccccc3o2)ccc1F.C.C>O>O.C",
+                "=)(/?",
+            ],
+            "class": [2, 2, 6, 0],
         }
     )
-    return Preprocessor(df, 'rxn')
+    return Preprocessor(df, "rxn")
 
 
 @pytest.fixture
@@ -58,16 +55,16 @@ def test_filter_verbose(preprocessor, filter):
 
 
 def test_filter_smarts(preprocessor):
-    preprocessor.filter_smarts('[O--]', ReactionPart.reactants)
+    preprocessor.filter_smarts("[O--]", ReactionPart.reactants)
     assert preprocessor.df._rxn_valid.iloc[0]
     assert preprocessor.df._rxn_valid.iloc[1]
     assert not preprocessor.df._rxn_valid.iloc[2]
 
 
 def test_filter_smarts_keep(preprocessor):
-    preprocessor.filter_smarts('[O--]', ReactionPart.reactants, keep=True, verbose=True)
-    assert preprocessor.df._rxn_valid_messages.iloc[0] == ['pattern_[O--]']
-    assert preprocessor.df._rxn_valid_messages.iloc[1] == ['pattern_[O--]']
+    preprocessor.filter_smarts("[O--]", ReactionPart.reactants, keep=True, verbose=True)
+    assert preprocessor.df._rxn_valid_messages.iloc[0] == ["pattern_[O--]"]
+    assert preprocessor.df._rxn_valid_messages.iloc[1] == ["pattern_[O--]"]
 
 
 def test_preprocess_with_rdkit_bug_for_concatenated_smiles():
@@ -75,8 +72,8 @@ def test_preprocess_with_rdkit_bug_for_concatenated_smiles():
     # convert concatenated SMILES into an RDKit Mol.
     # See https://github.ibm.com/rxn/rxn_reaction_preprocessing/issues/62
 
-    df = pd.DataFrame({'rxn': ['c1ccccc1.C123C45C16C21C34C561>>CC']})
-    preprocessor = Preprocessor(df, 'rxn')
+    df = pd.DataFrame({"rxn": ["c1ccccc1.C123C45C16C21C34C561>>CC"]})
+    preprocessor = Preprocessor(df, "rxn")
     mrf = MixedReactionFilter()
 
     # This used to raise an exception

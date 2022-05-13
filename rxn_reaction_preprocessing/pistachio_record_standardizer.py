@@ -1,13 +1,15 @@
 import copy
 import logging
-from typing import Dict, Any
+from typing import Any, Dict
 
 from rxn_chemutils.miscellaneous import remove_atom_mapping
 from rxn_chemutils.reaction_smiles import parse_any_reaction_smiles
 
 from rxn_reaction_preprocessing import MixedReactionFilter
-from rxn_reaction_preprocessing.annotations.molecule_annotation import load_annotations_multiple
-from rxn_reaction_preprocessing.config import StandardizeConfig, PreprocessConfig
+from rxn_reaction_preprocessing.annotations.molecule_annotation import (
+    load_annotations_multiple,
+)
+from rxn_reaction_preprocessing.config import PreprocessConfig, StandardizeConfig
 from rxn_reaction_preprocessing.molecule_standardizer import MoleculeStandardizer
 from rxn_reaction_preprocessing.reaction_standardizer import ReactionStandardizer
 
@@ -33,12 +35,16 @@ class PistachioRecordStandardizer:
     of the CSV files to load from and write to.
     """
 
-    def __init__(self, cfg_standardize: StandardizeConfig, cfg_preprocess: PreprocessConfig):
+    def __init__(
+        self, cfg_standardize: StandardizeConfig, cfg_preprocess: PreprocessConfig
+    ):
         self.fragment_bond = cfg_standardize.fragment_bond.value
         self.molecule_standardizer = MoleculeStandardizer(
-            annotations=load_annotations_multiple(cfg_standardize.annotation_file_paths),
+            annotations=load_annotations_multiple(
+                cfg_standardize.annotation_file_paths
+            ),
             discard_missing_annotations=cfg_standardize.discard_unannotated_metals,
-            canonicalize=True
+            canonicalize=True,
         )
         self.reaction_standardizer = ReactionStandardizer()
 
@@ -56,7 +62,7 @@ class PistachioRecordStandardizer:
         )
 
         # in earlier versions, this was "reactionSmiles"
-        self.reaction_smiles_field = 'smiles'
+        self.reaction_smiles_field = "smiles"
 
     def standardize(self, reaction_record: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -71,7 +77,7 @@ class PistachioRecordStandardizer:
         # Do not do changes in-place
         reaction_record = copy.deepcopy(reaction_record)
 
-        reaction_smiles = reaction_record['data'][self.reaction_smiles_field]
+        reaction_smiles = reaction_record["data"][self.reaction_smiles_field]
         reaction_smiles = remove_atom_mapping(reaction_smiles)
         reaction = parse_any_reaction_smiles(reaction_smiles)
         reaction = self.molecule_standardizer.standardize_in_equation(reaction)
@@ -80,15 +86,16 @@ class PistachioRecordStandardizer:
         # This will raise if the filters do not pass
         self.reaction_filter.validate(reaction)
 
-        for component_dict in reaction_record.get('components', []):
+        for component_dict in reaction_record.get("components", []):
             self._try_standardize_component(component_dict)
 
-        for action_dict in reaction_record.get('actions', []):
-            for component_dict in action_dict.get('components', []):
+        for action_dict in reaction_record.get("actions", []):
+            for component_dict in action_dict.get("components", []):
                 self._try_standardize_component(component_dict)
 
-        reaction_record['data'][self.reaction_smiles_field
-                                ] = reaction.to_string(self.fragment_bond)
+        reaction_record["data"][self.reaction_smiles_field] = reaction.to_string(
+            self.fragment_bond
+        )
 
         return reaction_record
 
@@ -96,13 +103,13 @@ class PistachioRecordStandardizer:
         """Standardize one component in the Pistachio record. Does not raise
         any exception if this fails."""
         try:
-            smiles = component_dict['smiles']
+            smiles = component_dict["smiles"]
             standardized_smiles = self.molecule_standardizer.standardize(smiles)
 
             # IMPORTANT: as we need a string, not a list, we must convert
             # the list to a string again, i.e. use a fragment bond even if
             # the molecule standardizer provides multiple separate molecules.
-            component_dict['smiles'] = '.'.join(standardized_smiles)
+            component_dict["smiles"] = ".".join(standardized_smiles)
         except Exception:
             # if there was any error (KeyError, standardization error, etc.), we
             # do nothing

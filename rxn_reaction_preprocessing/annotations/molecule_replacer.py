@@ -1,13 +1,11 @@
-from typing import Iterable
-from typing import List
-from typing import Mapping
-from typing import Optional
-from typing import Union
+from typing import Iterable, List, Mapping, Optional, Union
 
 from rxn_chemutils.reaction_equation import ReactionEquation
 
-from rxn_reaction_preprocessing.annotations.molecule_annotation import AnnotationDecision
-from rxn_reaction_preprocessing.annotations.molecule_annotation import MoleculeAnnotation
+from rxn_reaction_preprocessing.annotations.molecule_annotation import (
+    AnnotationDecision,
+    MoleculeAnnotation,
+)
 
 
 class MoleculeReplacer:
@@ -43,7 +41,9 @@ class MoleculeReplacer:
             # If not found: return the original SMILES (as a list!)
             return [smiles]
 
-    def replace_in_reaction_smiles(self, smiles: str, fragment_bond: Optional[str] = None) -> str:
+    def replace_in_reaction_smiles(
+        self, smiles: str, fragment_bond: Optional[str] = None
+    ) -> str:
         """
         Do the molecule replacements in a reaction SMILES.
 
@@ -52,7 +52,9 @@ class MoleculeReplacer:
             fragment_bond: fragment bond used in the reaction SMILES.
         """
         reaction_equation = ReactionEquation.from_string(smiles, fragment_bond)
-        return self.replace_in_reaction_equation(reaction_equation).to_string(fragment_bond)
+        return self.replace_in_reaction_equation(reaction_equation).to_string(
+            fragment_bond
+        )
 
     def replace_in_reaction_equation(
         self, reaction_equation: ReactionEquation
@@ -68,14 +70,15 @@ class MoleculeReplacer:
         Do the replacements in a list of SMILES, potentially leading to a larger list.
         """
         return [
-            replaced_molecule for molecule in molecules
+            replaced_molecule
+            for molecule in molecules
             for replaced_molecule in self.replace_molecule_smiles(molecule)
         ]
 
     @classmethod
     def from_molecule_annotations(
         cls, molecule_annotations: Iterable[MoleculeAnnotation]
-    ) -> 'MoleculeReplacer':
+    ) -> "MoleculeReplacer":
         """Instantiate from a list of molecule annotations."""
 
         def criterion(annotation: MoleculeAnnotation) -> bool:
@@ -86,6 +89,7 @@ class MoleculeReplacer:
 
         replacements = {
             annotation.original_without_fragment_bond: annotation.updated_without_fragment_bond
-            for annotation in molecule_annotations if criterion(annotation)
+            for annotation in molecule_annotations
+            if criterion(annotation)
         }
         return cls(replacements)

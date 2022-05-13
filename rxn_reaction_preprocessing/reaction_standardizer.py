@@ -1,6 +1,9 @@
 from rxn_chemutils.reaction_equation import (
-    ReactionEquation, merge_reactants_and_agents, sort_compounds, remove_precursors_from_products,
-    remove_duplicate_compounds
+    ReactionEquation,
+    merge_reactants_and_agents,
+    remove_duplicate_compounds,
+    remove_precursors_from_products,
+    sort_compounds,
 )
 
 

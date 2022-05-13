@@ -1,8 +1,5 @@
 import itertools
-from typing import Generator
-from typing import Iterable
-from typing import Optional
-from typing import Set
+from typing import Generator, Iterable, Optional, Set
 
 from rdkit.Chem import GetPeriodicTable
 from rxn_chemutils.miscellaneous import atom_type_counter
@@ -20,7 +17,7 @@ class AnnotationCriterion:
     def __init__(
         self,
         additional_elements_to_consider: Optional[Iterable[str]] = None,
-        elements_not_to_consider: Optional[Iterable[str]] = None
+        elements_not_to_consider: Optional[Iterable[str]] = None,
     ):
         """
         Args:
@@ -29,12 +26,16 @@ class AnnotationCriterion:
             elements_not_to_consider: elements for which not to require an
                 annotation, even if they are extended transition metals.
         """
-        self.elements_requiring_annotation = set(AnnotationCriterion.extended_transition_metals())
+        self.elements_requiring_annotation = set(
+            AnnotationCriterion.extended_transition_metals()
+        )
 
         if additional_elements_to_consider is not None:
             self.elements_requiring_annotation.update(additional_elements_to_consider)
         if elements_not_to_consider is not None:
-            self.elements_requiring_annotation.difference_update(elements_not_to_consider)
+            self.elements_requiring_annotation.difference_update(
+                elements_not_to_consider
+            )
 
     def __call__(self, smiles: str) -> bool:
         """
@@ -53,7 +54,8 @@ class AnnotationCriterion:
             smiles: molecule SMILES. Use dots for fragment bonds!
         """
         return bool(
-            AnnotationCriterion.elements_in_smiles(smiles) & self.elements_requiring_annotation
+            AnnotationCriterion.elements_in_smiles(smiles)
+            & self.elements_requiring_annotation
         )
 
     @staticmethod
@@ -78,9 +80,7 @@ class AnnotationCriterion:
         """
         yield from itertools.chain(
             # Al
-            (
-                13,
-            ),
+            (13,),
             # first-row transition metals + Ga
             range(21, 32),
             # second-row transition metals + In

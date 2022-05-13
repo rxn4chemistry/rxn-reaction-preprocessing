@@ -4,24 +4,24 @@
 # ALL RIGHTS RESERVED
 """ A utility class to apply standardization to the data """
 from pathlib import Path
-from typing import List
-from typing import Optional
+from typing import List, Optional
 
 import pandas as pd
 from rdkit import RDLogger
 from rxn_chemutils.miscellaneous import remove_chiral_centers
 from rxn_chemutils.reaction_smiles import parse_any_reaction_smiles
 
-from rxn_reaction_preprocessing.annotations.molecule_annotation import MoleculeAnnotation
-from rxn_reaction_preprocessing.annotations.molecule_annotation import load_annotations_multiple
+from rxn_reaction_preprocessing.annotations.molecule_annotation import (
+    MoleculeAnnotation,
+    load_annotations_multiple,
+)
 from rxn_reaction_preprocessing.config import StandardizeConfig
 from rxn_reaction_preprocessing.molecule_standardizer import MoleculeStandardizer
 
-RDLogger.DisableLog('rdApp.*')
+RDLogger.DisableLog("rdApp.*")
 
 
 class Standardizer:
-
     def __init__(
         self,
         df: pd.DataFrame,
@@ -46,16 +46,18 @@ class Standardizer:
         self.molecule_standardizer = MoleculeStandardizer(
             annotations=annotations,
             discard_missing_annotations=discard_unannotated_metals,
-            canonicalize=True
+            canonicalize=True,
         )
         self.fragment_bond = fragment_bond
-        self.remove_stereo_if_not_defined_in_precursors = remove_stereo_if_not_defined_in_precursors
+        self.remove_stereo_if_not_defined_in_precursors = (
+            remove_stereo_if_not_defined_in_precursors
+        )
 
         self.rxn_column = reaction_column_name
-        self.rxn_before_std_column = f'{self.rxn_column}_before_std'
-        self.invalid_smiles_column = f'{self.rxn_column}_invalid_smiles'
-        self.rejected_smiles_column = f'{self.rxn_column}_rejected_smiles'
-        self.missing_annotations_column = f'{self.rxn_column}_missing_annotations'
+        self.rxn_before_std_column = f"{self.rxn_column}_before_std"
+        self.invalid_smiles_column = f"{self.rxn_column}_invalid_smiles"
+        self.rejected_smiles_column = f"{self.rxn_column}_rejected_smiles"
+        self.missing_annotations_column = f"{self.rxn_column}_missing_annotations"
 
     def __remove_stereo_if_not_defined_in_precursors(self, rxn_smiles: str) -> str:
         """
@@ -64,12 +66,12 @@ class Standardizer:
         if not self.remove_stereo_if_not_defined_in_precursors:
             return rxn_smiles
 
-        reactants, reagents, products = rxn_smiles.split('>')
-        if '@' in products and not ('@' in reactants or '@' in reagents):
+        reactants, reagents, products = rxn_smiles.split(">")
+        if "@" in products and not ("@" in reactants or "@" in reagents):
             rxn_smiles = remove_chiral_centers(rxn_smiles)  # replaces with the group
         return rxn_smiles
 
-    def standardize(self, canonicalize: bool = True) -> 'Standardizer':
+    def standardize(self, canonicalize: bool = True) -> "Standardizer":
         """
         Standardizes the entries of self.df[self.__reaction_column_name]
         """
@@ -77,12 +79,16 @@ class Standardizer:
 
         # Make a copy of the non-standardized reaction SMILES. Achieved by
         # renaming to enable the "join" operation below without conflict.
-        self.df.rename(columns={self.rxn_column: self.rxn_before_std_column}, inplace=True)
+        self.df.rename(
+            columns={self.rxn_column: self.rxn_before_std_column}, inplace=True
+        )
 
         new_columns: pd.DataFrame = self.df.apply(self.process_row, axis=1)
         new_columns.columns = [
-            self.rxn_column, self.invalid_smiles_column, self.rejected_smiles_column,
-            self.missing_annotations_column
+            self.rxn_column,
+            self.invalid_smiles_column,
+            self.rejected_smiles_column,
+            self.missing_annotations_column,
         ]
         # Merge the new columns
         self.df = self.df.join(new_columns)
@@ -108,10 +114,14 @@ class Standardizer:
         # fragment bond, extended reaction SMILES, etc.).
         reaction_equation = parse_any_reaction_smiles(rxn_smiles)
 
-        (standardized_reaction, invalid_smiles, rejected_smiles,
-         missing_annotations) = self.molecule_standardizer.standardize_in_equation_with_errors(
-             reaction_equation, propagate_exceptions=False
-         )
+        (
+            standardized_reaction,
+            invalid_smiles,
+            rejected_smiles,
+            missing_annotations,
+        ) = self.molecule_standardizer.standardize_in_equation_with_errors(
+            reaction_equation, propagate_exceptions=False
+        )
 
         standardized_smiles = standardized_reaction.to_string(self.fragment_bond)
         return pd.Series(
@@ -125,7 +135,7 @@ class Standardizer:
         discard_unannotated_metals: bool,
         reaction_column_name: str,
         fragment_bond: str = None,
-        remove_stereo_if_not_defined_in_precursors: bool = False
+        remove_stereo_if_not_defined_in_precursors: bool = False,
     ):
         """
         A helper function to read a list or csv of VALID reactions (in the sense of RDKIT).
@@ -143,7 +153,7 @@ class Standardizer:
         Returns:
             : A new standardizer instance.
         """
-        df = pd.read_csv(filepath, lineterminator='\n')
+        df = pd.read_csv(filepath, lineterminator="\n")
         if len(df.columns) == 1:
             df.rename(columns={df.columns[0]: reaction_column_name}, inplace=True)
 
@@ -153,14 +163,16 @@ class Standardizer:
             discard_unannotated_metals=discard_unannotated_metals,
             reaction_column_name=reaction_column_name,
             fragment_bond=fragment_bond,
-            remove_stereo_if_not_defined_in_precursors=remove_stereo_if_not_defined_in_precursors
+            remove_stereo_if_not_defined_in_precursors=remove_stereo_if_not_defined_in_precursors,
         )
 
 
 def standardize(cfg: StandardizeConfig) -> None:
     output_file_path = Path(cfg.output_file_path)
     if not Path(cfg.input_file_path).exists():
-        raise ValueError(f'Input file for standardization does not exist: {cfg.input_file_path}')
+        raise ValueError(
+            f"Input file for standardization does not exist: {cfg.input_file_path}"
+        )
 
     # Create a list of MoleculeAnnotations from the json files provided.
     annotations = load_annotations_multiple(cfg.annotation_file_paths)
@@ -172,7 +184,7 @@ def standardize(cfg: StandardizeConfig) -> None:
         discard_unannotated_metals=cfg.discard_unannotated_metals,
         reaction_column_name=cfg.reaction_column_name,
         fragment_bond=cfg.fragment_bond.value,
-        remove_stereo_if_not_defined_in_precursors=cfg.remove_stereo_if_not_defined_in_precursors
+        remove_stereo_if_not_defined_in_precursors=cfg.remove_stereo_if_not_defined_in_precursors,
     )
 
     # Perform standardization

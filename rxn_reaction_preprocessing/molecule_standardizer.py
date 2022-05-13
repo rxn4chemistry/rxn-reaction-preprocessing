@@ -1,15 +1,19 @@
-from typing import List, Tuple
-from typing import Optional
+from typing import List, Optional, Tuple
 
 from rxn_chemutils.conversion import canonicalize_smiles
 from rxn_chemutils.exceptions import InvalidSmiles
 from rxn_chemutils.reaction_equation import ReactionEquation
 
-from rxn_reaction_preprocessing.annotations.missing_annotation_detector import \
-    MissingAnnotationDetector
-from rxn_reaction_preprocessing.annotations.molecule_annotation import MoleculeAnnotation
+from rxn_reaction_preprocessing.annotations.missing_annotation_detector import (
+    MissingAnnotationDetector,
+)
+from rxn_reaction_preprocessing.annotations.molecule_annotation import (
+    MoleculeAnnotation,
+)
 from rxn_reaction_preprocessing.annotations.molecule_replacer import MoleculeReplacer
-from rxn_reaction_preprocessing.annotations.rejected_molecules_filter import RejectedMoleculesFilter
+from rxn_reaction_preprocessing.annotations.rejected_molecules_filter import (
+    RejectedMoleculesFilter,
+)
 from rxn_reaction_preprocessing.cleaner import remove_isotope_information
 
 
@@ -53,7 +57,7 @@ class MoleculeStandardizer:
         self,
         annotations: Optional[List[MoleculeAnnotation]] = None,
         discard_missing_annotations: bool = False,
-        canonicalize: bool = True
+        canonicalize: bool = True,
     ):
         """
         Args:
@@ -69,9 +73,11 @@ class MoleculeStandardizer:
         self.discard_unannotated_metals = discard_missing_annotations
         self.canonicalize = canonicalize
 
-        self.rejection_filter = RejectedMoleculesFilter.from_molecule_annotations(annotations)
-        self.missing_annotation_detector = MissingAnnotationDetector.from_molecule_annotations(
+        self.rejection_filter = RejectedMoleculesFilter.from_molecule_annotations(
             annotations
+        )
+        self.missing_annotation_detector = (
+            MissingAnnotationDetector.from_molecule_annotations(annotations)
         )
         self.molecule_replacer = MoleculeReplacer.from_molecule_annotations(annotations)
 
@@ -97,7 +103,7 @@ class MoleculeStandardizer:
         Returns:
             Standardized SMILES string.
         """
-        if '~' in smiles:
+        if "~" in smiles:
             raise ValueError(f'MoleculeStandardizer must be used without "~": {smiles}')
 
         # Discard isotope information
@@ -137,9 +143,7 @@ class MoleculeStandardizer:
         return reaction
 
     def standardize_in_equation_with_errors(
-        self,
-        reaction: ReactionEquation,
-        propagate_exceptions: bool = False
+        self, reaction: ReactionEquation, propagate_exceptions: bool = False
     ) -> Tuple[ReactionEquation, List[str], List[str], List[str]]:
         """
         Do the molecule-wise standardization for a reaction equation, and get the reasons for
@@ -191,4 +195,9 @@ class MoleculeStandardizer:
         if invalid_smiles or rejected_smiles or missing_annotations:
             standardized_reaction = ReactionEquation([], [], [])
 
-        return standardized_reaction, invalid_smiles, rejected_smiles, missing_annotations
+        return (
+            standardized_reaction,
+            invalid_smiles,
+            rejected_smiles,
+            missing_annotations,
+        )

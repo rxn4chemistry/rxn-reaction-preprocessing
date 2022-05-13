@@ -31,16 +31,22 @@ def tokenize(cfg: TokenizeConfig) -> None:
     tokenizer = SmilesTokenizer()
 
     for pair in cfg.input_output_pairs:
-        df = pd.read_csv(pair.inp, lineterminator='\n')
+        df = pd.read_csv(pair.inp, lineterminator="\n")
 
         if cfg.reaction_column_name not in df.columns:
-            raise SystemExit(f'The following file does not contain an rxn column:\n{pair.inp}')
+            raise SystemExit(
+                f"The following file does not contain an rxn column:\n{pair.inp}"
+            )
 
-        df['rxn_precursors'] = df[cfg.reaction_column_name].str.split('>>').str[0]
-        df['rxn_products'] = df[cfg.reaction_column_name].str.split('>>').str[1]
+        df["rxn_precursors"] = df[cfg.reaction_column_name].str.split(">>").str[0]
+        df["rxn_products"] = df[cfg.reaction_column_name].str.split(">>").str[1]
 
         df.rxn_precursors = df.rxn_precursors.apply(tokenizer.tokenize)
         df.rxn_products = df.rxn_products.apply(tokenizer.tokenize)
 
-        df[['rxn_precursors']].to_csv(f'{pair.out}.precursors_tokens', header=False, index=False)
-        df[['rxn_products']].to_csv(f'{pair.out}.products_tokens', header=False, index=False)
+        df[["rxn_precursors"]].to_csv(
+            f"{pair.out}.precursors_tokens", header=False, index=False
+        )
+        df[["rxn_products"]].to_csv(
+            f"{pair.out}.products_tokens", header=False, index=False
+        )

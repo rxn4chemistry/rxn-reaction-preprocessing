@@ -4,17 +4,13 @@
 # ALL RIGHTS RESERVED
 import logging
 import random
-from enum import Enum
-from enum import auto
+from enum import Enum, auto
 from pathlib import Path
-from typing import Iterable
-from typing import List
-from typing import Set
+from typing import Iterable, List, Set
 
 import attr
 import numpy
-from rdkit.Chem import GetFormalCharge
-from rdkit.Chem import Mol
+from rdkit.Chem import GetFormalCharge, Mol
 from rxn_chemutils.conversion import smiles_to_mol
 from rxn_chemutils.reaction_equation import ReactionEquation
 from rxn_utilities.file_utilities import PathLike
@@ -50,14 +46,14 @@ def data_directory() -> Path:
     """
     Returns the path to the data directory at the root of the repository
     """
-    return Path(__file__).parent.resolve() / 'data'
+    return Path(__file__).parent.resolve() / "data"
 
 
 def standardization_files_directory() -> Path:
     """
     Returns the path to the data directory at the root of the repository
     """
-    return data_directory() / 'standardization-files'
+    return data_directory() / "standardization-files"
 
 
 def reset_random_seed() -> None:
@@ -71,12 +67,13 @@ class MolEquation:
     Same as a ReactionEquation, except that RDKit Mol objects are stored
     instead of the SMILES.
     """
+
     reactants: List[Mol]
     agents: List[Mol]
     products: List[Mol]
 
     @classmethod
-    def from_reaction_equation(cls, reaction: ReactionEquation) -> 'MolEquation':
+    def from_reaction_equation(cls, reaction: ReactionEquation) -> "MolEquation":
         return cls(
             reactants=[smiles_to_mol(s) for s in reaction.reactants],
             agents=[smiles_to_mol(s) for s in reaction.agents],
@@ -105,7 +102,7 @@ def add_custom_logger_to_file(log_file: PathLike) -> None:
         log_file: file where to save the logs.
     """
     root_logger = logging.getLogger()
-    fh = logging.FileHandler(log_file, mode='w')
+    fh = logging.FileHandler(log_file, mode="w")
     fh.setLevel(logging.INFO)
     root_logger.addHandler(fh)
 

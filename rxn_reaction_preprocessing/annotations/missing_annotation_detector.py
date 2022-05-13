@@ -1,14 +1,13 @@
-from typing import Callable
-from typing import Generator
-from typing import Iterable
-from typing import Optional
-from typing import Set
-from typing import Union
+from typing import Callable, Generator, Iterable, Optional, Set, Union
 
 from rxn_chemutils.reaction_equation import ReactionEquation
 
-from rxn_reaction_preprocessing.annotations.annotation_criterion import AnnotationCriterion
-from rxn_reaction_preprocessing.annotations.molecule_annotation import MoleculeAnnotation
+from rxn_reaction_preprocessing.annotations.annotation_criterion import (
+    AnnotationCriterion,
+)
+from rxn_reaction_preprocessing.annotations.molecule_annotation import (
+    MoleculeAnnotation,
+)
 
 
 class MissingAnnotationDetector:
@@ -20,7 +19,7 @@ class MissingAnnotationDetector:
     def __init__(
         self,
         annotated_molecules: Set[str],
-        requires_annotation_fn: Optional[Callable[[str], bool]] = None
+        requires_annotation_fn: Optional[Callable[[str], bool]] = None,
     ):
         """
         Args:
@@ -64,7 +63,7 @@ class MissingAnnotationDetector:
     def missing_in_reaction_smiles(
         self,
         reaction_smiles: Union[Iterable[str], str],
-        fragment_bond: Optional[str] = None
+        fragment_bond: Optional[str] = None,
     ) -> Generator[str, None, None]:
         """
         In one or multiple reaction SMILES, find the molecules requiring annotation.
@@ -86,8 +85,8 @@ class MissingAnnotationDetector:
     def from_molecule_annotations(
         cls,
         molecule_annotations: Iterable[MoleculeAnnotation],
-        requires_annotation_fn: Optional[Callable[[str], bool]] = None
-    ) -> 'MissingAnnotationDetector':
+        requires_annotation_fn: Optional[Callable[[str], bool]] = None,
+    ) -> "MissingAnnotationDetector":
         """
         Create a MissingAnnotationDetector instance from existing molecule annotations.
 
@@ -103,10 +102,11 @@ class MissingAnnotationDetector:
         # Also consider the updated SMILES, but only if they consist in exactly one molecule.
         updated_smiles = {
             annotation.updated_without_fragment_bond[0]
-            for annotation in molecule_annotations if annotation.updated_smiles is not None
+            for annotation in molecule_annotations
+            if annotation.updated_smiles is not None
             and len(annotation.updated_without_fragment_bond) == 1
         }
         return cls(
             annotated_molecules=original_smiles | updated_smiles,
-            requires_annotation_fn=requires_annotation_fn
+            requires_annotation_fn=requires_annotation_fn,
         )

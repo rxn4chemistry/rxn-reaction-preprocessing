@@ -1,13 +1,13 @@
 import logging
 from functools import partial
-from typing import Optional, Callable
+from typing import Callable, Optional
 
 import pandas as pd
 from rxn_chemutils.miscellaneous import remove_atom_mapping
 from rxn_chemutils.reaction_equation import ReactionEquation
 from rxn_chemutils.reaction_smiles import parse_any_reaction_smiles
 
-from rxn_reaction_preprocessing.config import RxnImportConfig, InitialDataFormat
+from rxn_reaction_preprocessing.config import InitialDataFormat, RxnImportConfig
 from rxn_reaction_preprocessing.special_tokens import add_heat_token, add_light_token
 
 logger = logging.getLogger(__name__)
@@ -34,7 +34,7 @@ class InvalidType(RxnImportError):
     def __init__(self, column_name: str, expected_type: str, actual_type: str):
         super().__init__(
             f'The column "{column_name}" is expected to contain '
-            f'values of type {expected_type} (actual: {actual_type}).'
+            f"values of type {expected_type} (actual: {actual_type})."
         )
 
 
@@ -43,11 +43,11 @@ def _final_column_name_for_original(cfg: RxnImportConfig) -> str:
 
     # For txt: always with "_original" postfix
     if cfg.data_format is InitialDataFormat.TXT:
-        return f'{cfg.reaction_column_name}_original'
+        return f"{cfg.reaction_column_name}_original"
 
     # For csv: only add "_original" postfix if the input and output columns are identical
     if cfg.input_csv_column_name == cfg.reaction_column_name:
-        return f'{cfg.reaction_column_name}_original'
+        return f"{cfg.reaction_column_name}_original"
 
     return cfg.input_csv_column_name
 
@@ -68,7 +68,7 @@ def _load_from_csv(cfg: RxnImportConfig, separator: str) -> pd.DataFrame:
     if cfg.input_csv_column_name == cfg.reaction_column_name:
         df.rename(
             columns={cfg.input_csv_column_name: _final_column_name_for_original(cfg)},
-            inplace=True
+            inplace=True,
         )
 
     return df
@@ -89,10 +89,12 @@ def _load_initial(cfg: RxnImportConfig) -> pd.DataFrame:
         return _load_from_csv(cfg, separator=",")
     if cfg.data_format is InitialDataFormat.TSV:
         return _load_from_csv(cfg, separator="\t")
-    raise ValueError(f'Unsupported data type: {cfg.data_format}')
+    raise ValueError(f"Unsupported data type: {cfg.data_format}")
 
 
-def reformat_smiles(reaction_smiles: str, fragment_bond: Optional[str]) -> Optional[str]:
+def reformat_smiles(
+    reaction_smiles: str, fragment_bond: Optional[str]
+) -> Optional[str]:
     """Import a reaction SMILES in any format and convert it to an "IBM" RXN
     SMILES with the specified fragment bond.
 
@@ -103,13 +105,15 @@ def reformat_smiles(reaction_smiles: str, fragment_bond: Optional[str]) -> Optio
         reaction = parse_any_reaction_smiles(reaction_smiles)
         return reaction.to_string(fragment_bond)
     except Exception:
-        logger.info(f'Invalid reaction: {reaction_smiles}')
+        logger.info(f"Invalid reaction: {reaction_smiles}")
         return None
 
 
 def _add_token(
-    row: pd.Series, add_special_token_fn: Callable[[ReactionEquation], ReactionEquation],
-    column_to_check: str, cfg: RxnImportConfig
+    row: pd.Series,
+    add_special_token_fn: Callable[[ReactionEquation], ReactionEquation],
+    column_to_check: str,
+    cfg: RxnImportConfig,
 ) -> str:
     """Function to use in pandas.apply to update the reaction SMILES."""
 
@@ -119,8 +123,8 @@ def _add_token(
     if not isinstance(special_flag_active, bool):
         raise InvalidType(
             column_name=column_to_check,
-            expected_type='bool',
-            actual_type=str(type(special_flag_active).__name__)
+            expected_type="bool",
+            actual_type=str(type(special_flag_active).__name__),
         )
 
     if not special_flag_active:
@@ -134,9 +138,10 @@ def _add_token(
 
 
 def _maybe_add_special_token(
-    df: pd.DataFrame, cfg: RxnImportConfig, add_special_token_fn: Callable[[ReactionEquation],
-                                                                           ReactionEquation],
-    special_token_column: Optional[str]
+    df: pd.DataFrame,
+    cfg: RxnImportConfig,
+    add_special_token_fn: Callable[[ReactionEquation], ReactionEquation],
+    special_token_column: Optional[str],
 ) -> None:
     """
     Common function for adding light or heat tokens.
@@ -160,7 +165,7 @@ def _maybe_add_special_token(
         _add_token,
         add_special_token_fn=add_special_token_fn,
         column_to_check=special_token_column,
-        cfg=cfg
+        cfg=cfg,
     )
     df[cfg.reaction_column_name] = df.apply(fn, axis=1)
 
@@ -172,7 +177,7 @@ def _maybe_add_heat_token(df: pd.DataFrame, cfg: RxnImportConfig) -> None:
         df=df,
         cfg=cfg,
         add_special_token_fn=add_heat_token,
-        special_token_column=cfg.column_for_heat
+        special_token_column=cfg.column_for_heat,
     )
 
 
@@ -183,7 +188,7 @@ def _maybe_add_light_token(df: pd.DataFrame, cfg: RxnImportConfig) -> None:
         df=df,
         cfg=cfg,
         add_special_token_fn=add_light_token,
-        special_token_column=cfg.column_for_light
+        special_token_column=cfg.column_for_light,
     )
 
 
@@ -197,7 +202,9 @@ def _maybe_remove_atom_mapping(df: pd.DataFrame, cfg: RxnImportConfig) -> None:
     if not cfg.remove_atom_mapping:
         return
 
-    df[cfg.reaction_column_name] = df[cfg.reaction_column_name].apply(remove_atom_mapping)
+    df[cfg.reaction_column_name] = df[cfg.reaction_column_name].apply(
+        remove_atom_mapping
+    )
 
 
 def rxn_import(cfg: RxnImportConfig) -> None:

@@ -3,29 +3,26 @@
 # IBM Research Zurich Licensed Internal Code
 # (C) Copyright IBM Corp. 2021
 # ALL RIGHTS RESERVED
-from enum import auto
-from enum import Enum
+from dataclasses import dataclass, field
+from enum import Enum, auto
 from pathlib import Path
-from typing import Any, Optional
-from typing import List
+from typing import Any, List, Optional
 
-from dataclasses import dataclass
-from dataclasses import field
 from hydra.core.config_store import ConfigStore
-from omegaconf import MISSING
-from omegaconf import OmegaConf
-from omegaconf import SI
+from omegaconf import MISSING, SI, OmegaConf
 
-from rxn_reaction_preprocessing.utils import RandomType
-from rxn_reaction_preprocessing.utils import ReactionSection
-from rxn_reaction_preprocessing.utils import standardization_files_directory
+from rxn_reaction_preprocessing.utils import (
+    RandomType,
+    ReactionSection,
+    standardization_files_directory,
+)
 
-OmegaConf.register_new_resolver('stem', lambda p: Path(p).stem)
+OmegaConf.register_new_resolver("stem", lambda p: Path(p).stem)
 
 DEFAULT_ANNOTATION_FILES = [
-    str(standardization_files_directory() / 'pistachio-210428.json'),
-    str(standardization_files_directory() / 'catalyst-annotation-210428.json'),
-    str(standardization_files_directory() / 'catalyst-annotation-210826.json')
+    str(standardization_files_directory() / "pistachio-210428.json"),
+    str(standardization_files_directory() / "catalyst-annotation-210428.json"),
+    str(standardization_files_directory() / "catalyst-annotation-210826.json"),
 ]
 
 
@@ -38,14 +35,15 @@ class DataConfig:
         name: Name of the input data file (without extension).
         proc_dir: Directory for storing intermediate and final output files.
     """
+
     path: str = MISSING
-    name: str = SI('${stem:${data.path}}')
+    name: str = SI("${stem:${data.path}}")
     proc_dir: str = MISSING
 
 
 class FragmentBond(Enum):
-    DOT = '.'
-    TILDE = '~'
+    DOT = "."
+    TILDE = "~"
 
 
 class InitialDataFormat(Enum):
@@ -72,6 +70,7 @@ class CommonConfig:
         fragment_bond: Token used to denote a fragment bond in the SMILES of the reactions to process.
         reaction_column_name: Name of the reaction column for the data file.
     """
+
     sequence: List[Step] = field(
         default_factory=lambda: [
             Step.IMPORT,
@@ -82,7 +81,7 @@ class CommonConfig:
         ]
     )
     fragment_bond: FragmentBond = FragmentBond.DOT
-    reaction_column_name: str = 'rxn'
+    reaction_column_name: str = "rxn"
 
 
 @dataclass
@@ -106,12 +105,13 @@ class RxnImportConfig:
             whether the reaction happens under heat. If specified, the heat token will
             be added to the precursors of the corresponding reactions.
     """
-    input_file: str = SI('${data.path}')
-    output_csv: str = SI('${data.proc_dir}/${data.name}.imported.csv')
+
+    input_file: str = SI("${data.path}")
+    output_csv: str = SI("${data.proc_dir}/${data.name}.imported.csv")
     data_format: InitialDataFormat = InitialDataFormat.CSV
-    input_csv_column_name: str = SI('${common.reaction_column_name}')
-    reaction_column_name: str = SI('${common.reaction_column_name}')
-    fragment_bond: FragmentBond = SI('${common.fragment_bond}')
+    input_csv_column_name: str = SI("${common.reaction_column_name}")
+    reaction_column_name: str = SI("${common.reaction_column_name}")
+    fragment_bond: FragmentBond = SI("${common.fragment_bond}")
     remove_atom_mapping: bool = True
     column_for_light: Optional[str] = None
     column_for_heat: Optional[str] = None
@@ -131,12 +131,13 @@ class StandardizeConfig:
         reaction_column_name: Name of the reaction column for the data file.
         remove_stereo_if_not_defined_in_precursors: Remove chiral centers from product.
     """
-    input_file_path: str = SI('${rxn_import.output_csv}')
+
+    input_file_path: str = SI("${rxn_import.output_csv}")
     annotation_file_paths: List[str] = field(default_factory=lambda: [])
     discard_unannotated_metals: bool = True
-    output_file_path: str = SI('${data.proc_dir}/${data.name}.standardized.csv')
-    fragment_bond: FragmentBond = SI('${common.fragment_bond}')
-    reaction_column_name: str = SI('${common.reaction_column_name}')
+    output_file_path: str = SI("${data.proc_dir}/${data.name}.standardized.csv")
+    fragment_bond: FragmentBond = SI("${common.fragment_bond}")
+    reaction_column_name: str = SI("${common.reaction_column_name}")
     remove_stereo_if_not_defined_in_precursors: bool = False
 
 
@@ -160,8 +161,9 @@ class PreprocessConfig:
         fragment_bond: Token used to denote a fragment bond in the reaction SMILES.
         reaction_column_name: Name of the reaction column for the data file.
     """
-    input_file_path: str = SI('${standardize.output_file_path}')
-    output_file_path: str = SI('${data.proc_dir}/${data.name}.processed.csv')
+
+    input_file_path: str = SI("${standardize.output_file_path}")
+    output_file_path: str = SI("${data.proc_dir}/${data.name}.processed.csv")
     min_reactants: int = 2
     max_reactants: int = 10
     max_reactants_tokens: int = 300
@@ -172,8 +174,8 @@ class PreprocessConfig:
     max_products: int = 1
     max_products_tokens: int = 200
     max_absolute_formal_charge: int = 2
-    fragment_bond: FragmentBond = SI('${common.fragment_bond}')
-    reaction_column_name: str = SI('${common.reaction_column_name}')
+    fragment_bond: FragmentBond = SI("${common.fragment_bond}")
+    reaction_column_name: str = SI("${common.reaction_column_name}")
 
 
 @dataclass
@@ -192,14 +194,15 @@ class AugmentConfig:
             "products" for augmenting only the products
         fragment_bond: Token used to denote a fragment bond in the reaction SMILES.
     """
-    input_file_path: str = SI('${preprocess.output_file_path}')
-    output_file_path: str = SI('${data.proc_dir}/${data.name}.augmented.csv')
+
+    input_file_path: str = SI("${preprocess.output_file_path}")
+    output_file_path: str = SI("${data.proc_dir}/${data.name}.augmented.csv")
     tokenize: bool = True
     random_type: RandomType = RandomType.unrestricted
     permutations: int = 1
-    reaction_column_name: str = SI('${common.reaction_column_name}')
+    reaction_column_name: str = SI("${common.reaction_column_name}")
     rxn_section_to_augment: ReactionSection = ReactionSection.precursors
-    fragment_bond: FragmentBond = SI('${common.fragment_bond}')
+    fragment_bond: FragmentBond = SI("${common.fragment_bond}")
 
 
 @dataclass
@@ -220,11 +223,12 @@ class SplitConfig:
         hash_seed: Seed for the hashing function used for splitting.
         shuffle_seed: Seed for shuffling the train split.
     """
-    input_file_path: str = SI('${preprocess.output_file_path}')
-    output_directory: str = SI('${data.proc_dir}')
+
+    input_file_path: str = SI("${preprocess.output_file_path}")
+    output_directory: str = SI("${data.proc_dir}")
     split_ratio: float = 0.05
-    reaction_column_name: str = SI('${common.reaction_column_name}')
-    index_column: str = SI('${split.reaction_column_name}')
+    reaction_column_name: str = SI("${common.reaction_column_name}")
+    index_column: str = SI("${split.reaction_column_name}")
     max_in_valid: Optional[int] = None
     hash_seed: int = 42
     shuffle_seed: int = 42
@@ -244,23 +248,24 @@ class TokenizeConfig:
         input_output_pairs: Paths to the input and output files.
         reaction_column_name: Name of the reaction column for the data file.
     """
+
     input_output_pairs: List[InputOutputTuple] = field(
         default_factory=lambda: [
             InputOutputTuple(
-                SI('${data.proc_dir}/${data.name}.processed.train.csv'),
-                SI('${data.proc_dir}/${data.name}.processed.train')
+                SI("${data.proc_dir}/${data.name}.processed.train.csv"),
+                SI("${data.proc_dir}/${data.name}.processed.train"),
             ),
             InputOutputTuple(
-                SI('${data.proc_dir}/${data.name}.processed.validation.csv'),
-                SI('${data.proc_dir}/${data.name}.processed.validation')
+                SI("${data.proc_dir}/${data.name}.processed.validation.csv"),
+                SI("${data.proc_dir}/${data.name}.processed.validation"),
             ),
             InputOutputTuple(
-                SI('${data.proc_dir}/${data.name}.processed.test.csv'),
-                SI('${data.proc_dir}/${data.name}.processed.test')
+                SI("${data.proc_dir}/${data.name}.processed.test.csv"),
+                SI("${data.proc_dir}/${data.name}.processed.test"),
             ),
         ]
     )
-    reaction_column_name: str = SI('${common.reaction_column_name}')
+    reaction_column_name: str = SI("${common.reaction_column_name}")
 
 
 @dataclass
@@ -275,19 +280,19 @@ class Config:
     tokenize: TokenizeConfig = field(default_factory=TokenizeConfig)
 
     @classmethod
-    def from_generic_config(cls, config: Any) -> 'Config':
+    def from_generic_config(cls, config: Any) -> "Config":
         cfg_dict = OmegaConf.merge(OmegaConf.structured(Config), config)
         cfg = OmegaConf.to_object(cfg_dict)
         return cfg  # type: ignore
 
 
 cs = ConfigStore.instance()
-cs.store(group='data', name='base_data', node=DataConfig)
-cs.store(group='common', name='base_common', node=CommonConfig)
-cs.store(group='rxn_import', name='base_rxn_import', node=RxnImportConfig)
-cs.store(group='standardize', name='base_standardize', node=StandardizeConfig)
-cs.store(group='preprocess', name='base_preprocess', node=PreprocessConfig)
-cs.store(group='augment', name='base_augment', node=AugmentConfig)
-cs.store(group='tokenize', name='base_tokenize', node=TokenizeConfig)
-cs.store(group='split', name='base_split', node=SplitConfig)
-cs.store(name='base_config', node=Config)
+cs.store(group="data", name="base_data", node=DataConfig)
+cs.store(group="common", name="base_common", node=CommonConfig)
+cs.store(group="rxn_import", name="base_rxn_import", node=RxnImportConfig)
+cs.store(group="standardize", name="base_standardize", node=StandardizeConfig)
+cs.store(group="preprocess", name="base_preprocess", node=PreprocessConfig)
+cs.store(group="augment", name="base_augment", node=AugmentConfig)
+cs.store(group="tokenize", name="base_tokenize", node=TokenizeConfig)
+cs.store(group="split", name="base_split", node=SplitConfig)
+cs.store(name="base_config", node=Config)

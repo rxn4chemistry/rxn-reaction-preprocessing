@@ -6,7 +6,8 @@ import pytest
 from rxn_chemutils.reaction_equation import ReactionEquation
 
 from rxn_reaction_preprocessing.mixed_reaction_filter import (
-    MixedReactionFilter, ReactionFilterError
+    MixedReactionFilter,
+    ReactionFilterError,
 )
 
 
@@ -29,38 +30,38 @@ def filter() -> MixedReactionFilter:
 @pytest.fixture
 def good_reaction() -> ReactionEquation:
     return ReactionEquation.from_string(
-        'O=[N+]([O-])c1cc(-c2nc3ccccc3o2)ccc1F.C~C>>Nc1cc(-c2nc3ccccc3o2)ccc1NCC(=O)N1CCOCC1',
-        fragment_bond='~'
+        "O=[N+]([O-])c1cc(-c2nc3ccccc3o2)ccc1F.C~C>>Nc1cc(-c2nc3ccccc3o2)ccc1NCC(=O)N1CCOCC1",
+        fragment_bond="~",
     )
 
 
 @pytest.fixture
 def bad_reaction() -> ReactionEquation:
     return ReactionEquation.from_string(
-        '[C].C.[O--].[O--].O.O=[N+]([O-])c1cc(-c2nc3ccccc3o2)ccc1F.C.C>O>O.C'
+        "[C].C.[O--].[O--].O.O=[N+]([O-])c1cc(-c2nc3ccccc3o2)ccc1F.C.C>O>O.C"
     )
 
 
 @pytest.fixture
 def small_reaction() -> ReactionEquation:
-    return ReactionEquation.from_string('C>O>')
+    return ReactionEquation.from_string("C>O>")
 
 
 @pytest.fixture
 def big_reaction() -> ReactionEquation:
     return ReactionEquation.from_string(
-        'CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC>CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC>CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC'
+        "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC>CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC>CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC"
     )
 
 
 @pytest.fixture
 def reaction_with_no_product() -> ReactionEquation:
-    return ReactionEquation.from_string('CCC.CCCO>OC>')
+    return ReactionEquation.from_string("CCC.CCCO>OC>")
 
 
 @pytest.fixture
 def alchemic_reaction() -> ReactionEquation:
-    return ReactionEquation.from_string('C>[Hg]>[Au]')
+    return ReactionEquation.from_string("C>[Hg]>[Au]")
 
 
 def test_max_reactants_exceeded(filter, good_reaction, bad_reaction):
@@ -100,7 +101,9 @@ def test_products_subset_of_reactants(
     assert filter.products_subset_of_reactants(bad_reaction)
 
 
-def test_products_single_atoms(filter, good_reaction, bad_reaction, reaction_with_no_product):
+def test_products_single_atoms(
+    filter, good_reaction, bad_reaction, reaction_with_no_product
+):
     assert not filter.products_single_atoms(reaction_with_no_product)
     assert not filter.products_single_atoms(good_reaction)
     assert filter.products_single_atoms(bad_reaction)
@@ -133,18 +136,22 @@ def test_different_atom_types(filter, good_reaction, alchemic_reaction):
 
 def test_invalid_smiles(filter: MixedReactionFilter):
     # "[J]" is not a valid molecule
-    reaction_with_invalid_smiles = ReactionEquation.from_string('CCCCO.CCCCN.[J]>>CCCCOCCCCN')
+    reaction_with_invalid_smiles = ReactionEquation.from_string(
+        "CCCCO.CCCCN.[J]>>CCCCOCCCCN"
+    )
     assert not filter.is_valid(reaction_with_invalid_smiles)
 
-    assert filter.validate_reasons(reaction_with_invalid_smiles
-                                   ) == (False, ['rdkit_molfromsmiles_failed'])
+    assert filter.validate_reasons(reaction_with_invalid_smiles) == (
+        False,
+        ["rdkit_molfromsmiles_failed"],
+    )
 
 
 def test_smiles_with_asterisks(filter: MixedReactionFilter):
     reactions_with_asterisks = [
-        ReactionEquation.from_string('CCCCO.CCCCN>>CCCCOCCCCN*'),
-        ReactionEquation.from_string('CCCCO.CCCCN*>>CCCCOCCCCN'),
-        ReactionEquation.from_string('CCCCO.CCCCN*>>CCCCOCCCCN*'),
+        ReactionEquation.from_string("CCCCO.CCCCN>>CCCCOCCCCN*"),
+        ReactionEquation.from_string("CCCCO.CCCCN*>>CCCCOCCCCN"),
+        ReactionEquation.from_string("CCCCO.CCCCN*>>CCCCOCCCCN*"),
     ]
     for reaction in reactions_with_asterisks:
         assert not filter.is_valid(reaction)

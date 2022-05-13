@@ -9,31 +9,37 @@ from pathlib import Path
 from typing import List
 
 import pandas as pd
-from rxn_chemutils.smiles_randomization import randomize_smiles_restricted
-from rxn_chemutils.smiles_randomization import randomize_smiles_rotated
-from rxn_chemutils.smiles_randomization import randomize_smiles_unrestricted
+from rxn_chemutils.smiles_randomization import (
+    randomize_smiles_restricted,
+    randomize_smiles_rotated,
+    randomize_smiles_unrestricted,
+)
 
 from rxn_reaction_preprocessing.config import AugmentConfig
 from rxn_reaction_preprocessing.smiles_tokenizer import SmilesTokenizer
-from rxn_reaction_preprocessing.utils import RandomType
-from rxn_reaction_preprocessing.utils import ReactionSection
+from rxn_reaction_preprocessing.utils import RandomType, ReactionSection
 
 
-def molecules_permutation_given_index(molecules_list: List[str],
-                                      permutation_index: int) -> List['str']:
+def molecules_permutation_given_index(
+    molecules_list: List[str], permutation_index: int
+) -> List["str"]:
     """
     https://stackoverflow.com/questions/5602488/random-picks-from-permutation-generator
     """
     molecules_list = molecules_list[:]
     for i in range(len(molecules_list) - 1):
         permutation_index, j = divmod(permutation_index, len(molecules_list) - i)
-        molecules_list[i], molecules_list[i + j] = molecules_list[i + j], molecules_list[i]
+        molecules_list[i], molecules_list[i + j] = (
+            molecules_list[i + j],
+            molecules_list[i],
+        )
     return molecules_list
 
 
 class Augmenter:
-
-    def __init__(self, df: pd.DataFrame, reaction_column_name: str, fragment_bond: str = '.'):
+    def __init__(
+        self, df: pd.DataFrame, reaction_column_name: str, fragment_bond: str = "."
+    ):
         """Creates a new instance of the Augmenter class.
 
         Args:
@@ -50,8 +56,9 @@ class Augmenter:
     # Private Methods
     #
 
-    def __randomize_smiles(self, smiles: str, random_type: RandomType,
-                           permutations: int) -> List[str]:
+    def __randomize_smiles(
+        self, smiles: str, random_type: RandomType, permutations: int
+    ) -> List[str]:
         """
         Randomizes a molecules SMILES string that might contain fragment bonds
         and returns a number of augmented versions of the SMILES equal to permutations.
@@ -72,15 +79,17 @@ class Augmenter:
         list_of_smiles: List[str] = []
         for i in range(permutations):
             list_of_smiles.append(
-                '.'.join(
+                ".".join(
                     [
                         self.fragment_bond.join(
                             [
                                 Augmenter.__randomize_smiles_without_fragment(
                                     fragment, random_type
-                                ) for fragment in group.split(self.fragment_bond)
+                                )
+                                for fragment in group.split(self.fragment_bond)
                             ]
-                        ) for group in smiles.split('.')
+                        )
+                        for group in smiles.split(".")
                     ]
                 )
             )
@@ -91,7 +100,9 @@ class Augmenter:
     #
 
     @staticmethod
-    def __randomize_smiles_without_fragment(smiles: str, random_type: RandomType) -> str:
+    def __randomize_smiles_without_fragment(
+        smiles: str, random_type: RandomType
+    ) -> str:
         """
         Generates a random version of a SMILES without a fragment bond
 
@@ -112,7 +123,7 @@ class Augmenter:
             return randomize_smiles_restricted(smiles)
         elif random_type == RandomType.rotated:
             return randomize_smiles_rotated(smiles, with_order_reversal=True)
-        raise ValueError(f'Invalid random type: {random_type}')
+        raise ValueError(f"Invalid random type: {random_type}")
 
     @staticmethod
     def __randomize_molecules(smiles: str, permutations: int) -> List[str]:
@@ -136,7 +147,7 @@ class Augmenter:
         if not smiles:
             raise ValueError
 
-        molecules_list = smiles.split('.')
+        molecules_list = smiles.split(".")
         total_permutations = range(min(math.factorial(len(molecules_list)), 4000000))
         permutation_indices = random.sample(
             total_permutations, min(permutations, len(molecules_list))
@@ -144,7 +155,7 @@ class Augmenter:
         permuted_molecules_smiles = []
         for idx in permutation_indices:
             permuted_precursors = molecules_permutation_given_index(molecules_list, idx)
-            permuted_molecules_smiles.append('.'.join(permuted_precursors))
+            permuted_molecules_smiles.append(".".join(permuted_precursors))
 
         return permuted_molecules_smiles
 
@@ -156,7 +167,7 @@ class Augmenter:
         self,
         random_type: RandomType = RandomType.unrestricted,
         rxn_section_to_augment: ReactionSection = ReactionSection.precursors,
-        permutations: int = 1
+        permutations: int = 1,
     ) -> pd.DataFrame:
         """
         Creates samples for the augmentation. Returns a a pandas Series containing the
@@ -182,35 +193,39 @@ class Augmenter:
 
         if rxn_section_to_augment is ReactionSection.precursors:
 
-            self.df[f'precursors_{random_type.name}'] = self.df[self.__reaction_column_name].apply(
-                lambda smiles: smiles.replace(' ', '').split('>>')[0]
-            )
-            if 'products' not in self.df.keys():
-                self.df['products'] = self.df[self.__reaction_column_name].apply(
-                    lambda smiles: smiles.replace(' ', '').split('>>')[1]
+            self.df[f"precursors_{random_type.name}"] = self.df[
+                self.__reaction_column_name
+            ].apply(lambda smiles: smiles.replace(" ", "").split(">>")[0])
+            if "products" not in self.df.keys():
+                self.df["products"] = self.df[self.__reaction_column_name].apply(
+                    lambda smiles: smiles.replace(" ", "").split(">>")[1]
                 )
-            columns_to_augment = [f'precursors_{random_type.name}']
-            columns_to_join = [f'precursors_{random_type.name}', 'products']
+            columns_to_augment = [f"precursors_{random_type.name}"]
+            columns_to_join = [f"precursors_{random_type.name}", "products"]
 
         elif rxn_section_to_augment is ReactionSection.products:
 
-            self.df[f'products_{random_type.name}'] = self.df[self.__reaction_column_name].apply(
-                lambda smiles: smiles.replace(' ', '').split('>>')[1]
-            )
-            if 'precursors' not in self.df.keys():
-                self.df['precursors'] = self.df[self.__reaction_column_name].apply(
-                    lambda smiles: smiles.replace(' ', '').split('>>')[0]
+            self.df[f"products_{random_type.name}"] = self.df[
+                self.__reaction_column_name
+            ].apply(lambda smiles: smiles.replace(" ", "").split(">>")[1])
+            if "precursors" not in self.df.keys():
+                self.df["precursors"] = self.df[self.__reaction_column_name].apply(
+                    lambda smiles: smiles.replace(" ", "").split(">>")[0]
                 )
-            columns_to_augment = [f'products_{random_type.name}']
-            columns_to_join = ['precursors', f'products_{random_type.name}']
+            columns_to_augment = [f"products_{random_type.name}"]
+            columns_to_join = ["precursors", f"products_{random_type.name}"]
         else:
 
-            raise ValueError(f'Invalid reaction section to augment: {rxn_section_to_augment.name}')
+            raise ValueError(
+                f"Invalid reaction section to augment: {rxn_section_to_augment.name}"
+            )
 
         for column in columns_to_augment:
             if random_type != RandomType.molecules:
                 self.df[column] = self.df[column].apply(
-                    lambda smiles: self.__randomize_smiles(smiles, random_type, permutations)
+                    lambda smiles: self.__randomize_smiles(
+                        smiles, random_type, permutations
+                    )
                 )
             else:
                 self.df[column] = self.df[column].apply(
@@ -219,12 +234,16 @@ class Augmenter:
 
         # Exploding the dataframe columns where I have the list of augmented
         # versions of a SMILES (the list length is the number of permutations)
-        self.df = self.df.set_index(
-            [col for col in self.df.keys() if col not in columns_to_augment]
-        ).apply(pd.Series.explode).reset_index()
+        self.df = (
+            self.df.set_index(
+                [col for col in self.df.keys() if col not in columns_to_augment]
+            )
+            .apply(pd.Series.explode)
+            .reset_index()
+        )
 
-        self.df[f'rxn_{random_type.name}'] = self.df.apply(
-            lambda x: '>>'.join(x[columns_to_join]), axis=1
+        self.df[f"rxn_{random_type.name}"] = self.df.apply(
+            lambda x: ">>".join(x[columns_to_join]), axis=1
         )
 
         return self.df
@@ -235,8 +254,8 @@ class Augmenter:
 
     @staticmethod
     def read_csv(
-        filepath: str, reaction_column_name: str, fragment_bond: str = '.'
-    ) -> 'Augmenter':
+        filepath: str, reaction_column_name: str, fragment_bond: str = "."
+    ) -> "Augmenter":
         """A helper function to read a list or csv of SMILES.
 
         Args:
@@ -248,7 +267,7 @@ class Augmenter:
         Returns:
             Augmenter: A new augmenter instance.
         """
-        df = pd.read_csv(filepath, lineterminator='\n')
+        df = pd.read_csv(filepath, lineterminator="\n")
         if len(df.columns) == 1:
             df.rename(columns={df.columns[0]: reaction_column_name}, inplace=True)
 
@@ -258,16 +277,20 @@ class Augmenter:
 def augment(cfg: AugmentConfig) -> None:
     output_file_path = Path(cfg.output_file_path)
     if not Path(cfg.input_file_path).exists():
-        raise ValueError(f'Input file for standardization does not exist: {cfg.input_file_path}')
+        raise ValueError(
+            f"Input file for standardization does not exist: {cfg.input_file_path}"
+        )
 
     # Create a instance of the Augmenter.
-    ag = Augmenter.read_csv(cfg.input_file_path, cfg.reaction_column_name, cfg.fragment_bond.value)
+    ag = Augmenter.read_csv(
+        cfg.input_file_path, cfg.reaction_column_name, cfg.fragment_bond.value
+    )
 
     # Perform augmentation
     augm = ag.augment(
         random_type=cfg.random_type,
         rxn_section_to_augment=cfg.rxn_section_to_augment,
-        permutations=cfg.permutations
+        permutations=cfg.permutations,
     )
     # Exporting augmented samples
     augm.to_csv(output_file_path, index=False)

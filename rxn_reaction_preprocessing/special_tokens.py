@@ -15,12 +15,12 @@ Important comments:
 """
 import copy
 from enum import Enum
-from typing import Iterable, Union, List, TypeVar
+from typing import Iterable, List, TypeVar, Union
 
 from rxn_chemutils.reaction_equation import ReactionEquation
 
-LIGHT_TOKEN = '[Lv]'
-HEAT_TOKEN = '[Ts]'
+LIGHT_TOKEN = "[Lv]"
+HEAT_TOKEN = "[Ts]"
 
 
 class _SpecialToken(Enum):
@@ -29,11 +29,12 @@ class _SpecialToken(Enum):
 
     Useful to avoid dealing with the token strings where not actually necessary.
     """
+
     LIGHT = LIGHT_TOKEN
     HEAT = HEAT_TOKEN
 
 
-ReactionOrList = TypeVar('ReactionOrList', ReactionEquation, List[str])
+ReactionOrList = TypeVar("ReactionOrList", ReactionEquation, List[str])
 ReactionOrIterable = Union[ReactionEquation, Iterable[str]]
 
 
@@ -68,17 +69,27 @@ def _add_special_tokens(
         return _add_special_tokens_to_list(reaction_or_list, tokens, in_place=in_place)
 
 
-def add_light_token(reaction_or_list: ReactionOrList, in_place: bool = False) -> ReactionOrList:
+def add_light_token(
+    reaction_or_list: ReactionOrList, in_place: bool = False
+) -> ReactionOrList:
     """Add the light token to the precursors of a reaction or list of SMILES."""
-    return _add_special_tokens(reaction_or_list, [_SpecialToken.LIGHT], in_place=in_place)
+    return _add_special_tokens(
+        reaction_or_list, [_SpecialToken.LIGHT], in_place=in_place
+    )
 
 
-def add_heat_token(reaction_or_list: ReactionOrList, in_place: bool = False) -> ReactionOrList:
+def add_heat_token(
+    reaction_or_list: ReactionOrList, in_place: bool = False
+) -> ReactionOrList:
     """Add the heat token to the precursors of a reaction or list of SMILES."""
-    return _add_special_tokens(reaction_or_list, [_SpecialToken.HEAT], in_place=in_place)
+    return _add_special_tokens(
+        reaction_or_list, [_SpecialToken.HEAT], in_place=in_place
+    )
 
 
-def _contains_token(reaction_or_iterable: ReactionOrIterable, token: _SpecialToken) -> bool:
+def _contains_token(
+    reaction_or_iterable: ReactionOrIterable, token: _SpecialToken
+) -> bool:
     """Whether a reaction (or set of SMILES strings) contains the specified token."""
     smiles_iterable: Iterable[str]
     if isinstance(reaction_or_iterable, ReactionEquation):
@@ -129,7 +140,9 @@ def _strip_special_tokens(
             reaction_or_list = copy.deepcopy(reaction_or_list)
 
         for reaction_group in reaction_or_list:
-            _strip_special_tokens_from_list(reaction_group, token_strings_to_remove, in_place=True)
+            _strip_special_tokens_from_list(
+                reaction_group, token_strings_to_remove, in_place=True
+            )
 
         return reaction_or_list
     else:
@@ -144,14 +157,24 @@ def strip_all_special_tokens(
 ) -> ReactionOrList:
     """Strip all the special tokens from a reaction or list of SMILES strings."""
     # NB: calling list on an enum class gets all the possible values.
-    return _strip_special_tokens(reaction_or_list, list(_SpecialToken), in_place=in_place)
+    return _strip_special_tokens(
+        reaction_or_list, list(_SpecialToken), in_place=in_place
+    )
 
 
-def strip_heat_token(reaction_or_list: ReactionOrList, in_place: bool = False) -> ReactionOrList:
+def strip_heat_token(
+    reaction_or_list: ReactionOrList, in_place: bool = False
+) -> ReactionOrList:
     """Strip the heat from a reaction or list of SMILES strings."""
-    return _strip_special_tokens(reaction_or_list, [_SpecialToken.HEAT], in_place=in_place)
+    return _strip_special_tokens(
+        reaction_or_list, [_SpecialToken.HEAT], in_place=in_place
+    )
 
 
-def strip_light_token(reaction_or_list: ReactionOrList, in_place: bool = False) -> ReactionOrList:
+def strip_light_token(
+    reaction_or_list: ReactionOrList, in_place: bool = False
+) -> ReactionOrList:
     """Strip the light token from a reaction or list of SMILES strings."""
-    return _strip_special_tokens(reaction_or_list, [_SpecialToken.LIGHT], in_place=in_place)
+    return _strip_special_tokens(
+        reaction_or_list, [_SpecialToken.LIGHT], in_place=in_place
+    )

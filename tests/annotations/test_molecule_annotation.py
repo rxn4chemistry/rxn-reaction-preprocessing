@@ -2,36 +2,38 @@ from pathlib import Path
 
 import pytest
 
-from rxn_reaction_preprocessing.annotations.molecule_annotation import AnnotationDecision
-from rxn_reaction_preprocessing.annotations.molecule_annotation import load_annotations
-from rxn_reaction_preprocessing.annotations.molecule_annotation import load_annotations_multiple
-from rxn_reaction_preprocessing.annotations.molecule_annotation import MoleculeAnnotation
+from rxn_reaction_preprocessing.annotations.molecule_annotation import (
+    AnnotationDecision,
+    MoleculeAnnotation,
+    load_annotations,
+    load_annotations_multiple,
+)
 
 
 def test_molecule_annotation():
     # basic instantiation check
     annotation = MoleculeAnnotation(
-        original_smiles='CC~O~N',
-        updated_smiles='CC.O~N',
-        decision='accept',
+        original_smiles="CC~O~N",
+        updated_smiles="CC.O~N",
+        decision="accept",
         categories=[],
         dummy_a=2,
-        dummy_b='a'
+        dummy_b="a",
     )
-    assert annotation.original_smiles == 'CC~O~N'
-    assert annotation.original_without_fragment_bond == 'CC.O.N'
-    assert annotation.updated_smiles == 'CC.O~N'
-    assert annotation.updated_without_fragment_bond == ['CC', 'O.N']
+    assert annotation.original_smiles == "CC~O~N"
+    assert annotation.original_without_fragment_bond == "CC.O.N"
+    assert annotation.updated_smiles == "CC.O~N"
+    assert annotation.updated_without_fragment_bond == ["CC", "O.N"]
     assert annotation.decision is AnnotationDecision.ACCEPT
-    assert annotation.extra_info['dummy_a'] == 2
-    assert annotation.extra_info['dummy_b'] == 'a'
+    assert annotation.extra_info["dummy_a"] == 2
+    assert annotation.extra_info["dummy_b"] == "a"
 
     # raises if invalid decision
     with pytest.raises(ValueError):
         _ = MoleculeAnnotation(
-            original_smiles='CC~O~N',
-            updated_smiles='CC.O~N',
-            decision='invalid_decision',
+            original_smiles="CC~O~N",
+            updated_smiles="CC.O~N",
+            decision="invalid_decision",
             categories=[],
         )
 
@@ -42,17 +44,17 @@ def test_molecule_annotation():
 
 
 def test_import_from_file():
-    annotation_file = str(Path(__file__).parent / 'test_molecule_annotations.json')
+    annotation_file = str(Path(__file__).parent / "test_molecule_annotations.json")
     annotations = load_annotations(annotation_file)
 
     # Check a few loaded values
     first = annotations[0]
-    assert first.original_smiles == 'CC[Zn]CC~Cc1ccccc1'
-    assert first.updated_smiles == 'CC[Zn]CC.Cc1ccccc1'
-    assert first.categories == ['Zn']
+    assert first.original_smiles == "CC[Zn]CC~Cc1ccccc1"
+    assert first.updated_smiles == "CC[Zn]CC.Cc1ccccc1"
+    assert first.categories == ["Zn"]
 
     third = annotations[2]
-    assert third.original_smiles == 'CCO'
+    assert third.original_smiles == "CCO"
     assert third.updated_smiles is None
     assert third.categories == []
     assert third.decision is AnnotationDecision.ACCEPT
@@ -62,7 +64,7 @@ def test_import_from_file():
 
 
 def test_import_from_multiple_files():
-    annotation_file = str(Path(__file__).parent / 'test_molecule_annotations.json')
+    annotation_file = str(Path(__file__).parent / "test_molecule_annotations.json")
 
     # Loading 1 file only delivers the same if called from path or from list of paths
     load_single = load_annotations(annotation_file)

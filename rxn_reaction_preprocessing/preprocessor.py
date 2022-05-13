@@ -7,8 +7,7 @@ import logging
 import typing
 from collections import Counter
 from pathlib import Path
-from typing import Callable
-from typing import List
+from typing import Callable, List
 
 import numpy as np
 import pandas as pd
@@ -19,8 +18,7 @@ from tabulate import tabulate
 
 from .config import PreprocessConfig
 from .mixed_reaction_filter import MixedReactionFilter
-from .reaction import Reaction
-from .reaction import ReactionPart
+from .reaction import Reaction, ReactionPart
 from .reaction_standardizer import ReactionStandardizer
 
 logger = logging.getLogger(__name__)
@@ -28,14 +26,13 @@ logger.addHandler(logging.NullHandler())
 
 
 class Preprocessor:
-
     def __init__(
         self,
         df: pd.DataFrame,
         reaction_column_name: str,
-        valid_column: str = '_rxn_valid',
-        valid_message_column: str = '_rxn_valid_messages',
-        fragment_bond: str = '.',
+        valid_column: str = "_rxn_valid",
+        valid_message_column: str = "_rxn_valid_messages",
+        fragment_bond: str = ".",
         clean_data=True,
     ):
         """Creates a new instance of the Preprocessor class.
@@ -70,7 +67,7 @@ class Preprocessor:
         """Drops records from the internal pandas DataFrame that do not contain valid reaction
         SMARTS (WARNING: Very naive, just checks for two greater-thans)"""
         self.df.drop(
-            self.df[self.df[self.__reaction_column_name].str.count('>') != 2].index,
+            self.df[self.df[self.__reaction_column_name].str.count(">") != 2].index,
             inplace=True,
         )
 
@@ -154,10 +151,14 @@ class Preprocessor:
 
         if verbose:
             if self.__valid_message_column not in self.df.columns:
-                self.df[self.__valid_message_column] = np.empty((len(self.df), 0)).tolist()
+                self.df[self.__valid_message_column] = np.empty(
+                    (len(self.df), 0)
+                ).tolist()
 
             self.df[self.__valid_message_column] += self.df.apply(
-                lambda row: filter_func_verbose(row[self.__reaction_column_name], filter),
+                lambda row: filter_func_verbose(
+                    row[self.__reaction_column_name], filter
+                ),
                 axis=1,
             )
 
@@ -206,10 +207,12 @@ class Preprocessor:
                         len(
                             Reaction(
                                 row[self.__reaction_column_name],
-                                fragment_bond=self.__fragment_bond
+                                fragment_bond=self.__fragment_bond,
                             ).find_in(pattern, reaction_part)
-                        ) > 0
-                    ) != keep
+                        )
+                        > 0
+                    )
+                    != keep
                 ),
                 axis=1,
             ),
@@ -220,13 +223,16 @@ class Preprocessor:
 
         if verbose:
             if self.__valid_message_column not in self.df.columns:
-                self.df[self.__valid_message_column] = np.empty((len(self.df), 0)).tolist()
+                self.df[self.__valid_message_column] = np.empty(
+                    (len(self.df), 0)
+                ).tolist()
 
             if keep:
                 tmp = ~tmp
 
             self.df.loc[tmp, self.__valid_message_column] = self.df.loc[
-                tmp, self.__valid_message_column].apply(lambda c: c + ['pattern_' + pattern])
+                tmp, self.__valid_message_column
+            ].apply(lambda c: c + ["pattern_" + pattern])
 
         return self
 
@@ -268,7 +274,7 @@ class Preprocessor:
         """
         self.df.drop(
             self.df[self.df[self.__valid_column] == False].index,  # noqa: E712
-            inplace=True
+            inplace=True,
         )
         return self
 
@@ -278,13 +284,13 @@ class Preprocessor:
         Returns:
             Itself.
         """
-        logger.info(f'- {len(self.df)} total reactions.')
+        logger.info(f"- {len(self.df)} total reactions.")
         if self.__valid_column in self.df.columns:
             counts = self.df[self.__valid_column].value_counts()
             if True in counts:
-                logger.info(f'- {counts[True]} valid reactions.')
+                logger.info(f"- {counts[True]} valid reactions.")
             if False in counts:
-                logger.info(f'- {counts[False]} invalid reactions removed.')
+                logger.info(f"- {counts[False]} invalid reactions removed.")
 
         if self.__valid_message_column in self.df.columns:
             reasons: typing.Counter[str] = Counter()
@@ -292,9 +298,9 @@ class Preprocessor:
                 reasons.update(value)
 
             if len(reasons) > 0:
-                headers = ['Reason', 'Number of Reactions']
+                headers = ["Reason", "Number of Reactions"]
                 logger.info(
-                    f'- The {counts[False]} reactions were removed for the following reasons:\n'
+                    f"- The {counts[False]} reactions were removed for the following reasons:\n"
                     f'{tabulate(list(Counter(reasons).items()), headers, tablefmt="fancy_grid")}'
                 )
 
@@ -304,7 +310,7 @@ class Preprocessor:
     # Static Methods
     #
     @staticmethod
-    def read_csv(filepath: str, reaction_column_name: str, fragment_bond: str = '.'):
+    def read_csv(filepath: str, reaction_column_name: str, fragment_bond: str = "."):
         """A helper function to read a list or csv of reactions.
 
         Args:
@@ -316,7 +322,7 @@ class Preprocessor:
         Returns:
             Preprocessor: A new preprocessor instance.
         """
-        df = pd.read_csv(filepath, lineterminator='\n')
+        df = pd.read_csv(filepath, lineterminator="\n")
         if len(df.columns) == 1:
             df.rename(columns={df.columns[0]: reaction_column_name}, inplace=True)
 
@@ -324,11 +330,13 @@ class Preprocessor:
 
 
 def preprocess(cfg: PreprocessConfig) -> None:
-    RDLogger.DisableLog('rdApp.*')
+    RDLogger.DisableLog("rdApp.*")
 
     output_file_path = Path(cfg.output_file_path)
     if not Path(cfg.input_file_path).exists():
-        raise ValueError(f'Input file for preprocessing does not exist: {cfg.input_file_path}')
+        raise ValueError(
+            f"Input file for preprocessing does not exist: {cfg.input_file_path}"
+        )
 
     # Create a instance of the mixed reaction filter with default values.
     # Make arguments for all properties in script
@@ -346,13 +354,15 @@ def preprocess(cfg: PreprocessConfig) -> None:
     )
 
     pp = Preprocessor.read_csv(
-        cfg.input_file_path, cfg.reaction_column_name, fragment_bond=cfg.fragment_bond.value
+        cfg.input_file_path,
+        cfg.reaction_column_name,
+        fragment_bond=cfg.fragment_bond.value,
     )
 
     # Remove duplicate reactions (useful for large dataset, this step is repeated later)
-    logger.info(f'- {len(pp.df)} initial reactions.')
+    logger.info(f"- {len(pp.df)} initial reactions.")
     pp.remove_duplicates()
-    logger.info(f'- {len(pp.df)} reactions after first deduplication.')
+    logger.info(f"- {len(pp.df)} reactions after first deduplication.")
 
     # Remove duplicate molecules, sort, etc.
     # NB: this relies on molecules in the reaction SMILES to be canonical already!
@@ -360,7 +370,7 @@ def preprocess(cfg: PreprocessConfig) -> None:
 
     # Remove duplicate reactions
     pp.remove_duplicates()
-    logger.info(f'- {len(pp.df)} reactions after second deduplication.')
+    logger.info(f"- {len(pp.df)} reactions after second deduplication.")
 
     # Apply the mixed reaction filter instance defined above, enable verbose mode
     pp.filter(mrf, True)

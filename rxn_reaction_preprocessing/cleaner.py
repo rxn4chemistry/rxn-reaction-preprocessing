@@ -1,6 +1,6 @@
 import re
 
-_ISOTOPE_REMOVAL_REGEX = re.compile(r'(?<=\[)([0-9]+)(?=[A-Za-z])')
+_ISOTOPE_REMOVAL_REGEX = re.compile(r"(?<=\[)([0-9]+)(?=[A-Za-z])")
 
 
 def remove_isotope_information(rxn: str) -> str:
@@ -9,4 +9,4 @@ def remove_isotope_information(rxn: str) -> str:
 
     For example [13CH3][13CH3] ---> [CH3][CH3].
     """
-    return _ISOTOPE_REMOVAL_REGEX.sub('', rxn.strip())
+    return _ISOTOPE_REMOVAL_REGEX.sub("", rxn.strip())
