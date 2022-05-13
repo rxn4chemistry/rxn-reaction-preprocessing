@@ -28,6 +28,9 @@ logger.addHandler(logging.NullHandler())
 def preprocess_data(cfg: Config) -> None:
     """Preprocess data to generate a dataset for training transformer models."""
 
+    # Enforce config schema. Will also convert strings to Enums when necessary.
+    cfg = Config.from_generic_config(cfg)
+
     logger.info(
         "Running with the following configuration:\n"
         f"{OmegaConf.to_yaml(cfg, resolve=True)}"
