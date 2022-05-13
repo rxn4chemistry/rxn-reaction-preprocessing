@@ -89,7 +89,6 @@ def test_multiple_augmentation_rotated(augmenter):
         '[K]OC(C)(C)C~CCC.O>>CC', 'O([K])C(C)(C)C~CCC.O>>CC', 'CC(C)(C)O[K]~CCC.O>>CC', 'CC>>CC',
         'CC>>CC', 'CC>>CC'
     ]
-    print(new_df['rxn_rotated'].tolist())
     assert new_df['rxn_rotated'].tolist() == expected
 
 

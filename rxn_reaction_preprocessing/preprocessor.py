@@ -3,6 +3,7 @@
 # (C) Copyright IBM Corp. 2020
 # ALL RIGHTS RESERVED
 """ The preprocessor class abstracts the workflow for preprocessing reaction data sets. """
+import logging
 import typing
 from collections import Counter
 from pathlib import Path
@@ -21,6 +22,9 @@ from .mixed_reaction_filter import MixedReactionFilter
 from .reaction import Reaction
 from .reaction import ReactionPart
 from .reaction_standardizer import ReactionStandardizer
+
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 
 class Preprocessor:
@@ -274,13 +278,13 @@ class Preprocessor:
         Returns:
             Itself.
         """
-        print(f'- {len(self.df)} total reactions.')
+        logger.info(f'- {len(self.df)} total reactions.')
         if self.__valid_column in self.df.columns:
             counts = self.df[self.__valid_column].value_counts()
             if True in counts:
-                print(f'\033[92m- {counts[True]} valid reactions.\033[0m')
+                logger.info(f'- {counts[True]} valid reactions.')
             if False in counts:
-                print(f'\033[93m- {counts[False]} invalid reactions removed.\033[0m')
+                logger.info(f'- {counts[False]} invalid reactions removed.')
 
         if self.__valid_message_column in self.df.columns:
             reasons: typing.Counter[str] = Counter()
@@ -288,13 +292,10 @@ class Preprocessor:
                 reasons.update(value)
 
             if len(reasons) > 0:
-                print(
-                    f'\033[93m- The {counts[False]} reactions were removed for the following reasons:'
-                )
                 headers = ['Reason', 'Number of Reactions']
-                print(
-                    tabulate(list(Counter(reasons).items()), headers, tablefmt='fancy_grid') +
-                    '\033[0m'
+                logger.info(
+                    f'- The {counts[False]} reactions were removed for the following reasons:\n'
+                    f'{tabulate(list(Counter(reasons).items()), headers, tablefmt="fancy_grid")}'
                 )
 
         return self
@@ -349,9 +350,9 @@ def preprocess(cfg: PreprocessConfig) -> None:
     )
 
     # Remove duplicate reactions (useful for large dataset, this step is repeated later)
-    print(f'\033[92m- {len(pp.df)} initial reactions.\033[0m')
+    logger.info(f'- {len(pp.df)} initial reactions.')
     pp.remove_duplicates()
-    print(f'\033[92m- {len(pp.df)} reactions after first deduplication.\033[0m')
+    logger.info(f'- {len(pp.df)} reactions after first deduplication.')
 
     # Remove duplicate molecules, sort, etc.
     # NB: this relies on molecules in the reaction SMILES to be canonical already!
@@ -359,7 +360,7 @@ def preprocess(cfg: PreprocessConfig) -> None:
 
     # Remove duplicate reactions
     pp.remove_duplicates()
-    print(f'\033[92m- {len(pp.df)} reactions after second deduplication.\033[0m')
+    logger.info(f'- {len(pp.df)} reactions after second deduplication.')
 
     # Apply the mixed reaction filter instance defined above, enable verbose mode
     pp.filter(mrf, True)
