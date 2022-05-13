@@ -29,19 +29,12 @@ class StableSplitter:
     def __init__(
         self,
         split_ratio: float,
-        max_in_valid: Optional[int] = None,
         total_size: Optional[int] = None,
         seed: int = 0,
     ):
         """
         Args:
             split_ratio: The approximate split ratio for test and validation set.
-                If max_in_valid is specified, the validation set may end up being
-                smaller.
-            max_in_valid: Maximal number of reactions to keep in the validation set.
-                This can be useful to avoid unnecessarily prolonging training. It
-                is considered as an approximate limit (due to randomness in hashing).
-                Defaults to no restriction.
             total_size: Total size of the dataset, must be provided only if
                 max_if_valid is not None.
             seed: seed to use for hashing. The default of 0 corresponds to the
@@ -51,12 +44,6 @@ class StableSplitter:
 
         self.test_ratio = split_ratio
         self.valid_ratio = split_ratio
-        if max_in_valid is not None:
-            if total_size is None:
-                raise ValueError(
-                    "total_size must be provided if max_in_valid is not None"
-                )
-            self.valid_ratio = max_in_valid / total_size
 
         # Compute these here to avoid repeating the calculations all the time
         # in the get_split function
@@ -81,7 +68,6 @@ class StableDataSplitter:
         reaction_column_name: str,
         index_column: str,
         split_ratio: float = 0.05,
-        max_in_valid: Optional[int] = None,
         hash_seed: int = 0,
         shuffle_seed: int = 42,
     ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
@@ -94,10 +80,6 @@ class StableDataSplitter:
             index_column: The name of the column used to generate the hash which ensures
                 stable splitting.
             split_ratio: The split ratio. Defaults to 0.05.
-            max_in_valid: Maximal number of reactions to keep in the validation set.
-                This can be useful to avoid unnecessarily prolonging training. It
-                is considered as an approximate limit (due to randomness in hashing).
-                Defaults to no restriction.
             hash_seed: seed to use for hashing. The default of 0 corresponds to
                 the default value in the xxhash implementation.
             shuffle_seed: Seed for shuffling the train split.
@@ -107,7 +89,6 @@ class StableDataSplitter:
         """
         splitter = StableSplitter(
             split_ratio=split_ratio,
-            max_in_valid=max_in_valid,
             total_size=len(df),
             seed=hash_seed,
         )

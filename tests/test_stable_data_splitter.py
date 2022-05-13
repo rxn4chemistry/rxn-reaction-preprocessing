@@ -102,26 +102,6 @@ def test_split_with_different_hash_seed(data):
     assert len(test2) == 43
 
 
-def test_split_with_max_valid_samples():
-    df = pd.DataFrame(data={"col_1": random_strings(10000)})
-
-    # Split without restricting the size - leads to roughly 5% in valid and 5% in test
-    train, validate, test = StableDataSplitter.split(
-        df, "rxn", "col_1", split_ratio=0.05, max_in_valid=None
-    )
-    assert 8900 < len(train) < 9100
-    assert 450 < len(validate) < 550
-    assert 450 < len(test) < 550
-
-    # Split limiting the size of the validation set to +/- 50 samples
-    train, validate, test = StableDataSplitter.split(
-        df, "rxn", "col_1", split_ratio=0.05, max_in_valid=50
-    )
-    assert 9400 < len(train) < 9600
-    assert 40 < len(validate) < 60
-    assert 450 < len(test) < 550
-
-
 def all_samples_in_one_split(splits: Sequence[pd.DataFrame]) -> bool:
     assert len(splits) == 3
     number_non_empty_splits = 0
