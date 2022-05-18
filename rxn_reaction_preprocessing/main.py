@@ -36,8 +36,14 @@ def preprocess_data(cfg: Config) -> None:
         f"{OmegaConf.to_yaml(cfg, resolve=True)}"
     )
 
-    # make sure that the required output directories exist
-    Path(cfg.data.proc_dir).mkdir(parents=True, exist_ok=True)
+    # Create the output directory (may exist already if this function was
+    # called from the main script).
+    processing_dir = Path(cfg.data.proc_dir)
+    processing_dir.mkdir(parents=True, exist_ok=True)
+
+    # Save the config
+    with open(processing_dir / "preprocessing_config.yml", "wt") as f:
+        f.write(OmegaConf.to_yaml(cfg, resolve=True))
 
     for step in cfg.common.sequence:
         logger.info(f"Running step: {step.name}")
@@ -64,7 +70,9 @@ def data_pipeline(cfg: Config) -> None:
     cfg = Config.from_generic_config(cfg)
 
     # Setup logging to file, and overwrite the log format
-    add_custom_logger_to_file(Path(cfg.data.proc_dir) / "log.txt")
+    processing_dir = Path(cfg.data.proc_dir)
+    processing_dir.mkdir(parents=True, exist_ok=True)
+    add_custom_logger_to_file(processing_dir / "log.txt")
     overwrite_logging_format()
 
     preprocess_data(cfg)
