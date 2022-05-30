@@ -9,6 +9,7 @@ from pathlib import Path
 import hydra
 from omegaconf import OmegaConf
 
+from rxn_reaction_preprocessing import __version__
 from rxn_reaction_preprocessing.augmenter import augment
 from rxn_reaction_preprocessing.config import Config, Step
 from rxn_reaction_preprocessing.importer import rxn_import
@@ -31,6 +32,10 @@ def preprocess_data(cfg: Config) -> None:
     # Enforce config schema. Will also convert strings to Enums when necessary.
     cfg = Config.from_generic_config(cfg)
 
+    logger.info(
+        f"Preprocessing reaction data with rxn-reaction-preprocessing, "
+        f"version {__version__}."
+    )
     logger.info(
         "Running with the following configuration:\n"
         f"{OmegaConf.to_yaml(cfg, resolve=True)}"
