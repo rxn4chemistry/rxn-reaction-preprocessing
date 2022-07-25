@@ -134,7 +134,7 @@ class StandardizeConfig:
 
     input_file_path: str = SI("${rxn_import.output_csv}")
     annotation_file_paths: List[str] = field(default_factory=lambda: [])
-    discard_unannotated_metals: bool = True
+    discard_unannotated_metals: bool = False
     output_file_path: str = SI("${data.proc_dir}/${data.name}.standardized.csv")
     fragment_bond: FragmentBond = SI("${common.fragment_bond}")
     reaction_column_name: str = SI("${common.reaction_column_name}")
