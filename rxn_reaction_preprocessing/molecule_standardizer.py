@@ -1,8 +1,8 @@
 from typing import List, Optional, Tuple
 
-from rxn_chemutils.conversion import canonicalize_smiles
-from rxn_chemutils.exceptions import InvalidSmiles
-from rxn_chemutils.reaction_equation import ReactionEquation
+from rxn.chemutils.conversion import canonicalize_smiles
+from rxn.chemutils.exceptions import InvalidSmiles
+from rxn.chemutils.reaction_equation import ReactionEquation
 
 from rxn_reaction_preprocessing.annotations.missing_annotation_detector import (
     MissingAnnotationDetector,

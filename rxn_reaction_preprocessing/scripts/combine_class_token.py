@@ -1,5 +1,5 @@
 import click
-from rxn_utilities.file_utilities import count_lines, iterate_lines_from_file
+from rxn.utilities.files import count_lines, iterate_lines_from_file
 
 
 @click.command()

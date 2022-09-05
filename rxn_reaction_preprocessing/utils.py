@@ -11,10 +11,10 @@ from typing import Iterable, List, Set
 import attr
 import numpy
 from rdkit.Chem import GetFormalCharge, Mol
-from rxn_chemutils.conversion import smiles_to_mol
-from rxn_chemutils.reaction_equation import ReactionEquation
-from rxn_utilities.file_utilities import PathLike
-from rxn_utilities.logging_utilities import LoggingFormat
+from rxn.chemutils.conversion import smiles_to_mol
+from rxn.chemutils.reaction_equation import ReactionEquation
+from rxn.utilities.files import PathLike
+from rxn.utilities.logging import LoggingFormat
 
 
 class DataSplit(Enum):

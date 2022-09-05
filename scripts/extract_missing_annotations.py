@@ -4,7 +4,7 @@ from collections import Counter
 import click
 import pandas as pd
 from rdkit import RDLogger
-from rxn_chemutils.conversion import canonicalize_smiles
+from rxn.chemutils.conversion import canonicalize_smiles
 
 RDLogger.DisableLog("rdApp.*")
 

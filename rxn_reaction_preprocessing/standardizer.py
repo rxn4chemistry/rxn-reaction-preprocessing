@@ -8,8 +8,8 @@ from typing import List, Optional
 
 import pandas as pd
 from rdkit import RDLogger
-from rxn_chemutils.miscellaneous import remove_chiral_centers
-from rxn_chemutils.reaction_smiles import parse_any_reaction_smiles
+from rxn.chemutils.miscellaneous import remove_chiral_centers
+from rxn.chemutils.reaction_smiles import parse_any_reaction_smiles
 
 from rxn_reaction_preprocessing.annotations.molecule_annotation import (
     MoleculeAnnotation,

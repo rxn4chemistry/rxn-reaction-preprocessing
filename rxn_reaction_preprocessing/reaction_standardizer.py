@@ -1,4 +1,4 @@
-from rxn_chemutils.reaction_equation import (
+from rxn.chemutils.reaction_equation import (
     ReactionEquation,
     merge_reactants_and_agents,
     remove_duplicate_compounds,

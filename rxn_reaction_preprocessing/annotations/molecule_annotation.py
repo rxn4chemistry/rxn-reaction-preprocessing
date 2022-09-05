@@ -4,8 +4,8 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Union
 
 import attr
-from rxn_chemutils.multicomponent_smiles import multicomponent_smiles_to_list
-from rxn_utilities.rxn_types import RxnEnum
+from rxn.chemutils.multicomponent_smiles import multicomponent_smiles_to_list
+from rxn.utilities.types import RxnEnum
 
 
 class AnnotationDecision(RxnEnum):

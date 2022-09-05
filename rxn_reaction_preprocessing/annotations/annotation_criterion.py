@@ -2,7 +2,7 @@ import itertools
 from typing import Generator, Iterable, Optional, Set
 
 from rdkit.Chem import GetPeriodicTable
-from rxn_chemutils.miscellaneous import atom_type_counter
+from rxn.chemutils.miscellaneous import atom_type_counter
 
 
 class AnnotationCriterion:

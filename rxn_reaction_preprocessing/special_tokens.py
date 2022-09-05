@@ -17,7 +17,7 @@ import copy
 from enum import Enum
 from typing import Iterable, List, TypeVar, Union
 
-from rxn_chemutils.reaction_equation import ReactionEquation
+from rxn.chemutils.reaction_equation import ReactionEquation
 
 LIGHT_TOKEN = "[Lv]"
 HEAT_TOKEN = "[Ts]"

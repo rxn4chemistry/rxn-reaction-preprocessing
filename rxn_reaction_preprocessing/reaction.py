@@ -8,7 +8,7 @@ from typing import Any, Iterable, List, Set, Tuple
 
 from rdkit.Chem import AllChem as rdk
 from rdkit.Chem.rdchem import Mol
-from rxn_chemutils.reaction_equation import ReactionEquation
+from rxn.chemutils.reaction_equation import ReactionEquation
 
 from rxn_reaction_preprocessing.utils import (
     get_atoms_for_mols,

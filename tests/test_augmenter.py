@@ -1,6 +1,6 @@
 # LICENSED INTERNAL CODE. PROPERTY OF IBM.
 # IBM Research Zurich Licensed Internal Code
-# (C) Copyright IBM Corp. 2021
+# (C) Copyright IBM Corp. 2022
 # ALL RIGHTS RESERVED
 import pandas as pd
 import pytest
@@ -40,8 +40,8 @@ def test_unrestricted(augmenter):
     new_df = augmenter.augment(rrp.RandomType.unrestricted, permutations=1)
 
     expected = [
-        "[Na]Cl~[K+].[K+].C(C)CC.C12N=CN(C=1C(N(C(N2C)=O)C)=O)C>>CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
-        "C(C)(C)(C)O[K]~CCC.O>>CC",
+        "[Na]Cl~[K+].[K+].C(C)CC.O=C1N(C(=O)N(C)C2=C1N(C)C=N2)C>>CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+        "CC(C)(O[K])C~C(C)C.O>>CC",
         "CC>>CC",
     ]
     assert new_df["rxn_unrestricted"].tolist() == expected

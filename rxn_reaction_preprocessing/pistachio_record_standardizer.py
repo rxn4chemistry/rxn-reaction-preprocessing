@@ -2,8 +2,8 @@ import copy
 import logging
 from typing import Any, Dict
 
-from rxn_chemutils.miscellaneous import remove_atom_mapping
-from rxn_chemutils.reaction_smiles import parse_any_reaction_smiles
+from rxn.chemutils.reaction_smiles import parse_any_reaction_smiles
+from rxn.chemutils.utils import remove_atom_mapping
 
 from rxn_reaction_preprocessing import MixedReactionFilter
 from rxn_reaction_preprocessing.annotations.molecule_annotation import (

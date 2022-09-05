@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import List
 
 import pandas as pd
-from rxn_chemutils.smiles_randomization import (
+from rxn.chemutils.smiles_randomization import (
     randomize_smiles_restricted,
     randomize_smiles_rotated,
     randomize_smiles_unrestricted,
@@ -111,7 +111,7 @@ class Augmenter:
             random_type (RandomType): The type of randomization to be applied.
 
         Raises:
-            InvalidSmiles: for invalid SMILES (raised via rxn_chemutils).
+            InvalidSmiles: for invalid SMILES (raised via rxn.chemutils).
             ValueError: if an invalid randomization type is provided.
 
         Returns:

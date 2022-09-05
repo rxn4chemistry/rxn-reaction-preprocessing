@@ -1,7 +1,7 @@
 import click
 import pandas as pd
-from rxn_chemutils.extended_reaction_smiles import parse_extended_reaction_smiles
-from rxn_chemutils.miscellaneous import remove_atom_mapping
+from rxn.chemutils.extended_reaction_smiles import parse_extended_reaction_smiles
+from rxn.chemutils.utils import remove_atom_mapping
 
 
 @click.command()

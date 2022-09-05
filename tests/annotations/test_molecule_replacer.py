@@ -1,6 +1,6 @@
 from typing import Dict, List, Union
 
-from rxn_chemutils.reaction_equation import ReactionEquation
+from rxn.chemutils.reaction_equation import ReactionEquation
 
 from rxn_reaction_preprocessing.annotations.molecule_annotation import (
     MoleculeAnnotation,

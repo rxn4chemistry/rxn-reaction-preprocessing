@@ -1,7 +1,7 @@
 from typing import Any, Dict
 
 import pytest
-from rxn_chemutils.exceptions import InvalidSmiles
+from rxn.chemutils.exceptions import InvalidSmiles
 
 from rxn_reaction_preprocessing.annotations.molecule_annotation import (
     MoleculeAnnotation,

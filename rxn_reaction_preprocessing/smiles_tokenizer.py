@@ -3,7 +3,7 @@
 # (C) Copyright IBM Corp. 2020
 # ALL RIGHTS RESERVED
 import pandas as pd
-from rxn_chemutils.tokenization import tokenize_smiles
+from rxn.chemutils.tokenization import tokenize_smiles
 
 from rxn_reaction_preprocessing.config import TokenizeConfig
 

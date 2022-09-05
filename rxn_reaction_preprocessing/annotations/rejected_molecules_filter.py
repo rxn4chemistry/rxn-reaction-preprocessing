@@ -1,6 +1,6 @@
 from typing import Iterable, Optional
 
-from rxn_chemutils.reaction_equation import ReactionEquation
+from rxn.chemutils.reaction_equation import ReactionEquation
 
 from rxn_reaction_preprocessing.annotations.molecule_annotation import (
     AnnotationDecision,

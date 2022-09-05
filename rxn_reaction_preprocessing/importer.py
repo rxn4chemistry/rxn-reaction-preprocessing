@@ -3,9 +3,9 @@ from functools import partial
 from typing import Callable, Optional
 
 import pandas as pd
-from rxn_chemutils.miscellaneous import remove_atom_mapping
-from rxn_chemutils.reaction_equation import ReactionEquation
-from rxn_chemutils.reaction_smiles import parse_any_reaction_smiles
+from rxn.chemutils.reaction_equation import ReactionEquation
+from rxn.chemutils.reaction_smiles import parse_any_reaction_smiles
+from rxn.chemutils.utils import remove_atom_mapping
 
 from rxn_reaction_preprocessing.config import InitialDataFormat, RxnImportConfig
 from rxn_reaction_preprocessing.special_tokens import add_heat_token, add_light_token

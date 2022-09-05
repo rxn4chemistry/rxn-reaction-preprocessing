@@ -12,8 +12,8 @@ from typing import Callable, List
 import numpy as np
 import pandas as pd
 from rdkit import RDLogger
-from rxn_chemutils.reaction_equation import ReactionEquation
-from rxn_chemutils.reaction_smiles import parse_any_reaction_smiles
+from rxn.chemutils.reaction_equation import ReactionEquation
+from rxn.chemutils.reaction_smiles import parse_any_reaction_smiles
 from tabulate import tabulate
 
 from .config import PreprocessConfig

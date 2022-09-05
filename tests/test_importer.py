@@ -4,7 +4,7 @@ from typing import Generator
 
 import pandas as pd
 import pytest
-from rxn_utilities.file_utilities import dump_list_to_file
+from rxn.utilities.files import dump_list_to_file
 
 from rxn_reaction_preprocessing.config import (
     FragmentBond,

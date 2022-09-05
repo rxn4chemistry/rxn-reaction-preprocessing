@@ -8,7 +8,7 @@ import logging
 from pathlib import Path
 
 import hydra
-from rxn_utilities.file_utilities import iterate_lines_from_file
+from rxn.utilities.files import iterate_lines_from_file
 
 from rxn_reaction_preprocessing.config import Config, Step
 from rxn_reaction_preprocessing.pistachio_record_standardizer import (

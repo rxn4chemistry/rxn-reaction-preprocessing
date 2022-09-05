@@ -1,6 +1,6 @@
 import pytest
-from rxn_chemutils.exceptions import InvalidSmiles
-from rxn_chemutils.reaction_equation import ReactionEquation
+from rxn.chemutils.exceptions import InvalidSmiles
+from rxn.chemutils.reaction_equation import ReactionEquation
 
 from rxn_reaction_preprocessing.utils import MolEquation
 

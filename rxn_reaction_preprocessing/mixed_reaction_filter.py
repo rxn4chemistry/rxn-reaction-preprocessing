@@ -7,9 +7,9 @@ import itertools
 from functools import partial
 from typing import Callable, Generator, Iterable, List, Tuple, Union
 
-from rxn_chemutils.exceptions import InvalidSmiles
-from rxn_chemutils.reaction_equation import ReactionEquation
-from rxn_chemutils.tokenization import to_tokens
+from rxn.chemutils.exceptions import InvalidSmiles
+from rxn.chemutils.reaction_equation import ReactionEquation
+from rxn.chemutils.tokenization import to_tokens
 
 from .utils import MolEquation, get_atoms_for_mols, get_formal_charge_for_mols
 
