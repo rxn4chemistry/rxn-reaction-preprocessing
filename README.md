@@ -1,26 +1,44 @@
-# rxn-reaction-preprocessing
+# RXN reaction preprocessing
 
-Repository to apply many preprocessing transformations including stable train/test/validation splits.
+[![Actions tests](https://github.com/rxn4chemistry/rxn-reaction-preprocessing/actions/workflows/tests.yaml/badge.svg)](https://github.com/rxn4chemistry/rxn-reaction-preprocessing/actions)
 
-## Install / Build
-### Create Environment and Install
+This repository is devoted to preprocessing chemical reactions: standardization, filtering, etc. 
+It also includes code for stable train/test/validation splits and data augmentation.
+
+## System Requirements
+
+This package is supported on all operating systems.
+It has been tested on the following systems:
+
++ macOS: Big Sur (11.1)
+
++ Linux: Ubuntu 18.04.4
+
+A Python version of 3.6 or greater is recommended.
+
+## Installation guide
+
+The package can be installed from Pypi:
+
 ```bash
-conda create -c rdkit -n rxn-reaction-preprocessing rdkit python=3.6
-pip install -e .
+pip install rxn-reaction-preprocessing
 ```
 
-### Development
+The `RDKit` dependency is not installed automatically and can be installed via Conda or Pypi:
 ```bash
-pip install -e .[dev]
-```
-Escape brackets in zsh
-```bash
-pip install -e .\[dev\]
+# Install RDKit from Conda
+conda install -c conda-forge rdkit
+
+# Install RDKit from Pypi
+pip install rdkit
+# for Python<3.7
+# pip install rdkit-pypi
 ```
 
-### Running tests
+For local development, the package can be installed with:
+
 ```bash
-python -m pytest
+pip install -e ".[dev]"
 ```
 
 ## Usage

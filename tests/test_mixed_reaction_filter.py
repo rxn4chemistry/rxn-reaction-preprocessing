@@ -1,6 +1,6 @@
 # LICENSED INTERNAL CODE. PROPERTY OF IBM.
 # IBM Research Zurich Licensed Internal Code
-# (C) Copyright IBM Corp. 2020
+# (C) Copyright IBM Corp. 2022
 # ALL RIGHTS RESERVED
 import pytest
 from rxn.chemutils.reaction_equation import ReactionEquation

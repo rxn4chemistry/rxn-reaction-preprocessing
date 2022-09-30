@@ -1,6 +1,6 @@
 # LICENSED INTERNAL CODE. PROPERTY OF IBM.
 # IBM Research Zurich Licensed Internal Code
-# (C) Copyright IBM Corp. 2020
+# (C) Copyright IBM Corp. 2022
 # ALL RIGHTS RESERVED
 import pandas as pd
 import pytest
@@ -57,7 +57,7 @@ def test_filter_verbose(preprocessor, filter):
 def test_preprocess_with_rdkit_bug_for_concatenated_smiles():
     # In an earlier version, preprocessing failed for rare cases when RDKit cannot
     # convert concatenated SMILES into an RDKit Mol.
-    # See https://github.ibm.com/rxn/rxn_reaction_preprocessing/issues/62
+    # Was related to https://github.com/rdkit/rdkit/issues/4266
 
     df = pd.DataFrame({"rxn": ["c1ccccc1.C123C45C16C21C34C561>>CC"]})
     preprocessor = Preprocessor(df, "rxn")
