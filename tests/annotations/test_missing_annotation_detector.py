@@ -2,10 +2,10 @@ from typing import List, Tuple
 
 from rxn.chemutils.reaction_equation import ReactionEquation
 
-from rxn_reaction_preprocessing.annotations.missing_annotation_detector import (
+from rxn.reaction_preprocessing.annotations.missing_annotation_detector import (
     MissingAnnotationDetector,
 )
-from rxn_reaction_preprocessing.annotations.molecule_annotation import (
+from rxn.reaction_preprocessing.annotations.molecule_annotation import (
     MoleculeAnnotation,
 )
 

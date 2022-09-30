@@ -1,7 +1,7 @@
-from rxn_reaction_preprocessing.annotations.molecule_annotation import (
+from rxn.reaction_preprocessing.annotations.molecule_annotation import (
     MoleculeAnnotation,
 )
-from rxn_reaction_preprocessing.annotations.rejected_molecules_filter import (
+from rxn.reaction_preprocessing.annotations.rejected_molecules_filter import (
     RejectedMoleculesFilter,
 )
 

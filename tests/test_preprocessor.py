@@ -5,7 +5,7 @@
 import pandas as pd
 import pytest
 
-from rxn_reaction_preprocessing import MixedReactionFilter, Preprocessor, ReactionPart
+from rxn.reaction_preprocessing import MixedReactionFilter, Preprocessor, ReactionPart
 
 
 @pytest.fixture

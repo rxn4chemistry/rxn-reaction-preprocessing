@@ -5,9 +5,9 @@
 import pandas as pd
 import pytest
 
-import rxn_reaction_preprocessing as rrp
-from rxn_reaction_preprocessing import Augmenter
-from rxn_reaction_preprocessing.utils import ReactionSection, reset_random_seed
+from rxn import reaction_preprocessing as rrp
+from rxn.reaction_preprocessing import Augmenter
+from rxn.reaction_preprocessing.utils import ReactionSection, reset_random_seed
 
 
 @pytest.fixture

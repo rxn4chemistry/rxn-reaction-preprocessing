@@ -4,7 +4,7 @@
 # ALL RIGHTS RESERVED
 import pytest
 
-from rxn_reaction_preprocessing import SmilesTokenizer
+from rxn.reaction_preprocessing import SmilesTokenizer
 
 
 @pytest.fixture

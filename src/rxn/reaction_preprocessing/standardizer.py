@@ -11,12 +11,12 @@ from rdkit import RDLogger
 from rxn.chemutils.miscellaneous import remove_chiral_centers
 from rxn.chemutils.reaction_smiles import parse_any_reaction_smiles
 
-from rxn_reaction_preprocessing.annotations.molecule_annotation import (
+from rxn.reaction_preprocessing.annotations.molecule_annotation import (
     MoleculeAnnotation,
     load_annotations_multiple,
 )
-from rxn_reaction_preprocessing.config import StandardizeConfig
-from rxn_reaction_preprocessing.molecule_standardizer import MoleculeStandardizer
+from rxn.reaction_preprocessing.config import StandardizeConfig
+from rxn.reaction_preprocessing.molecule_standardizer import MoleculeStandardizer
 
 RDLogger.DisableLog("rdApp.*")
 

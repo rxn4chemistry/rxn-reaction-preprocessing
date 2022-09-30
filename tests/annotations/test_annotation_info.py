@@ -1,10 +1,10 @@
 import pytest
 
-from rxn_reaction_preprocessing.annotations.annotation_info import (
+from rxn.reaction_preprocessing.annotations.annotation_info import (
     AnnotationInfo,
     MoleculeNotAnnotated,
 )
-from rxn_reaction_preprocessing.annotations.molecule_annotation import (
+from rxn.reaction_preprocessing.annotations.molecule_annotation import (
     MoleculeAnnotation,
 )
 

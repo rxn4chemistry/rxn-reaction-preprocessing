@@ -1,6 +1,6 @@
 from typing import Dict, Iterable
 
-from rxn_reaction_preprocessing.annotations.molecule_annotation import (
+from rxn.reaction_preprocessing.annotations.molecule_annotation import (
     AnnotationDecision,
     MoleculeAnnotation,
 )

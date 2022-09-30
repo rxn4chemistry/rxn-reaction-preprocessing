@@ -15,9 +15,9 @@ from rxn.chemutils.smiles_randomization import (
     randomize_smiles_unrestricted,
 )
 
-from rxn_reaction_preprocessing.config import AugmentConfig
-from rxn_reaction_preprocessing.smiles_tokenizer import SmilesTokenizer
-from rxn_reaction_preprocessing.utils import RandomType, ReactionSection
+from rxn.reaction_preprocessing.config import AugmentConfig
+from rxn.reaction_preprocessing.smiles_tokenizer import SmilesTokenizer
+from rxn.reaction_preprocessing.utils import RandomType, ReactionSection
 
 
 def molecules_permutation_given_index(

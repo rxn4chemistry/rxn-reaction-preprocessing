@@ -2,11 +2,11 @@ from typing import Optional
 
 import click
 
-from rxn_reaction_preprocessing import Standardizer
-from rxn_reaction_preprocessing.annotations.molecule_annotation import (
+from rxn.reaction_preprocessing import Standardizer
+from rxn.reaction_preprocessing.annotations.molecule_annotation import (
     load_annotations_multiple,
 )
-from rxn_reaction_preprocessing.config import DEFAULT_ANNOTATION_FILES
+from rxn.reaction_preprocessing.config import DEFAULT_ANNOTATION_FILES
 
 
 @click.command()

@@ -9,15 +9,15 @@ from pathlib import Path
 import hydra
 from omegaconf import OmegaConf
 
-from rxn_reaction_preprocessing import __version__
-from rxn_reaction_preprocessing.augmenter import augment
-from rxn_reaction_preprocessing.config import Config, Step
-from rxn_reaction_preprocessing.importer import rxn_import
-from rxn_reaction_preprocessing.preprocessor import preprocess
-from rxn_reaction_preprocessing.smiles_tokenizer import tokenize
-from rxn_reaction_preprocessing.stable_data_splitter import split
-from rxn_reaction_preprocessing.standardizer import standardize
-from rxn_reaction_preprocessing.utils import (
+from rxn.reaction_preprocessing import __version__
+from rxn.reaction_preprocessing.augmenter import augment
+from rxn.reaction_preprocessing.config import Config, Step
+from rxn.reaction_preprocessing.importer import rxn_import
+from rxn.reaction_preprocessing.preprocessor import preprocess
+from rxn.reaction_preprocessing.smiles_tokenizer import tokenize
+from rxn.reaction_preprocessing.stable_data_splitter import split
+from rxn.reaction_preprocessing.standardizer import standardize
+from rxn.reaction_preprocessing.utils import (
     add_custom_logger_to_file,
     overwrite_logging_format,
 )

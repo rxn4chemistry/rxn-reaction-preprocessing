@@ -1,7 +1,7 @@
 import pytest
 from rxn.chemutils.reaction_equation import ReactionEquation
 
-from rxn_reaction_preprocessing.reaction_standardizer import ReactionStandardizer
+from rxn.reaction_preprocessing.reaction_standardizer import ReactionStandardizer
 
 
 @pytest.fixture

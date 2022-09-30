@@ -3,20 +3,20 @@ from typing import Any, Dict
 import pytest
 from rxn.chemutils.exceptions import InvalidSmiles
 
-from rxn_reaction_preprocessing.annotations.molecule_annotation import (
+from rxn.reaction_preprocessing.annotations.molecule_annotation import (
     MoleculeAnnotation,
 )
-from rxn_reaction_preprocessing.config import (
+from rxn.reaction_preprocessing.config import (
     FragmentBond,
     PreprocessConfig,
     StandardizeConfig,
 )
-from rxn_reaction_preprocessing.mixed_reaction_filter import ReactionFilterError
-from rxn_reaction_preprocessing.molecule_standardizer import (
+from rxn.reaction_preprocessing.mixed_reaction_filter import ReactionFilterError
+from rxn.reaction_preprocessing.molecule_standardizer import (
     MoleculeStandardizer,
     RejectedMolecule,
 )
-from rxn_reaction_preprocessing.pistachio_record_standardizer import (
+from rxn.reaction_preprocessing.pistachio_record_standardizer import (
     PistachioRecordStandardizer,
 )
 

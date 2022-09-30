@@ -10,7 +10,7 @@ from rdkit.Chem import AllChem as rdk
 from rdkit.Chem.rdchem import Mol
 from rxn.chemutils.reaction_equation import ReactionEquation
 
-from rxn_reaction_preprocessing.utils import (
+from rxn.reaction_preprocessing.utils import (
     get_atoms_for_mols,
     get_formal_charge_for_mols,
 )

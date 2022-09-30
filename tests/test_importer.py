@@ -6,13 +6,13 @@ import pandas as pd
 import pytest
 from rxn.utilities.files import dump_list_to_file
 
-from rxn_reaction_preprocessing.config import (
+from rxn.reaction_preprocessing.config import (
     FragmentBond,
     InitialDataFormat,
     RxnImportConfig,
 )
-from rxn_reaction_preprocessing.importer import InvalidColumn, InvalidType, rxn_import
-from rxn_reaction_preprocessing.special_tokens import HEAT_TOKEN, LIGHT_TOKEN
+from rxn.reaction_preprocessing.importer import InvalidColumn, InvalidType, rxn_import
+from rxn.reaction_preprocessing.special_tokens import HEAT_TOKEN, LIGHT_TOKEN
 
 
 @pytest.fixture

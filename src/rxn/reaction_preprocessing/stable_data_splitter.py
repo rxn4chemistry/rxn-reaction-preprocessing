@@ -11,8 +11,8 @@ from typing import Hashable, Optional, Tuple
 import pandas as pd
 from xxhash import xxh64_intdigest
 
-from rxn_reaction_preprocessing.config import SplitConfig
-from rxn_reaction_preprocessing.utils import DataSplit
+from rxn.reaction_preprocessing.config import SplitConfig
+from rxn.reaction_preprocessing.utils import DataSplit
 
 
 class StableSplitter:

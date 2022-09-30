@@ -1,4 +1,4 @@
-from rxn_reaction_preprocessing.cleaner import remove_isotope_information
+from rxn.reaction_preprocessing.cleaner import remove_isotope_information
 
 
 def test_remove_isotope_information():

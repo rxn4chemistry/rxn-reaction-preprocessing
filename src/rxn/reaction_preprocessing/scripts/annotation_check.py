@@ -3,14 +3,14 @@ from typing import Generator
 
 import click
 
-from rxn_reaction_preprocessing.annotations.annotation_info import AnnotationInfo
-from rxn_reaction_preprocessing.annotations.missing_annotation_detector import (
+from rxn.reaction_preprocessing.annotations.annotation_info import AnnotationInfo
+from rxn.reaction_preprocessing.annotations.missing_annotation_detector import (
     MissingAnnotationDetector,
 )
-from rxn_reaction_preprocessing.annotations.molecule_annotation import (
+from rxn.reaction_preprocessing.annotations.molecule_annotation import (
     load_annotations_multiple,
 )
-from rxn_reaction_preprocessing.config import DEFAULT_ANNOTATION_FILES
+from rxn.reaction_preprocessing.config import DEFAULT_ANNOTATION_FILES
 
 
 def iterate_rxn_smiles(csv_file: str, column_name: str) -> Generator[str, None, None]:

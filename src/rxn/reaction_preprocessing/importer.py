@@ -7,8 +7,8 @@ from rxn.chemutils.reaction_equation import ReactionEquation
 from rxn.chemutils.reaction_smiles import parse_any_reaction_smiles
 from rxn.chemutils.utils import remove_atom_mapping
 
-from rxn_reaction_preprocessing.config import InitialDataFormat, RxnImportConfig
-from rxn_reaction_preprocessing.special_tokens import add_heat_token, add_light_token
+from rxn.reaction_preprocessing.config import InitialDataFormat, RxnImportConfig
+from rxn.reaction_preprocessing.special_tokens import add_heat_token, add_light_token
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
@@ -59,7 +59,7 @@ def _load_from_txt(cfg: RxnImportConfig) -> pd.DataFrame:
 
 
 def _load_from_csv(cfg: RxnImportConfig, separator: str) -> pd.DataFrame:
-    df: pd.DataFrame = pd.read_csv(cfg.input_file, separator)
+    df: pd.DataFrame = pd.read_csv(cfg.input_file, sep=separator)
 
     if cfg.input_csv_column_name not in df.columns:
         raise InvalidColumn(cfg.input_csv_column_name, cfg.input_file)

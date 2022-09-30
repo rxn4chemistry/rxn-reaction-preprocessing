@@ -1,7 +1,7 @@
 from rxn.chemutils.conversion import canonicalize_smiles
 from rxn.chemutils.reaction_equation import ReactionEquation
 
-from rxn_reaction_preprocessing.special_tokens import (
+from rxn.reaction_preprocessing.special_tokens import (
     HEAT_TOKEN,
     LIGHT_TOKEN,
     add_heat_token,

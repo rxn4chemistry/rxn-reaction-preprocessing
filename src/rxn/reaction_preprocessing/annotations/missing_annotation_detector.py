@@ -2,10 +2,10 @@ from typing import Callable, Generator, Iterable, Optional, Set, Union
 
 from rxn.chemutils.reaction_equation import ReactionEquation
 
-from rxn_reaction_preprocessing.annotations.annotation_criterion import (
+from rxn.reaction_preprocessing.annotations.annotation_criterion import (
     AnnotationCriterion,
 )
-from rxn_reaction_preprocessing.annotations.molecule_annotation import (
+from rxn.reaction_preprocessing.annotations.molecule_annotation import (
     MoleculeAnnotation,
 )
 

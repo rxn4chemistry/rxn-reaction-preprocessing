@@ -9,8 +9,8 @@ from typing import List, Sequence
 import pandas as pd
 import pytest
 
-from rxn_reaction_preprocessing import StableDataSplitter
-from rxn_reaction_preprocessing.utils import reset_random_seed
+from rxn.reaction_preprocessing import StableDataSplitter
+from rxn.reaction_preprocessing.utils import reset_random_seed
 
 
 def random_strings(n: int) -> List[str]:

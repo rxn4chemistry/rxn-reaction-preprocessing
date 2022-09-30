@@ -7,6 +7,7 @@ check_untyped_defs = true
 
 [[tool.mypy.overrides]]
 module = [
+    "hydra.*",
     "numpy.*",
     "pandas.*",
     "rdkit.*",

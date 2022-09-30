@@ -1,7 +1,7 @@
 import pytest
 from rxn.chemutils.exceptions import InvalidSmiles
 
-from rxn_reaction_preprocessing.annotations.annotation_criterion import (
+from rxn.reaction_preprocessing.annotations.annotation_criterion import (
     AnnotationCriterion,
 )
 

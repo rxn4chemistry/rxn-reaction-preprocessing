@@ -16,8 +16,10 @@ script:
   - python -m isort --profile black --check --diff .
   - python -m flake8 .
   # Static typing
-  - python -m mypy .
-  - python -m pytest -sv --cov=rxn_reaction_preprocessing --cov-fail-under=50
+  - python -m mypy --namespace-packages -p rxn.reaction_preprocessing
+  - python -m mypy tests
+  # Unit tests
+  - python -m pytest -sv --cov=rxn.reaction_preprocessing --cov-fail-under=50
 
 jobs:
   include:

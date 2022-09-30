@@ -3,11 +3,11 @@ from rxn.chemutils.conversion import canonicalize_smiles
 from rxn.chemutils.exceptions import InvalidSmiles
 from rxn.chemutils.reaction_equation import ReactionEquation
 
-from rxn_reaction_preprocessing.annotations.molecule_annotation import (
+from rxn.reaction_preprocessing.annotations.molecule_annotation import (
     MoleculeAnnotation,
 )
-from rxn_reaction_preprocessing.cleaner import remove_isotope_information
-from rxn_reaction_preprocessing.molecule_standardizer import (
+from rxn.reaction_preprocessing.cleaner import remove_isotope_information
+from rxn.reaction_preprocessing.molecule_standardizer import (
     MissingAnnotation,
     MoleculeStandardizer,
     RejectedMolecule,

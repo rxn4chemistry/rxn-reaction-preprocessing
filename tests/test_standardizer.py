@@ -7,8 +7,8 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from rxn_reaction_preprocessing import Standardizer
-from rxn_reaction_preprocessing.annotations.molecule_annotation import load_annotations
+from rxn.reaction_preprocessing import Standardizer
+from rxn.reaction_preprocessing.annotations.molecule_annotation import load_annotations
 
 annotations_file = str(
     Path(__file__).parent / "annotations/test_molecule_annotations.json"

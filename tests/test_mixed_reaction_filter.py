@@ -5,10 +5,8 @@
 import pytest
 from rxn.chemutils.reaction_equation import ReactionEquation
 
-from rxn_reaction_preprocessing.mixed_reaction_filter import (
-    MixedReactionFilter,
-    ReactionFilterError,
-)
+from rxn.reaction_preprocessing import MixedReactionFilter
+from rxn.reaction_preprocessing.mixed_reaction_filter import ReactionFilterError
 
 
 @pytest.fixture

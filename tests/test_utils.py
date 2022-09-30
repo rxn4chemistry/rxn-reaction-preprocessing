@@ -2,7 +2,7 @@ import pytest
 from rxn.chemutils.exceptions import InvalidSmiles
 from rxn.chemutils.reaction_equation import ReactionEquation
 
-from rxn_reaction_preprocessing.utils import MolEquation
+from rxn.reaction_preprocessing.utils import MolEquation
 
 
 def test_mol_equation():

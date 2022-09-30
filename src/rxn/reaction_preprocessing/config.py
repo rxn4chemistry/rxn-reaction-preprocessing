@@ -11,7 +11,7 @@ from typing import Any, List, Optional
 from hydra.core.config_store import ConfigStore
 from omegaconf import MISSING, SI, OmegaConf
 
-from rxn_reaction_preprocessing.utils import (
+from rxn.reaction_preprocessing.utils import (
     RandomType,
     ReactionSection,
     standardization_files_directory,
