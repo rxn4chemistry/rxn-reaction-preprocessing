@@ -236,6 +236,13 @@ class InputOutputTuple:
 
 
 @dataclass
+class InputOutputTupleWithColumnName:
+    inp: str = MISSING
+    out: str = MISSING
+    reaction_column_name: str = SI("${tokenize.reaction_column_name}")
+
+
+@dataclass
 class TokenizeConfig:
     """Configuration for the tokenization transformation step.
 
@@ -244,17 +251,17 @@ class TokenizeConfig:
         reaction_column_name: Name of the reaction column for the data file.
     """
 
-    input_output_pairs: List[InputOutputTuple] = field(
+    input_output_pairs: List[InputOutputTupleWithColumnName] = field(
         default_factory=lambda: [
-            InputOutputTuple(
+            InputOutputTupleWithColumnName(
                 SI("${data.proc_dir}/${data.name}.processed.train.csv"),
                 SI("${data.proc_dir}/${data.name}.processed.train"),
             ),
-            InputOutputTuple(
+            InputOutputTupleWithColumnName(
                 SI("${data.proc_dir}/${data.name}.processed.validation.csv"),
                 SI("${data.proc_dir}/${data.name}.processed.validation"),
             ),
-            InputOutputTuple(
+            InputOutputTupleWithColumnName(
                 SI("${data.proc_dir}/${data.name}.processed.test.csv"),
                 SI("${data.proc_dir}/${data.name}.processed.test"),
             ),

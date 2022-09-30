@@ -32,14 +32,13 @@ def tokenize(cfg: TokenizeConfig) -> None:
 
     for pair in cfg.input_output_pairs:
         df = pd.read_csv(pair.inp, lineterminator="\n")
-
-        if cfg.reaction_column_name not in df.columns:
+        if pair.reaction_column_name not in df.columns:
             raise SystemExit(
                 f"The following file does not contain an rxn column:\n{pair.inp}"
             )
 
-        df["rxn_precursors"] = df[cfg.reaction_column_name].str.split(">>").str[0]
-        df["rxn_products"] = df[cfg.reaction_column_name].str.split(">>").str[1]
+        df["rxn_precursors"] = df[pair.reaction_column_name].str.split(">>").str[0]
+        df["rxn_products"] = df[pair.reaction_column_name].str.split(">>").str[1]
 
         df.rxn_precursors = df.rxn_precursors.apply(tokenizer.tokenize)
         df.rxn_products = df.rxn_products.apply(tokenizer.tokenize)
