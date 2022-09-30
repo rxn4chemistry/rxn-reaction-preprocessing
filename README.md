@@ -80,3 +80,53 @@ rxn-data-pipeline \
 ## Note about reading CSV files
 Pandas appears not to always be able to write a CSV and re-read it if it contains Windows carriage returns.
 In order for the scripts to work despite this, all the `pd.read_csv` function calls should include the argument `lineterminator='\n'`.
+
+## Examples
+
+### A pipeline supporting augmentation
+
+A config supporting augmentation of the training split called `train-augmentation-config.yaml`:
+```yaml
+defaults:
+  - base_config
+
+data:
+  name: pipeline-with-augmentation
+  path: /tmp/file-with-reactions.txt
+  proc_dir: /tmp/rxn-preprocessing/experiment
+common:
+  sequence:
+    # Define which steps and in which order to execute:
+    - IMPORT
+    - STANDARDIZE
+    - PREPROCESS
+    - SPLIT
+    - AUGMENT
+    - TOKENIZE
+  fragment_bond: TILDE
+rxn_import:
+  data_format: TXT
+preprocess:
+  min_products: 1
+split:
+  input_file_path: ${preprocess.output_file_path}
+  split_ratio: 0.05
+augment:
+  input_file_path: ${data.proc_dir}/${data.name}.processed.train.csv
+  output_file_path: ${data.proc_dir}/${data.name}.augmented.train.csv
+  permutations: 10
+  tokenize: false
+  random_type: rotated
+tokenize:
+  input_output_pairs:
+    - inp: ${data.proc_dir}/${data.name}.augmented.train.csv
+      out: ${data.proc_dir}/${data.name}.augmented.train
+      reaction_column_name: rxn_rotated
+    - inp: ${data.proc_dir}/${data.name}.processed.validation.csv
+      out: ${data.proc_dir}/${data.name}.processed.validation
+    - inp: ${data.proc_dir}/${data.name}.processed.test.csv
+      out: ${data.proc_dir}/${data.name}.processed.test
+```
+```bash
+rxn-data-pipeline --config-dir . --config-name train-augmentation-config
+```
