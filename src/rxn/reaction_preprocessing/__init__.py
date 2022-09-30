@@ -5,7 +5,6 @@
 from .augmenter import Augmenter, RandomType
 from .mixed_reaction_filter import MixedReactionFilter
 from .preprocessor import Preprocessor
-from .reaction import Reaction, ReactionPart
 from .smiles_tokenizer import SmilesTokenizer
 from .stable_data_splitter import StableDataSplitter
 from .standardizer import Standardizer

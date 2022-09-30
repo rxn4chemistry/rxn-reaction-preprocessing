@@ -18,7 +18,6 @@ from tabulate import tabulate
 
 from .config import PreprocessConfig
 from .mixed_reaction_filter import MixedReactionFilter
-from .reaction import Reaction, ReactionPart
 from .reaction_standardizer import ReactionStandardizer
 
 logger = logging.getLogger(__name__)
@@ -174,65 +173,6 @@ class Preprocessor:
                 ),
                 self.df[self.__valid_column],
             )
-
-        return self
-
-    def filter_smarts(
-        self,
-        pattern: str,
-        reaction_part: ReactionPart,
-        keep: bool = False,
-        verbose: bool = False,
-    ):
-        """Filter based on a SMARTS pattern. Unless keep is set to True, filters
-        out reaction where the supplied pattern was found.
-
-        Args:
-            pattern: A valid SMARTS pattern.
-            reaction_part: Which part of reaction to apply the SMARTS pattern to.
-            keep: Whether to mark non-matches as invalid. Defaults to False.
-            verbose: Whether to report the reason for why a reaction is deemed
-                invalid. Defaults to False.
-
-        Returns:
-            Itself.
-        """
-        if self.__valid_column not in self.df.columns:
-            self.df[self.__valid_column] = True
-
-        tmp = np.logical_and(
-            self.df.apply(
-                lambda row: not (
-                    (
-                        len(
-                            Reaction(
-                                row[self.__reaction_column_name],
-                                fragment_bond=self.__fragment_bond,
-                            ).find_in(pattern, reaction_part)
-                        )
-                        > 0
-                    )
-                    != keep
-                ),
-                axis=1,
-            ),
-            self.df[self.__valid_column],
-        )
-
-        self.df[self.__valid_column] = np.logical_and(tmp, self.df[self.__valid_column])
-
-        if verbose:
-            if self.__valid_message_column not in self.df.columns:
-                self.df[self.__valid_message_column] = np.empty(
-                    (len(self.df), 0)
-                ).tolist()
-
-            if keep:
-                tmp = ~tmp
-
-            self.df.loc[tmp, self.__valid_message_column] = self.df.loc[
-                tmp, self.__valid_message_column
-            ].apply(lambda c: c + ["pattern_" + pattern])
 
         return self
 

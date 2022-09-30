@@ -5,7 +5,7 @@
 import pandas as pd
 import pytest
 
-from rxn.reaction_preprocessing import MixedReactionFilter, Preprocessor, ReactionPart
+from rxn.reaction_preprocessing import MixedReactionFilter, Preprocessor
 
 
 @pytest.fixture
@@ -52,19 +52,6 @@ def test_filter_verbose(preprocessor, filter):
     assert len(preprocessor.df._rxn_valid_messages.iloc[0]) == 3
     assert len(preprocessor.df._rxn_valid_messages.iloc[1]) == 0
     assert len(preprocessor.df._rxn_valid_messages.iloc[2]) == 7
-
-
-def test_filter_smarts(preprocessor):
-    preprocessor.filter_smarts("[O--]", ReactionPart.reactants)
-    assert preprocessor.df._rxn_valid.iloc[0]
-    assert preprocessor.df._rxn_valid.iloc[1]
-    assert not preprocessor.df._rxn_valid.iloc[2]
-
-
-def test_filter_smarts_keep(preprocessor):
-    preprocessor.filter_smarts("[O--]", ReactionPart.reactants, keep=True, verbose=True)
-    assert preprocessor.df._rxn_valid_messages.iloc[0] == ["pattern_[O--]"]
-    assert preprocessor.df._rxn_valid_messages.iloc[1] == ["pattern_[O--]"]
 
 
 def test_preprocess_with_rdkit_bug_for_concatenated_smiles():
