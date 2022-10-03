@@ -22,3 +22,7 @@ jobs:
       run: python -m flake8 .
     - name: Check mypy (on the package)
       run: python -m mypy --namespace-packages -p rxn.reaction_preprocessing
+    - name: Check mypy (on the tests)
+      run: python -m mypy tests
+    - name: Run pytests
+      run: python -m pytest -sv --cov=rxn.reaction_preprocessing --cov-fail-under=50
