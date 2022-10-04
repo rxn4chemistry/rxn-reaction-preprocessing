@@ -5,6 +5,8 @@
 This repository is devoted to preprocessing chemical reactions: standardization, filtering, etc. 
 It also includes code for stable train/test/validation splits and data augmentation.
 
+The documentation can be found [here](https://rxn4chemistry.github.io/rxn-reaction-preprocessing/).
+
 ## System Requirements
 
 This package is supported on all operating systems.
