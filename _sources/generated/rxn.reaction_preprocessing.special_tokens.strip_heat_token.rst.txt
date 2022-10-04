@@ -1,0 +1,6 @@
+rxn.reaction\_preprocessing.special\_tokens.strip\_heat\_token
+==============================================================
+
+.. currentmodule:: rxn.reaction_preprocessing.special_tokens
+
+.. autofunction:: strip_heat_token

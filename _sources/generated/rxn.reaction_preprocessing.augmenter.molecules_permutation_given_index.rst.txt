@@ -1,0 +1,6 @@
+rxn.reaction\_preprocessing.augmenter.molecules\_permutation\_given\_index
+==========================================================================
+
+.. currentmodule:: rxn.reaction_preprocessing.augmenter
+
+.. autofunction:: molecules_permutation_given_index

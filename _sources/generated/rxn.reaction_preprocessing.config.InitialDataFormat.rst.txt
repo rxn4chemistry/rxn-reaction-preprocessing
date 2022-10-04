@@ -1,0 +1,27 @@
+rxn.reaction\_preprocessing.config.InitialDataFormat
+====================================================
+
+.. currentmodule:: rxn.reaction_preprocessing.config
+
+.. autoclass:: InitialDataFormat
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~InitialDataFormat.TXT
+      ~InitialDataFormat.CSV
+      ~InitialDataFormat.TSV
+   
+   

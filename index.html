@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RXN reaction preprocessing &mdash; RXN reaction preprocessing 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="RXN reaction preprocessing" href="README.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="#" class="icon icon-home"> RXN reaction preprocessing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="README.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">Python API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">RXN reaction preprocessing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
+      <li>RXN reaction preprocessing</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="rxn-reaction-preprocessing">
+<h1>RXN reaction preprocessing<a class="headerlink" href="#rxn-reaction-preprocessing" title="Permalink to this heading"></a></h1>
+<section id="contents">
+<h2>Contents<a class="headerlink" href="#contents" title="Permalink to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="README.html">README</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="README.html#system-requirements">System Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="README.html#installation-guide">Installation guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="README.html#usage">Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="README.html#rxn-data-pipeline">rxn-data-pipeline</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="README.html#note-about-reading-csv-files">Note about reading CSV files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="README.html#examples">Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="README.html#a-pipeline-supporting-augmentation">A pipeline supporting augmentation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">Python API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/rxn.reaction_preprocessing.html">rxn.reaction_preprocessing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/rxn.reaction_preprocessing.annotations.html">rxn.reaction_preprocessing.annotations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/rxn.reaction_preprocessing.augmenter.html">rxn.reaction_preprocessing.augmenter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/rxn.reaction_preprocessing.cleaner.html">rxn.reaction_preprocessing.cleaner</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/rxn.reaction_preprocessing.config.html">rxn.reaction_preprocessing.config</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/rxn.reaction_preprocessing.importer.html">rxn.reaction_preprocessing.importer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/rxn.reaction_preprocessing.main.html">rxn.reaction_preprocessing.main</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/rxn.reaction_preprocessing.mixed_reaction_filter.html">rxn.reaction_preprocessing.mixed_reaction_filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/rxn.reaction_preprocessing.molecule_standardizer.html">rxn.reaction_preprocessing.molecule_standardizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/rxn.reaction_preprocessing.pistachio_record_standardizer.html">rxn.reaction_preprocessing.pistachio_record_standardizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/rxn.reaction_preprocessing.preprocessor.html">rxn.reaction_preprocessing.preprocessor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/rxn.reaction_preprocessing.reaction_standardizer.html">rxn.reaction_preprocessing.reaction_standardizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/rxn.reaction_preprocessing.scripts.html">rxn.reaction_preprocessing.scripts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/rxn.reaction_preprocessing.smiles_tokenizer.html">rxn.reaction_preprocessing.smiles_tokenizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/rxn.reaction_preprocessing.special_tokens.html">rxn.reaction_preprocessing.special_tokens</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/rxn.reaction_preprocessing.stable_data_splitter.html">rxn.reaction_preprocessing.stable_data_splitter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/rxn.reaction_preprocessing.standardizer.html">rxn.reaction_preprocessing.standardizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/rxn.reaction_preprocessing.utils.html">rxn.reaction_preprocessing.utils</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="indices-and-tables">
+<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a>.</p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Python Module Index</span></a>.</p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search</span></a>.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="README.html" class="btn btn-neutral float-right" title="RXN reaction preprocessing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright IBM RXN team 2022.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

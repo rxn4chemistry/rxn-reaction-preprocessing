@@ -1,0 +1,6 @@
+rxn.reaction\_preprocessing.scripts.standardize\_pistachio\_records.main
+========================================================================
+
+.. currentmodule:: rxn.reaction_preprocessing.scripts.standardize_pistachio_records
+
+.. autofunction:: main

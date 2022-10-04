@@ -1,0 +1,30 @@
+rxn.reaction\_preprocessing.scripts.annotation\_check
+=====================================================
+
+.. automodule:: rxn.reaction_preprocessing.scripts.annotation_check
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      iterate_rxn_smiles
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

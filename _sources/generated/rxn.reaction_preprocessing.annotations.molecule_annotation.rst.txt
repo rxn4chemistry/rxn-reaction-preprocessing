@@ -1,0 +1,40 @@
+rxn.reaction\_preprocessing.annotations.molecule\_annotation
+============================================================
+
+.. automodule:: rxn.reaction_preprocessing.annotations.molecule_annotation
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      load_annotations
+      load_annotations_multiple
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      AnnotationDecision
+      MoleculeAnnotation
+   
+   
+
+   
+   
+   
+
+
+

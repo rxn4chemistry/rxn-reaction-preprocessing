@@ -1,0 +1,44 @@
+rxn.reaction\_preprocessing.config.PreprocessConfig
+===================================================
+
+.. currentmodule:: rxn.reaction_preprocessing.config
+
+.. autoclass:: PreprocessConfig
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PreprocessConfig.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PreprocessConfig.fragment_bond
+      ~PreprocessConfig.input_file_path
+      ~PreprocessConfig.max_absolute_formal_charge
+      ~PreprocessConfig.max_agents
+      ~PreprocessConfig.max_agents_tokens
+      ~PreprocessConfig.max_products
+      ~PreprocessConfig.max_products_tokens
+      ~PreprocessConfig.max_reactants
+      ~PreprocessConfig.max_reactants_tokens
+      ~PreprocessConfig.min_agents
+      ~PreprocessConfig.min_products
+      ~PreprocessConfig.min_reactants
+      ~PreprocessConfig.output_file_path
+      ~PreprocessConfig.reaction_column_name
+   
+   

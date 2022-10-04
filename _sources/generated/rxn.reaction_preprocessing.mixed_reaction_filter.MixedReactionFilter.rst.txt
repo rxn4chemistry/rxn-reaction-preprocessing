@@ -1,0 +1,42 @@
+rxn.reaction\_preprocessing.mixed\_reaction\_filter.MixedReactionFilter
+=======================================================================
+
+.. currentmodule:: rxn.reaction_preprocessing.mixed_reaction_filter
+
+.. autoclass:: MixedReactionFilter
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~MixedReactionFilter.__init__
+      ~MixedReactionFilter.different_atom_types
+      ~MixedReactionFilter.formal_charge_exceeded
+      ~MixedReactionFilter.invalid_atom_type
+      ~MixedReactionFilter.is_valid
+      ~MixedReactionFilter.max_agent_tokens_exceeded
+      ~MixedReactionFilter.max_agents_exceeded
+      ~MixedReactionFilter.max_product_tokens_exceeded
+      ~MixedReactionFilter.max_products_exceeded
+      ~MixedReactionFilter.max_reactant_tokens_exceeded
+      ~MixedReactionFilter.max_reactants_exceeded
+      ~MixedReactionFilter.min_agents_subceeded
+      ~MixedReactionFilter.min_products_subceeded
+      ~MixedReactionFilter.min_reactants_subceeded
+      ~MixedReactionFilter.products_single_atoms
+      ~MixedReactionFilter.products_subset_of_reactants
+      ~MixedReactionFilter.validate
+      ~MixedReactionFilter.validate_reasons
+   
+   
+
+   
+   
+   

@@ -1,0 +1,27 @@
+rxn.reaction\_preprocessing.augmenter.Augmenter
+===============================================
+
+.. currentmodule:: rxn.reaction_preprocessing.augmenter
+
+.. autoclass:: Augmenter
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Augmenter.__init__
+      ~Augmenter.augment
+      ~Augmenter.read_csv
+   
+   
+
+   
+   
+   

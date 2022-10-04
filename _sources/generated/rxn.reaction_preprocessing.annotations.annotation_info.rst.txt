@@ -1,0 +1,38 @@
+rxn.reaction\_preprocessing.annotations.annotation\_info
+========================================================
+
+.. automodule:: rxn.reaction_preprocessing.annotations.annotation_info
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      AnnotationInfo
+   
+   
+
+   
+   
+   .. rubric:: Exceptions
+
+   .. autosummary::
+      :toctree:
+   
+      MoleculeNotAnnotated
+   
+   
+
+
+

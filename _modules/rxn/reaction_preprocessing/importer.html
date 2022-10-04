@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>rxn.reaction_preprocessing.importer &mdash; RXN reaction preprocessing 0.1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> RXN reaction preprocessing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../README.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">Python API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">RXN reaction preprocessing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>rxn.reaction_preprocessing.importer</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for rxn.reaction_preprocessing.importer</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">rxn.chemutils.reaction_equation</span> <span class="kn">import</span> <span class="n">ReactionEquation</span>
+<span class="kn">from</span> <span class="nn">rxn.chemutils.reaction_smiles</span> <span class="kn">import</span> <span class="n">parse_any_reaction_smiles</span>
+<span class="kn">from</span> <span class="nn">rxn.chemutils.utils</span> <span class="kn">import</span> <span class="n">remove_atom_mapping</span>
+
+<span class="kn">from</span> <span class="nn">rxn.reaction_preprocessing.config</span> <span class="kn">import</span> <span class="n">InitialDataFormat</span><span class="p">,</span> <span class="n">RxnImportConfig</span>
+<span class="kn">from</span> <span class="nn">rxn.reaction_preprocessing.special_tokens</span> <span class="kn">import</span> <span class="n">add_heat_token</span><span class="p">,</span> <span class="n">add_light_token</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
+
+
+<div class="viewcode-block" id="RxnImportError"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.importer.RxnImportError.html#rxn.reaction_preprocessing.importer.RxnImportError">[docs]</a><span class="k">class</span> <span class="nc">RxnImportError</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exception for errors in the initial data import.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="InvalidColumn"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.importer.InvalidColumn.html#rxn.reaction_preprocessing.importer.InvalidColumn">[docs]</a><span class="k">class</span> <span class="nc">InvalidColumn</span><span class="p">(</span><span class="n">RxnImportError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exception when a required column does not exist.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No column named &quot;</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s1">&quot; in the file &quot;</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s1">&quot;.&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="InvalidType"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.importer.InvalidType.html#rxn.reaction_preprocessing.importer.InvalidType">[docs]</a><span class="k">class</span> <span class="nc">InvalidType</span><span class="p">(</span><span class="n">RxnImportError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exception when a column contains data of the incorrect type.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">expected_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">actual_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;The column &quot;</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s1">&quot; is expected to contain &#39;</span>
+            <span class="sa">f</span><span class="s2">&quot;values of type </span><span class="si">{</span><span class="n">expected_type</span><span class="si">}</span><span class="s2"> (actual: </span><span class="si">{</span><span class="n">actual_type</span><span class="si">}</span><span class="s2">).&quot;</span>
+        <span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_final_column_name_for_original</span><span class="p">(</span><span class="n">cfg</span><span class="p">:</span> <span class="n">RxnImportConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Name of the column where the original data will end up.&quot;&quot;&quot;</span>
+
+    <span class="c1"># For txt: always with &quot;_original&quot; postfix</span>
+    <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">data_format</span> <span class="ow">is</span> <span class="n">InitialDataFormat</span><span class="o">.</span><span class="n">TXT</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">reaction_column_name</span><span class="si">}</span><span class="s2">_original&quot;</span>
+
+    <span class="c1"># For csv: only add &quot;_original&quot; postfix if the input and output columns are identical</span>
+    <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">input_csv_column_name</span> <span class="o">==</span> <span class="n">cfg</span><span class="o">.</span><span class="n">reaction_column_name</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">reaction_column_name</span><span class="si">}</span><span class="s2">_original&quot;</span>
+
+    <span class="k">return</span> <span class="n">cfg</span><span class="o">.</span><span class="n">input_csv_column_name</span>
+
+
+<span class="k">def</span> <span class="nf">_load_from_txt</span><span class="p">(</span><span class="n">cfg</span><span class="p">:</span> <span class="n">RxnImportConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="n">column_original</span> <span class="o">=</span> <span class="n">_final_column_name_for_original</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">input_file</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="n">column_original</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">df</span>
+
+
+<span class="k">def</span> <span class="nf">_load_from_csv</span><span class="p">(</span><span class="n">cfg</span><span class="p">:</span> <span class="n">RxnImportConfig</span><span class="p">,</span> <span class="n">separator</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">input_file</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">separator</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">input_csv_column_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">InvalidColumn</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">input_csv_column_name</span><span class="p">,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">input_file</span><span class="p">)</span>
+
+    <span class="c1"># if the name of the import column and of the output column collide: rename it.</span>
+    <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">input_csv_column_name</span> <span class="o">==</span> <span class="n">cfg</span><span class="o">.</span><span class="n">reaction_column_name</span><span class="p">:</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">input_csv_column_name</span><span class="p">:</span> <span class="n">_final_column_name_for_original</span><span class="p">(</span><span class="n">cfg</span><span class="p">)},</span>
+            <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span>
+
+
+<span class="k">def</span> <span class="nf">_load_initial</span><span class="p">(</span><span class="n">cfg</span><span class="p">:</span> <span class="n">RxnImportConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load the initial dataframe.</span>
+
+<span class="sd">    This functions (and the ones it calls) make sure to rename the column</span>
+<span class="sd">    containing the data if it would be overwritten when transforming. The</span>
+<span class="sd">    column with the data ends up with the name `_final_column_name_for_original`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">data_format</span> <span class="ow">is</span> <span class="n">InitialDataFormat</span><span class="o">.</span><span class="n">TXT</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_load_from_txt</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">data_format</span> <span class="ow">is</span> <span class="n">InitialDataFormat</span><span class="o">.</span><span class="n">CSV</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_load_from_csv</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">data_format</span> <span class="ow">is</span> <span class="n">InitialDataFormat</span><span class="o">.</span><span class="n">TSV</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_load_from_csv</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported data type: </span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">data_format</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="reformat_smiles"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.importer.reformat_smiles.html#rxn.reaction_preprocessing.importer.reformat_smiles">[docs]</a><span class="k">def</span> <span class="nf">reformat_smiles</span><span class="p">(</span>
+    <span class="n">reaction_smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fragment_bond</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Import a reaction SMILES in any format and convert it to an &quot;IBM&quot; RXN</span>
+<span class="sd">    SMILES with the specified fragment bond.</span>
+
+<span class="sd">    `None` is returned if the reaction SMILES is not valid.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">reaction</span> <span class="o">=</span> <span class="n">parse_any_reaction_smiles</span><span class="p">(</span><span class="n">reaction_smiles</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">reaction</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">fragment_bond</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid reaction: </span><span class="si">{</span><span class="n">reaction_smiles</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<span class="k">def</span> <span class="nf">_add_token</span><span class="p">(</span>
+    <span class="n">row</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+    <span class="n">add_special_token_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">ReactionEquation</span><span class="p">],</span> <span class="n">ReactionEquation</span><span class="p">],</span>
+    <span class="n">column_to_check</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">cfg</span><span class="p">:</span> <span class="n">RxnImportConfig</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Function to use in pandas.apply to update the reaction SMILES.&quot;&quot;&quot;</span>
+
+    <span class="n">reaction_smiles</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="n">cfg</span><span class="o">.</span><span class="n">reaction_column_name</span><span class="p">]</span>
+    <span class="n">special_flag_active</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="n">column_to_check</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">special_flag_active</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">InvalidType</span><span class="p">(</span>
+            <span class="n">column_name</span><span class="o">=</span><span class="n">column_to_check</span><span class="p">,</span>
+            <span class="n">expected_type</span><span class="o">=</span><span class="s2">&quot;bool&quot;</span><span class="p">,</span>
+            <span class="n">actual_type</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">special_flag_active</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">special_flag_active</span><span class="p">:</span>
+        <span class="c1"># do nothing if the reaction is not run under light / heat / etc.</span>
+        <span class="k">return</span> <span class="n">reaction_smiles</span>
+
+    <span class="n">reaction</span> <span class="o">=</span> <span class="n">parse_any_reaction_smiles</span><span class="p">(</span><span class="n">reaction_smiles</span><span class="p">)</span>
+    <span class="n">reaction</span> <span class="o">=</span> <span class="n">add_special_token_fn</span><span class="p">(</span><span class="n">reaction</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">reaction</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">fragment_bond</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_maybe_add_special_token</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">cfg</span><span class="p">:</span> <span class="n">RxnImportConfig</span><span class="p">,</span>
+    <span class="n">add_special_token_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">ReactionEquation</span><span class="p">],</span> <span class="n">ReactionEquation</span><span class="p">],</span>
+    <span class="n">special_token_column</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Common function for adding light or heat tokens.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df: DataFrame where to update the reaction SMILES.</span>
+<span class="sd">        cfg: config.</span>
+<span class="sd">        add_special_token_fn: function to call on a ReactionEquation to add the required token.</span>
+<span class="sd">        special_token_column: column to look at in order to know when to add the special tokens.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Do nothing if no column was specified for the special token</span>
+    <span class="k">if</span> <span class="n">special_token_column</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="n">special_token_column</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">InvalidColumn</span><span class="p">(</span><span class="n">special_token_column</span><span class="p">,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">input_file</span><span class="p">)</span>
+
+    <span class="c1"># &quot;partial&quot; in order to make the function compatible with pandas.apply().</span>
+    <span class="n">fn</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span>
+        <span class="n">_add_token</span><span class="p">,</span>
+        <span class="n">add_special_token_fn</span><span class="o">=</span><span class="n">add_special_token_fn</span><span class="p">,</span>
+        <span class="n">column_to_check</span><span class="o">=</span><span class="n">special_token_column</span><span class="p">,</span>
+        <span class="n">cfg</span><span class="o">=</span><span class="n">cfg</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="n">cfg</span><span class="o">.</span><span class="n">reaction_column_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_maybe_add_heat_token</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">RxnImportConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Add the heat token to the precursors of the reaction SMILES when necessary.&quot;&quot;&quot;</span>
+
+    <span class="n">_maybe_add_special_token</span><span class="p">(</span>
+        <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+        <span class="n">cfg</span><span class="o">=</span><span class="n">cfg</span><span class="p">,</span>
+        <span class="n">add_special_token_fn</span><span class="o">=</span><span class="n">add_heat_token</span><span class="p">,</span>
+        <span class="n">special_token_column</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">column_for_heat</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_maybe_add_light_token</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">RxnImportConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Add the light token to the precursors of the reaction SMILES when necessary.&quot;&quot;&quot;</span>
+
+    <span class="n">_maybe_add_special_token</span><span class="p">(</span>
+        <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+        <span class="n">cfg</span><span class="o">=</span><span class="n">cfg</span><span class="p">,</span>
+        <span class="n">add_special_token_fn</span><span class="o">=</span><span class="n">add_light_token</span><span class="p">,</span>
+        <span class="n">special_token_column</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">column_for_light</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_maybe_remove_atom_mapping</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">RxnImportConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Remove the atom mapping if required by the config.</span>
+
+<span class="sd">    NB: This will not clean up the SMILES, i.e. &quot;[CH3:1][CH3:2]&quot; is converted</span>
+<span class="sd">    to &quot;[CH3][CH3]&quot; and not to &quot;CC&quot;. The standardization step will do that.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">cfg</span><span class="o">.</span><span class="n">remove_atom_mapping</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="n">df</span><span class="p">[</span><span class="n">cfg</span><span class="o">.</span><span class="n">reaction_column_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">cfg</span><span class="o">.</span><span class="n">reaction_column_name</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+        <span class="n">remove_atom_mapping</span>
+    <span class="p">)</span>
+
+
+<div class="viewcode-block" id="rxn_import"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.importer.rxn_import.html#rxn.reaction_preprocessing.importer.rxn_import">[docs]</a><span class="k">def</span> <span class="nf">rxn_import</span><span class="p">(</span><span class="n">cfg</span><span class="p">:</span> <span class="n">RxnImportConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Initial import of reaction data, as a first step of the reaction preprocessing.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">_load_initial</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
+
+    <span class="c1"># Reformat the reaction SMILES</span>
+    <span class="n">fn</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">reformat_smiles</span><span class="p">,</span> <span class="n">fragment_bond</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">fragment_bond</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="n">cfg</span><span class="o">.</span><span class="n">reaction_column_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">_final_column_name_for_original</span><span class="p">(</span><span class="n">cfg</span><span class="p">)]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+
+    <span class="c1"># Discard lines containing None (for unsuccessful reaction SMILES import)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+
+    <span class="c1"># Add special tokens when necessary</span>
+    <span class="n">_maybe_add_light_token</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
+    <span class="n">_maybe_add_heat_token</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
+
+    <span class="c1"># Remove atom mapping if necessary</span>
+    <span class="n">_maybe_remove_atom_mapping</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
+
+    <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">output_csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright IBM RXN team 2022.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

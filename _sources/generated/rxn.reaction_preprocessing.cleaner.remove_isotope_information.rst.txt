@@ -1,0 +1,6 @@
+rxn.reaction\_preprocessing.cleaner.remove\_isotope\_information
+================================================================
+
+.. currentmodule:: rxn.reaction_preprocessing.cleaner
+
+.. autofunction:: remove_isotope_information

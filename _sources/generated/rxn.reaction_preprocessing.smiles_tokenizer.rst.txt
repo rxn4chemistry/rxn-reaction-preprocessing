@@ -1,0 +1,38 @@
+rxn.reaction\_preprocessing.smiles\_tokenizer
+=============================================
+
+.. automodule:: rxn.reaction_preprocessing.smiles_tokenizer
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      tokenize
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      SmilesTokenizer
+   
+   
+
+   
+   
+   
+
+
+

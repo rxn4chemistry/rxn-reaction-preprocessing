@@ -1,0 +1,6 @@
+rxn.reaction\_preprocessing.mixed\_reaction\_filter.ReactionFilterError
+=======================================================================
+
+.. currentmodule:: rxn.reaction_preprocessing.mixed_reaction_filter
+
+.. autoexception:: ReactionFilterError

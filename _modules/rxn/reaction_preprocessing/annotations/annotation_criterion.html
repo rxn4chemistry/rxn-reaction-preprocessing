@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>rxn.reaction_preprocessing.annotations.annotation_criterion &mdash; RXN reaction preprocessing 0.1 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> RXN reaction preprocessing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../README.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api.html">Python API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">RXN reaction preprocessing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+      <li>rxn.reaction_preprocessing.annotations.annotation_criterion</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for rxn.reaction_preprocessing.annotations.annotation_criterion</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Set</span>
+
+<span class="kn">from</span> <span class="nn">rdkit.Chem</span> <span class="kn">import</span> <span class="n">GetPeriodicTable</span>
+<span class="kn">from</span> <span class="nn">rxn.chemutils.miscellaneous</span> <span class="kn">import</span> <span class="n">atom_type_counter</span>
+
+
+<div class="viewcode-block" id="AnnotationCriterion"><a class="viewcode-back" href="../../../../generated/rxn.reaction_preprocessing.annotations.annotation_criterion.AnnotationCriterion.html#rxn.reaction_preprocessing.annotations.annotation_criterion.AnnotationCriterion">[docs]</a><span class="k">class</span> <span class="nc">AnnotationCriterion</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determine what molecules need an annotation, independently of the molecules</span>
+<span class="sd">    that have been annotated so far.</span>
+
+<span class="sd">    To do so, this class relies on whether the molecules contain (extended)</span>
+<span class="sd">    transition metals or not.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="AnnotationCriterion.__init__"><a class="viewcode-back" href="../../../../generated/rxn.reaction_preprocessing.annotations.annotation_criterion.AnnotationCriterion.html#rxn.reaction_preprocessing.annotations.annotation_criterion.AnnotationCriterion.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">additional_elements_to_consider</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">elements_not_to_consider</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            additional_elements_to_consider: elements for which to require an</span>
+<span class="sd">                annotation, in addition to the extended transition metals.</span>
+<span class="sd">            elements_not_to_consider: elements for which not to require an</span>
+<span class="sd">                annotation, even if they are extended transition metals.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements_requiring_annotation</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
+            <span class="n">AnnotationCriterion</span><span class="o">.</span><span class="n">extended_transition_metals</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">additional_elements_to_consider</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">elements_requiring_annotation</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">additional_elements_to_consider</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">elements_not_to_consider</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">elements_requiring_annotation</span><span class="o">.</span><span class="n">difference_update</span><span class="p">(</span>
+                <span class="n">elements_not_to_consider</span>
+            <span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Function making the object callable, falling back to &quot;requires_annotation&quot;.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            smiles: molecule SMILES. Use dots for fragment bonds!</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">requires_annotation</span><span class="p">(</span><span class="n">smiles</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AnnotationCriterion.requires_annotation"><a class="viewcode-back" href="../../../../generated/rxn.reaction_preprocessing.annotations.annotation_criterion.AnnotationCriterion.html#rxn.reaction_preprocessing.annotations.annotation_criterion.AnnotationCriterion.requires_annotation">[docs]</a>    <span class="k">def</span> <span class="nf">requires_annotation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Whether a given SMILES string requires an annotation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            smiles: molecule SMILES. Use dots for fragment bonds!</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span>
+            <span class="n">AnnotationCriterion</span><span class="o">.</span><span class="n">elements_in_smiles</span><span class="p">(</span><span class="n">smiles</span><span class="p">)</span>
+            <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements_requiring_annotation</span>
+        <span class="p">)</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">elements_in_smiles</span><span class="p">(</span><span class="n">smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">atom_type_counter</span><span class="p">(</span><span class="n">smiles</span><span class="p">)</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+<div class="viewcode-block" id="AnnotationCriterion.extended_transition_metals"><a class="viewcode-back" href="../../../../generated/rxn.reaction_preprocessing.annotations.annotation_criterion.AnnotationCriterion.html#rxn.reaction_preprocessing.annotations.annotation_criterion.AnnotationCriterion.extended_transition_metals">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">extended_transition_metals</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Atomic symbols for the extended transition metals.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">periodic_table</span> <span class="o">=</span> <span class="n">GetPeriodicTable</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">periodic_table</span><span class="o">.</span><span class="n">GetElementSymbol</span><span class="p">(</span><span class="n">atomic_number</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">atomic_number</span> <span class="ow">in</span> <span class="n">AnnotationCriterion</span><span class="o">.</span><span class="n">extended_transition_metal_numbers</span><span class="p">()</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="AnnotationCriterion.extended_transition_metal_numbers"><a class="viewcode-back" href="../../../../generated/rxn.reaction_preprocessing.annotations.annotation_criterion.AnnotationCriterion.html#rxn.reaction_preprocessing.annotations.annotation_criterion.AnnotationCriterion.extended_transition_metal_numbers">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">extended_transition_metal_numbers</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Atomic numbers for the extended transition metals.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">yield from</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span>
+            <span class="c1"># Al</span>
+            <span class="p">(</span><span class="mi">13</span><span class="p">,),</span>
+            <span class="c1"># first-row transition metals + Ga</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">21</span><span class="p">,</span> <span class="mi">32</span><span class="p">),</span>
+            <span class="c1"># second-row transition metals + In</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">39</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span>
+            <span class="c1"># lanthanides + third-row transition metals + Tl + Pb + Bi + Po</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">57</span><span class="p">,</span> <span class="mi">85</span><span class="p">),</span>
+            <span class="c1"># actinides + fourth-row transition metals</span>
+            <span class="nb">range</span><span class="p">(</span><span class="mi">89</span><span class="p">,</span> <span class="mi">113</span><span class="p">),</span>
+        <span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright IBM RXN team 2022.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

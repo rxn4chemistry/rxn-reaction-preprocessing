@@ -1,0 +1,6 @@
+rxn.reaction\_preprocessing.importer.rxn\_import
+================================================
+
+.. currentmodule:: rxn.reaction_preprocessing.importer
+
+.. autofunction:: rxn_import

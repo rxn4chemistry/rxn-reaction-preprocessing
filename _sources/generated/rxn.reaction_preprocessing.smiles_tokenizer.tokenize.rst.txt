@@ -1,0 +1,6 @@
+rxn.reaction\_preprocessing.smiles\_tokenizer.tokenize
+======================================================
+
+.. currentmodule:: rxn.reaction_preprocessing.smiles_tokenizer
+
+.. autofunction:: tokenize

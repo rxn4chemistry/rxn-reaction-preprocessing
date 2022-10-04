@@ -1,0 +1,6 @@
+rxn.reaction\_preprocessing.importer.InvalidColumn
+==================================================
+
+.. currentmodule:: rxn.reaction_preprocessing.importer
+
+.. autoexception:: InvalidColumn

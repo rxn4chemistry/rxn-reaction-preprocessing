@@ -1,0 +1,6 @@
+rxn.reaction\_preprocessing.main.data\_pipeline
+===============================================
+
+.. currentmodule:: rxn.reaction_preprocessing.main
+
+.. autofunction:: data_pipeline

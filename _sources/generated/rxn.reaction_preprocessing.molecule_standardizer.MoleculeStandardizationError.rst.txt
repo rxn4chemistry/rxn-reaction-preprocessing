@@ -1,0 +1,6 @@
+rxn.reaction\_preprocessing.molecule\_standardizer.MoleculeStandardizationError
+===============================================================================
+
+.. currentmodule:: rxn.reaction_preprocessing.molecule_standardizer
+
+.. autoexception:: MoleculeStandardizationError

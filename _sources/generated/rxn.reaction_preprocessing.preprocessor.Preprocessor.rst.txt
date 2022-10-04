@@ -1,0 +1,31 @@
+rxn.reaction\_preprocessing.preprocessor.Preprocessor
+=====================================================
+
+.. currentmodule:: rxn.reaction_preprocessing.preprocessor
+
+.. autoclass:: Preprocessor
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Preprocessor.__init__
+      ~Preprocessor.filter
+      ~Preprocessor.print_stats
+      ~Preprocessor.reaction_standardization
+      ~Preprocessor.read_csv
+      ~Preprocessor.remove_duplicates
+      ~Preprocessor.remove_invalids
+   
+   
+
+   
+   
+   

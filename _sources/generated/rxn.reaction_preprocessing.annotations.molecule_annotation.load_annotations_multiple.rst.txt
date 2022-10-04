@@ -1,0 +1,6 @@
+rxn.reaction\_preprocessing.annotations.molecule\_annotation.load\_annotations\_multiple
+========================================================================================
+
+.. currentmodule:: rxn.reaction_preprocessing.annotations.molecule_annotation
+
+.. autofunction:: load_annotations_multiple

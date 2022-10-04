@@ -1,0 +1,6 @@
+rxn.reaction\_preprocessing.utils.overwrite\_logging\_format
+============================================================
+
+.. currentmodule:: rxn.reaction_preprocessing.utils
+
+.. autofunction:: overwrite_logging_format

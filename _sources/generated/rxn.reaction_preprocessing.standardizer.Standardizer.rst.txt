@@ -1,0 +1,28 @@
+rxn.reaction\_preprocessing.standardizer.Standardizer
+=====================================================
+
+.. currentmodule:: rxn.reaction_preprocessing.standardizer
+
+.. autoclass:: Standardizer
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Standardizer.__init__
+      ~Standardizer.process_row
+      ~Standardizer.read_csv
+      ~Standardizer.standardize
+   
+   
+
+   
+   
+   

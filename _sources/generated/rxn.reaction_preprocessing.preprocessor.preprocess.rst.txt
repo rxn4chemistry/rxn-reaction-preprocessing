@@ -1,0 +1,6 @@
+rxn.reaction\_preprocessing.preprocessor.preprocess
+===================================================
+
+.. currentmodule:: rxn.reaction_preprocessing.preprocessor
+
+.. autofunction:: preprocess

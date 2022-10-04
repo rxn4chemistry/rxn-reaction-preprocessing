@@ -1,0 +1,6 @@
+rxn.reaction\_preprocessing.utils.data\_directory
+=================================================
+
+.. currentmodule:: rxn.reaction_preprocessing.utils
+
+.. autofunction:: data_directory

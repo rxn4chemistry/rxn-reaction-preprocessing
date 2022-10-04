@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>rxn.reaction_preprocessing.preprocessor.Preprocessor &mdash; RXN reaction preprocessing 0.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="rxn.reaction_preprocessing.reaction_standardizer" href="rxn.reaction_preprocessing.reaction_standardizer.html" />
+    <link rel="prev" title="rxn.reaction_preprocessing.preprocessor.preprocess" href="rxn.reaction_preprocessing.preprocessor.preprocess.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> RXN reaction preprocessing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../README.html">README</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">Python API</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="rxn.reaction_preprocessing.html">rxn.reaction_preprocessing</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="rxn.reaction_preprocessing.annotations.html">rxn.reaction_preprocessing.annotations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rxn.reaction_preprocessing.augmenter.html">rxn.reaction_preprocessing.augmenter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rxn.reaction_preprocessing.cleaner.html">rxn.reaction_preprocessing.cleaner</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rxn.reaction_preprocessing.config.html">rxn.reaction_preprocessing.config</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rxn.reaction_preprocessing.importer.html">rxn.reaction_preprocessing.importer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rxn.reaction_preprocessing.main.html">rxn.reaction_preprocessing.main</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rxn.reaction_preprocessing.mixed_reaction_filter.html">rxn.reaction_preprocessing.mixed_reaction_filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rxn.reaction_preprocessing.molecule_standardizer.html">rxn.reaction_preprocessing.molecule_standardizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rxn.reaction_preprocessing.pistachio_record_standardizer.html">rxn.reaction_preprocessing.pistachio_record_standardizer</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="rxn.reaction_preprocessing.preprocessor.html">rxn.reaction_preprocessing.preprocessor</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="rxn.reaction_preprocessing.preprocessor.preprocess.html">rxn.reaction_preprocessing.preprocessor.preprocess</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">rxn.reaction_preprocessing.preprocessor.Preprocessor</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="rxn.reaction_preprocessing.reaction_standardizer.html">rxn.reaction_preprocessing.reaction_standardizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rxn.reaction_preprocessing.scripts.html">rxn.reaction_preprocessing.scripts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rxn.reaction_preprocessing.smiles_tokenizer.html">rxn.reaction_preprocessing.smiles_tokenizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rxn.reaction_preprocessing.special_tokens.html">rxn.reaction_preprocessing.special_tokens</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rxn.reaction_preprocessing.stable_data_splitter.html">rxn.reaction_preprocessing.stable_data_splitter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rxn.reaction_preprocessing.standardizer.html">rxn.reaction_preprocessing.standardizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rxn.reaction_preprocessing.utils.html">rxn.reaction_preprocessing.utils</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">RXN reaction preprocessing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../api.html">API</a> &raquo;</li>
+          <li><a href="rxn.reaction_preprocessing.html">rxn.reaction_preprocessing</a> &raquo;</li>
+          <li><a href="rxn.reaction_preprocessing.preprocessor.html">rxn.reaction_preprocessing.preprocessor</a> &raquo;</li>
+      <li>rxn.reaction_preprocessing.preprocessor.Preprocessor</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/generated/rxn.reaction_preprocessing.preprocessor.Preprocessor.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="rxn-reaction-preprocessing-preprocessor-preprocessor">
+<h1>rxn.reaction_preprocessing.preprocessor.Preprocessor<a class="headerlink" href="#rxn-reaction-preprocessing-preprocessor-preprocessor" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="rxn.reaction_preprocessing.preprocessor.Preprocessor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rxn.reaction_preprocessing.preprocessor.</span></span><span class="sig-name descname"><span class="pre">Preprocessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reaction_column_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valid_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'_rxn_valid'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valid_message_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'_rxn_valid_messages'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fragment_bond</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rxn/reaction_preprocessing/preprocessor.html#Preprocessor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rxn.reaction_preprocessing.preprocessor.Preprocessor" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – </p></li>
+<li><p><strong>reaction_column_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – </p></li>
+<li><p><strong>valid_column</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, default: <code class="docutils literal notranslate"><span class="pre">'_rxn_valid'</span></code>) – </p></li>
+<li><p><strong>valid_message_column</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, default: <code class="docutils literal notranslate"><span class="pre">'_rxn_valid_messages'</span></code>) – </p></li>
+<li><p><strong>fragment_bond</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, default: <code class="docutils literal notranslate"><span class="pre">'.'</span></code>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="rxn.reaction_preprocessing.preprocessor.Preprocessor.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reaction_column_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valid_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'_rxn_valid'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valid_message_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'_rxn_valid_messages'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fragment_bond</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rxn/reaction_preprocessing/preprocessor.html#Preprocessor.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rxn.reaction_preprocessing.preprocessor.Preprocessor.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Creates a new instance of the Preprocessor class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – A pandas DataFrame containing the reaction SMARTS.</p></li>
+<li><p><strong>reaction_column_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The name of the DataFrame column containing the reaction SMARTS.</p></li>
+<li><p><strong>valid_column</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, default: <code class="docutils literal notranslate"><span class="pre">'_rxn_valid'</span></code>) – The name of the column to write the validation results to
+(will be created if it doesn’t exist). Defaults to “_rxn_valid”.</p></li>
+<li><p><strong>valid_message_column</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, default: <code class="docutils literal notranslate"><span class="pre">'_rxn_valid_messages'</span></code>) – The name of the column to write the validation
+messages to in verbose mode (will be created if it doesn’t
+exist). Defaults to “_rxn_valid_messages”.</p></li>
+<li><p><strong>fragment_bond</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, default: <code class="docutils literal notranslate"><span class="pre">'.'</span></code>) – The token that represents fragment bonds in the reaction SMILES.</p></li>
+<li><p><strong>clean_data</strong> – Whether to run a simple pre-cleaning of the input data
+(naive check for valid SMARTS reactions based on the number of
+greater-thans in the string). Defaults to True.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rxn.reaction_preprocessing.preprocessor.Preprocessor.__init__" title="rxn.reaction_preprocessing.preprocessor.Preprocessor.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(df, reaction_column_name[, ...])</p></td>
+<td><p>Creates a new instance of the Preprocessor class.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#rxn.reaction_preprocessing.preprocessor.Preprocessor.filter" title="rxn.reaction_preprocessing.preprocessor.Preprocessor.filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter</span></code></a>(filter[, verbose, filter_func, ...])</p></td>
+<td><p>Applies filter functions to the reaction.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rxn.reaction_preprocessing.preprocessor.Preprocessor.print_stats" title="rxn.reaction_preprocessing.preprocessor.Preprocessor.print_stats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_stats</span></code></a>()</p></td>
+<td><p>Prints statistics of the filtration to stdout.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#rxn.reaction_preprocessing.preprocessor.Preprocessor.reaction_standardization" title="rxn.reaction_preprocessing.preprocessor.Preprocessor.reaction_standardization"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reaction_standardization</span></code></a>()</p></td>
+<td><p>Reaction standardization, including merging of reactants and reactants, removal of duplicates, sorting, etc.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rxn.reaction_preprocessing.preprocessor.Preprocessor.read_csv" title="rxn.reaction_preprocessing.preprocessor.Preprocessor.read_csv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_csv</span></code></a>(filepath, reaction_column_name[, ...])</p></td>
+<td><p>A helper function to read a list or csv of reactions.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#rxn.reaction_preprocessing.preprocessor.Preprocessor.remove_duplicates" title="rxn.reaction_preprocessing.preprocessor.Preprocessor.remove_duplicates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_duplicates</span></code></a>()</p></td>
+<td><p>A wrapper around pandas' drop_duplicates with the argument subset set to the reaction column name.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rxn.reaction_preprocessing.preprocessor.Preprocessor.remove_invalids" title="rxn.reaction_preprocessing.preprocessor.Preprocessor.remove_invalids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_invalids</span></code></a>()</p></td>
+<td><p>A wrapper around removing invalid options from pandas DataFrame.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="rxn.reaction_preprocessing.preprocessor.Preprocessor.filter">
+<span class="sig-name descname"><span class="pre">filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_func_verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rxn/reaction_preprocessing/preprocessor.html#Preprocessor.filter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rxn.reaction_preprocessing.preprocessor.Preprocessor.filter" title="Permalink to this definition"></a></dt>
+<dd><p>Applies filter functions to the reaction. Alternatives for the default filter functions
+can be supplied. The default filters remove reactions containing molecules that could not
+be parse by rdkit’s MolFromSmiles.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filter</strong> (<a class="reference internal" href="rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.html#rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter" title="rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter"><code class="xref py py-class docutils literal notranslate"><span class="pre">MixedReactionFilter</span></code></a>) – An instance of MixedReactionFilter to be applied to each reaction.</p></li>
+<li><p><strong>verbose</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, default: <code class="docutils literal notranslate"><span class="pre">False</span></code>) – Whether or not to report the reasons for a reaction being
+deemed invalid. Defaults to False.</p></li>
+<li><p><strong>filter_func</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <a class="reference internal" href="rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.html#rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter" title="rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter"><code class="xref py py-class docutils literal notranslate"><span class="pre">MixedReactionFilter</span></code></a>], <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>]], default: <code class="docutils literal notranslate"><span class="pre">None</span></code>) – A custom filter function. Defaults to None.</p></li>
+<li><p><strong>filter_func_verbose</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <a class="reference internal" href="rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.html#rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter" title="rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter"><code class="xref py py-class docutils literal notranslate"><span class="pre">MixedReactionFilter</span></code></a>], <code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]], default: <code class="docutils literal notranslate"><span class="pre">None</span></code>) – A custom verbose filter function. Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Itself.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rxn.reaction_preprocessing.preprocessor.Preprocessor.print_stats">
+<span class="sig-name descname"><span class="pre">print_stats</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rxn/reaction_preprocessing/preprocessor.html#Preprocessor.print_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rxn.reaction_preprocessing.preprocessor.Preprocessor.print_stats" title="Permalink to this definition"></a></dt>
+<dd><p>Prints statistics of the filtration to stdout.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Itself.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rxn.reaction_preprocessing.preprocessor.Preprocessor.reaction_standardization">
+<span class="sig-name descname"><span class="pre">reaction_standardization</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rxn/reaction_preprocessing/preprocessor.html#Preprocessor.reaction_standardization"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rxn.reaction_preprocessing.preprocessor.Preprocessor.reaction_standardization" title="Permalink to this definition"></a></dt>
+<dd><p>Reaction standardization, including merging of reactants and reactants,
+removal of duplicates, sorting, etc.</p>
+<p>Note that this standardization relies on the molecules in the reaction
+SMILES to be canonical - which is the case when this function is
+called as part of the full data processing pipeline.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rxn.reaction_preprocessing.preprocessor.Preprocessor.read_csv">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reaction_column_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fragment_bond</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rxn/reaction_preprocessing/preprocessor.html#Preprocessor.read_csv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rxn.reaction_preprocessing.preprocessor.Preprocessor.read_csv" title="Permalink to this definition"></a></dt>
+<dd><p>A helper function to read a list or csv of reactions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filepath</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The path to the text file containing the reactions.</p></li>
+<li><p><strong>reaction_column_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The name of the reaction column (or the name that
+wil be given to the reaction column if the input file has no headers).</p></li>
+<li><p><strong>fragment_bond</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, default: <code class="docutils literal notranslate"><span class="pre">'.'</span></code>) – The token that represents fragment bonds in the raction SMILES.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A new preprocessor instance.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#rxn.reaction_preprocessing.preprocessor.Preprocessor" title="rxn.reaction_preprocessing.preprocessor.Preprocessor">Preprocessor</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rxn.reaction_preprocessing.preprocessor.Preprocessor.remove_duplicates">
+<span class="sig-name descname"><span class="pre">remove_duplicates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rxn/reaction_preprocessing/preprocessor.html#Preprocessor.remove_duplicates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rxn.reaction_preprocessing.preprocessor.Preprocessor.remove_duplicates" title="Permalink to this definition"></a></dt>
+<dd><p>A wrapper around pandas’ drop_duplicates with the argument subset
+set to the reaction column name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Itself.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rxn.reaction_preprocessing.preprocessor.Preprocessor.remove_invalids">
+<span class="sig-name descname"><span class="pre">remove_invalids</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rxn/reaction_preprocessing/preprocessor.html#Preprocessor.remove_invalids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rxn.reaction_preprocessing.preprocessor.Preprocessor.remove_invalids" title="Permalink to this definition"></a></dt>
+<dd><p>A wrapper around removing invalid options from pandas DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Itself.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="rxn.reaction_preprocessing.preprocessor.preprocess.html" class="btn btn-neutral float-left" title="rxn.reaction_preprocessing.preprocessor.preprocess" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="rxn.reaction_preprocessing.reaction_standardizer.html" class="btn btn-neutral float-right" title="rxn.reaction_preprocessing.reaction_standardizer" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright IBM RXN team 2022.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,37 @@
+rxn.reaction\_preprocessing.annotations
+=======================================
+
+.. automodule:: rxn.reaction_preprocessing.annotations
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   rxn.reaction_preprocessing.annotations.annotation_criterion
+   rxn.reaction_preprocessing.annotations.annotation_info
+   rxn.reaction_preprocessing.annotations.missing_annotation_detector
+   rxn.reaction_preprocessing.annotations.molecule_annotation
+   rxn.reaction_preprocessing.annotations.molecule_replacer
+   rxn.reaction_preprocessing.annotations.rejected_molecules_filter
+

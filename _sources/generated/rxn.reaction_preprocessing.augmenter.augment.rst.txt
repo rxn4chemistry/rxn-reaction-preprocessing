@@ -1,0 +1,6 @@
+rxn.reaction\_preprocessing.augmenter.augment
+=============================================
+
+.. currentmodule:: rxn.reaction_preprocessing.augmenter
+
+.. autofunction:: augment

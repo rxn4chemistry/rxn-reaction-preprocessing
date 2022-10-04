@@ -1,0 +1,26 @@
+rxn.reaction\_preprocessing.pistachio\_record\_standardizer.PistachioRecordStandardizer
+=======================================================================================
+
+.. currentmodule:: rxn.reaction_preprocessing.pistachio_record_standardizer
+
+.. autoclass:: PistachioRecordStandardizer
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PistachioRecordStandardizer.__init__
+      ~PistachioRecordStandardizer.standardize
+   
+   
+
+   
+   
+   

@@ -1,0 +1,6 @@
+rxn.reaction\_preprocessing.special\_tokens.contains\_heat\_token
+=================================================================
+
+.. currentmodule:: rxn.reaction_preprocessing.special_tokens
+
+.. autofunction:: contains_heat_token

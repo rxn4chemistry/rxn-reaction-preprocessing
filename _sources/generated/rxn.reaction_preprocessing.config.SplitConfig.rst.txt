@@ -1,0 +1,37 @@
+rxn.reaction\_preprocessing.config.SplitConfig
+==============================================
+
+.. currentmodule:: rxn.reaction_preprocessing.config
+
+.. autoclass:: SplitConfig
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SplitConfig.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SplitConfig.hash_seed
+      ~SplitConfig.index_column
+      ~SplitConfig.input_file_path
+      ~SplitConfig.output_directory
+      ~SplitConfig.reaction_column_name
+      ~SplitConfig.shuffle_seed
+      ~SplitConfig.split_ratio
+   
+   

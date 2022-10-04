@@ -1,0 +1,6 @@
+rxn.reaction\_preprocessing.utils.get\_atoms\_for\_mols
+=======================================================
+
+.. currentmodule:: rxn.reaction_preprocessing.utils
+
+.. autofunction:: get_atoms_for_mols

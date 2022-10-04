@@ -1,0 +1,6 @@
+rxn.reaction\_preprocessing.importer.RxnImportError
+===================================================
+
+.. currentmodule:: rxn.reaction_preprocessing.importer
+
+.. autoexception:: RxnImportError

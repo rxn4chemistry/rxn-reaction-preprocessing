@@ -1,0 +1,26 @@
+rxn.reaction\_preprocessing.utils.ReactionSection
+=================================================
+
+.. currentmodule:: rxn.reaction_preprocessing.utils
+
+.. autoclass:: ReactionSection
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ReactionSection.precursors
+      ~ReactionSection.products
+   
+   

@@ -1,0 +1,39 @@
+rxn.reaction\_preprocessing.config.RxnImportConfig
+==================================================
+
+.. currentmodule:: rxn.reaction_preprocessing.config
+
+.. autoclass:: RxnImportConfig
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~RxnImportConfig.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~RxnImportConfig.column_for_heat
+      ~RxnImportConfig.column_for_light
+      ~RxnImportConfig.data_format
+      ~RxnImportConfig.fragment_bond
+      ~RxnImportConfig.input_csv_column_name
+      ~RxnImportConfig.input_file
+      ~RxnImportConfig.output_csv
+      ~RxnImportConfig.reaction_column_name
+      ~RxnImportConfig.remove_atom_mapping
+   
+   

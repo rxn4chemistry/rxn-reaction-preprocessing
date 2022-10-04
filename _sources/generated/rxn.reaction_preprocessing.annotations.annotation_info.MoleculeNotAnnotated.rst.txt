@@ -1,0 +1,6 @@
+rxn.reaction\_preprocessing.annotations.annotation\_info.MoleculeNotAnnotated
+=============================================================================
+
+.. currentmodule:: rxn.reaction_preprocessing.annotations.annotation_info
+
+.. autoexception:: MoleculeNotAnnotated

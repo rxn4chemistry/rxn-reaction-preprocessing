@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>rxn.reaction_preprocessing.augmenter &mdash; RXN reaction preprocessing 0.1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> RXN reaction preprocessing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../README.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">Python API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">RXN reaction preprocessing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>rxn.reaction_preprocessing.augmenter</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for rxn.reaction_preprocessing.augmenter</h1><div class="highlight"><pre>
+<span></span><span class="c1"># LICENSED INTERNAL CODE. PROPERTY OF IBM.</span>
+<span class="c1"># IBM Research Zurich Licensed Internal Code</span>
+<span class="c1"># (C) Copyright IBM Corp. 2021</span>
+<span class="c1"># ALL RIGHTS RESERVED</span>
+<span class="sd">&quot;&quot;&quot; A utility class to augment the dataset files &quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">rxn.chemutils.smiles_randomization</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">randomize_smiles_restricted</span><span class="p">,</span>
+    <span class="n">randomize_smiles_rotated</span><span class="p">,</span>
+    <span class="n">randomize_smiles_unrestricted</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">rxn.reaction_preprocessing.config</span> <span class="kn">import</span> <span class="n">AugmentConfig</span>
+<span class="kn">from</span> <span class="nn">rxn.reaction_preprocessing.smiles_tokenizer</span> <span class="kn">import</span> <span class="n">SmilesTokenizer</span>
+<span class="kn">from</span> <span class="nn">rxn.reaction_preprocessing.utils</span> <span class="kn">import</span> <span class="n">RandomType</span><span class="p">,</span> <span class="n">ReactionSection</span>
+
+
+<div class="viewcode-block" id="molecules_permutation_given_index"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.augmenter.molecules_permutation_given_index.html#rxn.reaction_preprocessing.augmenter.molecules_permutation_given_index">[docs]</a><span class="k">def</span> <span class="nf">molecules_permutation_given_index</span><span class="p">(</span>
+    <span class="n">molecules_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">permutation_index</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;str&quot;</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    https://stackoverflow.com/questions/5602488/random-picks-from-permutation-generator</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">molecules_list</span> <span class="o">=</span> <span class="n">molecules_list</span><span class="p">[:]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">molecules_list</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">permutation_index</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">permutation_index</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">molecules_list</span><span class="p">)</span> <span class="o">-</span> <span class="n">i</span><span class="p">)</span>
+        <span class="n">molecules_list</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">molecules_list</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">molecules_list</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">j</span><span class="p">],</span>
+            <span class="n">molecules_list</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">molecules_list</span></div>
+
+
+<div class="viewcode-block" id="Augmenter"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.augmenter.Augmenter.html#rxn.reaction_preprocessing.augmenter.Augmenter">[docs]</a><span class="k">class</span> <span class="nc">Augmenter</span><span class="p">:</span>
+<div class="viewcode-block" id="Augmenter.__init__"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.augmenter.Augmenter.html#rxn.reaction_preprocessing.augmenter.Augmenter.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">reaction_column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fragment_bond</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates a new instance of the Augmenter class.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            df (pd.DataFrame): A pandas DataFrame containing the molecules SMILES.</span>
+<span class="sd">            reaction_column_name: The name of the DataFrame column containing the reaction SMILES.</span>
+<span class="sd">            fragment_bond (str): The fragment bond token contained in the SMILES.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">df</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__reaction_column_name</span> <span class="o">=</span> <span class="n">reaction_column_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">SmilesTokenizer</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fragment_bond</span> <span class="o">=</span> <span class="n">fragment_bond</span></div>
+
+    <span class="c1">#</span>
+    <span class="c1"># Private Methods</span>
+    <span class="c1">#</span>
+
+    <span class="k">def</span> <span class="nf">__randomize_smiles</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">random_type</span><span class="p">:</span> <span class="n">RandomType</span><span class="p">,</span> <span class="n">permutations</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Randomizes a molecules SMILES string that might contain fragment bonds</span>
+<span class="sd">        and returns a number of augmented versions of the SMILES equal to permutations.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            smiles (str): The molecules SMILES to augment</span>
+<span class="sd">            random_type (RandomType): The type of randomization to be applied.</span>
+<span class="sd">            permutations (int): The number of permutations to deliver for the SMILES</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[str]: The list of randomized SMILES</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Raise for empty SMILES</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">smiles</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span>
+
+        <span class="n">list_of_smiles</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">permutations</span><span class="p">):</span>
+            <span class="n">list_of_smiles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">fragment_bond</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                            <span class="p">[</span>
+                                <span class="n">Augmenter</span><span class="o">.</span><span class="n">__randomize_smiles_without_fragment</span><span class="p">(</span>
+                                    <span class="n">fragment</span><span class="p">,</span> <span class="n">random_type</span>
+                                <span class="p">)</span>
+                                <span class="k">for</span> <span class="n">fragment</span> <span class="ow">in</span> <span class="n">group</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fragment_bond</span><span class="p">)</span>
+                            <span class="p">]</span>
+                        <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">smiles</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">list_of_smiles</span>
+
+    <span class="c1">#</span>
+    <span class="c1"># Private Static Methods</span>
+    <span class="c1">#</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">__randomize_smiles_without_fragment</span><span class="p">(</span>
+        <span class="n">smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">random_type</span><span class="p">:</span> <span class="n">RandomType</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates a random version of a SMILES without a fragment bond</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            smiles (str): The pandas DataFrame to be split into training, validation, and test sets.</span>
+<span class="sd">            random_type (RandomType): The type of randomization to be applied.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            InvalidSmiles: for invalid SMILES (raised via rxn.chemutils).</span>
+<span class="sd">            ValueError: if an invalid randomization type is provided.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: the randomized SMILES</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">random_type</span> <span class="o">==</span> <span class="n">RandomType</span><span class="o">.</span><span class="n">unrestricted</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">randomize_smiles_unrestricted</span><span class="p">(</span><span class="n">smiles</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">random_type</span> <span class="o">==</span> <span class="n">RandomType</span><span class="o">.</span><span class="n">restricted</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">randomize_smiles_restricted</span><span class="p">(</span><span class="n">smiles</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">random_type</span> <span class="o">==</span> <span class="n">RandomType</span><span class="o">.</span><span class="n">rotated</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">randomize_smiles_rotated</span><span class="p">(</span><span class="n">smiles</span><span class="p">,</span> <span class="n">with_order_reversal</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid random type: </span><span class="si">{</span><span class="n">random_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">__randomize_molecules</span><span class="p">(</span><span class="n">smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">permutations</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Randomizes the order of the molecules inside a SMILES string that might</span>
+<span class="sd">        contain fragment bonds and returns a number of augmented versions of the</span>
+<span class="sd">        SMILES equal to permutations.</span>
+
+<span class="sd">        For a number of molecules smaller than permutations, returns a number of</span>
+<span class="sd">        permutations equal to the number of molecules</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            smiles (str): The molecules SMILES to augment</span>
+<span class="sd">            permutations (int): The number of permutations to deliver for the SMILES</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[str]: The list of randomized SMILES</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Raise for empty SMILES</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">smiles</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span>
+
+        <span class="n">molecules_list</span> <span class="o">=</span> <span class="n">smiles</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+        <span class="n">total_permutations</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">factorial</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">molecules_list</span><span class="p">)),</span> <span class="mi">4000000</span><span class="p">))</span>
+        <span class="n">permutation_indices</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span>
+            <span class="n">total_permutations</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">permutations</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">molecules_list</span><span class="p">))</span>
+        <span class="p">)</span>
+        <span class="n">permuted_molecules_smiles</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">permutation_indices</span><span class="p">:</span>
+            <span class="n">permuted_precursors</span> <span class="o">=</span> <span class="n">molecules_permutation_given_index</span><span class="p">(</span><span class="n">molecules_list</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
+            <span class="n">permuted_molecules_smiles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">permuted_precursors</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">permuted_molecules_smiles</span>
+
+    <span class="c1">#</span>
+    <span class="c1"># Public Methods</span>
+    <span class="c1">#</span>
+
+<div class="viewcode-block" id="Augmenter.augment"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.augmenter.Augmenter.html#rxn.reaction_preprocessing.augmenter.Augmenter.augment">[docs]</a>    <span class="k">def</span> <span class="nf">augment</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">random_type</span><span class="p">:</span> <span class="n">RandomType</span> <span class="o">=</span> <span class="n">RandomType</span><span class="o">.</span><span class="n">unrestricted</span><span class="p">,</span>
+        <span class="n">rxn_section_to_augment</span><span class="p">:</span> <span class="n">ReactionSection</span> <span class="o">=</span> <span class="n">ReactionSection</span><span class="o">.</span><span class="n">precursors</span><span class="p">,</span>
+        <span class="n">permutations</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates samples for the augmentation. Returns a a pandas Series containing the</span>
+<span class="sd">        augmented samples.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            random_type (RandomType): The string identifying the type of randomization to apply.</span>
+<span class="sd">                &quot;molecules&quot; for randomization of the molecules (canonical SMILES kept)</span>
+<span class="sd">                &quot;unrestricted&quot; for unrestricted randomization</span>
+<span class="sd">                &quot;restricted&quot; for restricted randomization</span>
+<span class="sd">                &quot;rotated&quot; for rotated randomization</span>
+<span class="sd">                For details on the differences:</span>
+<span class="sd">                https://github.com/undeadpixel/reinvent-randomized and</span>
+<span class="sd">                https://github.com/GLambard/SMILES-X</span>
+<span class="sd">            rxn_section_to_augment (ReactionSection): The section of the rxn SMILES to augment.</span>
+<span class="sd">                &quot;precursors&quot; for augmenting only the precursors</span>
+<span class="sd">                &quot;products&quot; for augmenting only the products</span>
+<span class="sd">            permutations (int): The number of permutations to generate for each SMILES</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pd.DataFrame: A pandas Series containing the augmented samples.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">rxn_section_to_augment</span> <span class="ow">is</span> <span class="n">ReactionSection</span><span class="o">.</span><span class="n">precursors</span><span class="p">:</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;precursors_</span><span class="si">{</span><span class="n">random_type</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__reaction_column_name</span>
+            <span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">smiles</span><span class="p">:</span> <span class="n">smiles</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;&gt;&gt;&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">if</span> <span class="s2">&quot;products&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;products&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__reaction_column_name</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                    <span class="k">lambda</span> <span class="n">smiles</span><span class="p">:</span> <span class="n">smiles</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;&gt;&gt;&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="p">)</span>
+            <span class="n">columns_to_augment</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;precursors_</span><span class="si">{</span><span class="n">random_type</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+            <span class="n">columns_to_join</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;precursors_</span><span class="si">{</span><span class="n">random_type</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;products&quot;</span><span class="p">]</span>
+
+        <span class="k">elif</span> <span class="n">rxn_section_to_augment</span> <span class="ow">is</span> <span class="n">ReactionSection</span><span class="o">.</span><span class="n">products</span><span class="p">:</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;products_</span><span class="si">{</span><span class="n">random_type</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__reaction_column_name</span>
+            <span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">smiles</span><span class="p">:</span> <span class="n">smiles</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;&gt;&gt;&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">if</span> <span class="s2">&quot;precursors&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;precursors&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__reaction_column_name</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                    <span class="k">lambda</span> <span class="n">smiles</span><span class="p">:</span> <span class="n">smiles</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;&gt;&gt;&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="p">)</span>
+            <span class="n">columns_to_augment</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;products_</span><span class="si">{</span><span class="n">random_type</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+            <span class="n">columns_to_join</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;precursors&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;products_</span><span class="si">{</span><span class="n">random_type</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Invalid reaction section to augment: </span><span class="si">{</span><span class="n">rxn_section_to_augment</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns_to_augment</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">random_type</span> <span class="o">!=</span> <span class="n">RandomType</span><span class="o">.</span><span class="n">molecules</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                    <span class="k">lambda</span> <span class="n">smiles</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__randomize_smiles</span><span class="p">(</span>
+                        <span class="n">smiles</span><span class="p">,</span> <span class="n">random_type</span><span class="p">,</span> <span class="n">permutations</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                    <span class="k">lambda</span> <span class="n">smiles</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__randomize_molecules</span><span class="p">(</span><span class="n">smiles</span><span class="p">,</span> <span class="n">permutations</span><span class="p">)</span>
+                <span class="p">)</span>
+
+        <span class="c1"># Exploding the dataframe columns where I have the list of augmented</span>
+        <span class="c1"># versions of a SMILES (the list length is the number of permutations)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">columns_to_augment</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="o">.</span><span class="n">explode</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;rxn_</span><span class="si">{</span><span class="n">random_type</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;&gt;&gt;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">columns_to_join</span><span class="p">]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span></div>
+
+    <span class="c1">#</span>
+    <span class="c1"># Public Static Methods</span>
+    <span class="c1">#</span>
+
+<div class="viewcode-block" id="Augmenter.read_csv"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.augmenter.Augmenter.html#rxn.reaction_preprocessing.augmenter.Augmenter.read_csv">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">read_csv</span><span class="p">(</span>
+        <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">reaction_column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fragment_bond</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Augmenter&quot;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;A helper function to read a list or csv of SMILES.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filepath (str): The path to the text file containing the molecules SMILES.</span>
+<span class="sd">            reaction_column_name: The name of the reaction column (or the name that wil be given</span>
+<span class="sd">                to the reaction column if the input file has no headers).</span>
+<span class="sd">            fragment_bond (str): The fragment token in the reaction SMILES</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Augmenter: A new augmenter instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">lineterminator</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">reaction_column_name</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">Augmenter</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">reaction_column_name</span><span class="p">,</span> <span class="n">fragment_bond</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="augment"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.augmenter.augment.html#rxn.reaction_preprocessing.augmenter.augment">[docs]</a><span class="k">def</span> <span class="nf">augment</span><span class="p">(</span><span class="n">cfg</span><span class="p">:</span> <span class="n">AugmentConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">output_file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">output_file_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">Path</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">input_file_path</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Input file for standardization does not exist: </span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">input_file_path</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Create a instance of the Augmenter.</span>
+    <span class="n">ag</span> <span class="o">=</span> <span class="n">Augmenter</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+        <span class="n">cfg</span><span class="o">.</span><span class="n">input_file_path</span><span class="p">,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">reaction_column_name</span><span class="p">,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">fragment_bond</span><span class="o">.</span><span class="n">value</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Perform augmentation</span>
+    <span class="n">augm</span> <span class="o">=</span> <span class="n">ag</span><span class="o">.</span><span class="n">augment</span><span class="p">(</span>
+        <span class="n">random_type</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">random_type</span><span class="p">,</span>
+        <span class="n">rxn_section_to_augment</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">rxn_section_to_augment</span><span class="p">,</span>
+        <span class="n">permutations</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">permutations</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># Exporting augmented samples</span>
+    <span class="n">augm</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">output_file_path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright IBM RXN team 2022.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

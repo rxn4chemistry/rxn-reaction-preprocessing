@@ -1,0 +1,6 @@
+rxn.reaction\_preprocessing.special\_tokens.strip\_all\_special\_tokens
+=======================================================================
+
+.. currentmodule:: rxn.reaction_preprocessing.special_tokens
+
+.. autofunction:: strip_all_special_tokens

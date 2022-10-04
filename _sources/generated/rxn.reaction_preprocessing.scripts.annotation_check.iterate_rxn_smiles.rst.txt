@@ -1,0 +1,6 @@
+rxn.reaction\_preprocessing.scripts.annotation\_check.iterate\_rxn\_smiles
+==========================================================================
+
+.. currentmodule:: rxn.reaction_preprocessing.scripts.annotation_check
+
+.. autofunction:: iterate_rxn_smiles

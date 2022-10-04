@@ -1,0 +1,6 @@
+rxn.reaction\_preprocessing.special\_tokens.add\_light\_token
+=============================================================
+
+.. currentmodule:: rxn.reaction_preprocessing.special_tokens
+
+.. autofunction:: add_light_token

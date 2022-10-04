@@ -1,0 +1,36 @@
+rxn.reaction\_preprocessing.special\_tokens
+===========================================
+
+.. automodule:: rxn.reaction_preprocessing.special_tokens
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      add_heat_token
+      add_light_token
+      contains_heat_token
+      contains_light_token
+      strip_all_special_tokens
+      strip_heat_token
+      strip_light_token
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

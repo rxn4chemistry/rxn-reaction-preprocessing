@@ -1,0 +1,6 @@
+rxn.reaction\_preprocessing.utils.standardization\_files\_directory
+===================================================================
+
+.. currentmodule:: rxn.reaction_preprocessing.utils
+
+.. autofunction:: standardization_files_directory

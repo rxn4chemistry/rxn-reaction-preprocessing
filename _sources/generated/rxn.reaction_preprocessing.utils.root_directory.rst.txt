@@ -1,0 +1,6 @@
+rxn.reaction\_preprocessing.utils.root\_directory
+=================================================
+
+.. currentmodule:: rxn.reaction_preprocessing.utils
+
+.. autofunction:: root_directory

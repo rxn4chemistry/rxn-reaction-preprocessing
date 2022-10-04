@@ -1,0 +1,6 @@
+rxn.reaction\_preprocessing.stable\_data\_splitter.split
+========================================================
+
+.. currentmodule:: rxn.reaction_preprocessing.stable_data_splitter
+
+.. autofunction:: split

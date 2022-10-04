@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>rxn.reaction_preprocessing.config &mdash; RXN reaction preprocessing 0.1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> RXN reaction preprocessing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../README.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">Python API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">RXN reaction preprocessing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>rxn.reaction_preprocessing.config</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for rxn.reaction_preprocessing.config</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># LICENSED INTERNAL CODE. PROPERTY OF IBM.</span>
+<span class="c1"># IBM Research Zurich Licensed Internal Code</span>
+<span class="c1"># (C) Copyright IBM Corp. 2021</span>
+<span class="c1"># ALL RIGHTS RESERVED</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">auto</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">from</span> <span class="nn">hydra.core.config_store</span> <span class="kn">import</span> <span class="n">ConfigStore</span>
+<span class="kn">from</span> <span class="nn">omegaconf</span> <span class="kn">import</span> <span class="n">MISSING</span><span class="p">,</span> <span class="n">SI</span><span class="p">,</span> <span class="n">OmegaConf</span>
+
+<span class="kn">from</span> <span class="nn">rxn.reaction_preprocessing.utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">RandomType</span><span class="p">,</span>
+    <span class="n">ReactionSection</span><span class="p">,</span>
+    <span class="n">standardization_files_directory</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">OmegaConf</span><span class="o">.</span><span class="n">register_new_resolver</span><span class="p">(</span><span class="s2">&quot;stem&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">Path</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span><span class="p">)</span>
+
+<span class="n">DEFAULT_ANNOTATION_FILES</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="nb">str</span><span class="p">(</span><span class="n">standardization_files_directory</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;pistachio-210428.json&quot;</span><span class="p">),</span>
+    <span class="nb">str</span><span class="p">(</span><span class="n">standardization_files_directory</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;catalyst-annotation-210428.json&quot;</span><span class="p">),</span>
+    <span class="nb">str</span><span class="p">(</span><span class="n">standardization_files_directory</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;catalyst-annotation-210826.json&quot;</span><span class="p">),</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="DataConfig"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.config.DataConfig.html#rxn.reaction_preprocessing.config.DataConfig">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">DataConfig</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Configuration of data sources and intermediate storage.</span>
+
+<span class="sd">    Fields:</span>
+<span class="sd">        path: Absolute path to input data file.</span>
+<span class="sd">        name: Name of the input data file (without extension).</span>
+<span class="sd">        proc_dir: Directory for storing intermediate and final output files.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">MISSING</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;${stem:$</span><span class="si">{data.path}</span><span class="s2">}&quot;</span><span class="p">)</span>
+    <span class="n">proc_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">MISSING</span></div>
+
+
+<div class="viewcode-block" id="FragmentBond"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.config.FragmentBond.html#rxn.reaction_preprocessing.config.FragmentBond">[docs]</a><span class="k">class</span> <span class="nc">FragmentBond</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">DOT</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span>
+    <span class="n">TILDE</span> <span class="o">=</span> <span class="s2">&quot;~&quot;</span></div>
+
+
+<div class="viewcode-block" id="InitialDataFormat"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.config.InitialDataFormat.html#rxn.reaction_preprocessing.config.InitialDataFormat">[docs]</a><span class="k">class</span> <span class="nc">InitialDataFormat</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">TXT</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">CSV</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">TSV</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Step"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.config.Step.html#rxn.reaction_preprocessing.config.Step">[docs]</a><span class="k">class</span> <span class="nc">Step</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">IMPORT</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">STANDARDIZE</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">PREPROCESS</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">AUGMENT</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">SPLIT</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">TOKENIZE</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="CommonConfig"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.config.CommonConfig.html#rxn.reaction_preprocessing.config.CommonConfig">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">CommonConfig</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Configuration used by multiple steps.</span>
+
+<span class="sd">    Fields:</span>
+<span class="sd">        sequence: Ordered sequence of data transformation steps to perform.</span>
+<span class="sd">        fragment_bond: Token used to denote a fragment bond in the SMILES of the reactions to process.</span>
+<span class="sd">        reaction_column_name: Name of the reaction column for the data file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">sequence</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Step</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">Step</span><span class="o">.</span><span class="n">IMPORT</span><span class="p">,</span>
+            <span class="n">Step</span><span class="o">.</span><span class="n">STANDARDIZE</span><span class="p">,</span>
+            <span class="n">Step</span><span class="o">.</span><span class="n">PREPROCESS</span><span class="p">,</span>
+            <span class="n">Step</span><span class="o">.</span><span class="n">SPLIT</span><span class="p">,</span>
+            <span class="n">Step</span><span class="o">.</span><span class="n">TOKENIZE</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">fragment_bond</span><span class="p">:</span> <span class="n">FragmentBond</span> <span class="o">=</span> <span class="n">FragmentBond</span><span class="o">.</span><span class="n">DOT</span>
+    <span class="n">reaction_column_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;rxn&quot;</span></div>
+
+
+<div class="viewcode-block" id="RxnImportConfig"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.config.RxnImportConfig.html#rxn.reaction_preprocessing.config.RxnImportConfig">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">RxnImportConfig</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Configuration for the initial import of the reaction data.</span>
+
+<span class="sd">    Fields:</span>
+<span class="sd">        input_file: the input file path (.txt, .csv).</span>
+<span class="sd">        output_csv: the ouptut file path.</span>
+<span class="sd">        initial_data_format: whether the input file is in TXT or CSV format.</span>
+<span class="sd">        reaction_column_name: name the column containing the reactions if the input</span>
+<span class="sd">            is in CSV format. The value is ignored if the input is not in CSV format.</span>
+<span class="sd">        reaction_column_name: how to name the column with the reaction SMILES in</span>
+<span class="sd">            the output CSV.</span>
+<span class="sd">        fragment_bond: token denoting a fragment bond in the reaction SMILES (after import).</span>
+<span class="sd">        remove_atom_mapping: whether to remove the atom mapping from the input reaction SMILES.</span>
+<span class="sd">        column_for_light: name of the column containing boolean values that indicate</span>
+<span class="sd">            whether the reaction happens under light. If specified, the light token will</span>
+<span class="sd">            be added to the precursors of the corresponding reactions.</span>
+<span class="sd">        column_for_heat: name of the column containing boolean values that indicate</span>
+<span class="sd">            whether the reaction happens under heat. If specified, the heat token will</span>
+<span class="sd">            be added to the precursors of the corresponding reactions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">input_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{data.path}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">output_csv</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{data.proc_dir}</span><span class="s2">/$</span><span class="si">{data.name}</span><span class="s2">.imported.csv&quot;</span><span class="p">)</span>
+    <span class="n">data_format</span><span class="p">:</span> <span class="n">InitialDataFormat</span> <span class="o">=</span> <span class="n">InitialDataFormat</span><span class="o">.</span><span class="n">CSV</span>
+    <span class="n">input_csv_column_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{common.reaction_column_name}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">reaction_column_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{common.reaction_column_name}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">fragment_bond</span><span class="p">:</span> <span class="n">FragmentBond</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{common.fragment_bond}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">remove_atom_mapping</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">column_for_light</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">column_for_heat</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="StandardizeConfig"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.config.StandardizeConfig.html#rxn.reaction_preprocessing.config.StandardizeConfig">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">StandardizeConfig</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Configuration for the standardization transformation step.</span>
+
+<span class="sd">    Fields:</span>
+<span class="sd">        input_file_path: The input CSV (one SMILES per line).</span>
+<span class="sd">        output_file_path: The output file path containing the result after standardization.</span>
+<span class="sd">        annotation_file_paths: The files to load the annotated molecules from.</span>
+<span class="sd">        discard_unannotated_metals: whether reactions containing unannotated</span>
+<span class="sd">            molecules with transition metals must be rejected.</span>
+<span class="sd">        fragment_bond: Token used to denote a fragment bond in the reaction SMILES.</span>
+<span class="sd">        reaction_column_name: Name of the reaction column for the data file.</span>
+<span class="sd">        remove_stereo_if_not_defined_in_precursors: Remove chiral centers from product.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">input_file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{rxn_import.output_csv}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">annotation_file_paths</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">[])</span>
+    <span class="n">discard_unannotated_metals</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">output_file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{data.proc_dir}</span><span class="s2">/$</span><span class="si">{data.name}</span><span class="s2">.standardized.csv&quot;</span><span class="p">)</span>
+    <span class="n">fragment_bond</span><span class="p">:</span> <span class="n">FragmentBond</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{common.fragment_bond}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">reaction_column_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{common.reaction_column_name}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">remove_stereo_if_not_defined_in_precursors</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="PreprocessConfig"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.config.PreprocessConfig.html#rxn.reaction_preprocessing.config.PreprocessConfig">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">PreprocessConfig</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Configuration for the preprocess transformation step.</span>
+
+<span class="sd">    Fields:</span>
+<span class="sd">        input_file_path: The input file path (one reaction SMARTS per line).</span>
+<span class="sd">        output_file_path: The output file path containing the result after preprocessing.</span>
+<span class="sd">        min_reactants: The minimum number of reactants.</span>
+<span class="sd">        max_reactants: The maximum number of reactants.</span>
+<span class="sd">        max_reactants_tokens: The maximum number of reactants tokens.</span>
+<span class="sd">        min_agents: The minimum number of agents.</span>
+<span class="sd">        max_agents: The maximum number of agents.</span>
+<span class="sd">        max_agents_tokens: The maximum number of agents tokens.</span>
+<span class="sd">        min_products: The minimum number of products.</span>
+<span class="sd">        max_products: The maximum number of products.</span>
+<span class="sd">        max_products_tokens: The maximum number of products tokens.</span>
+<span class="sd">        max_absolute_formal_charge: The maximum absolute formal charge.</span>
+<span class="sd">        fragment_bond: Token used to denote a fragment bond in the reaction SMILES.</span>
+<span class="sd">        reaction_column_name: Name of the reaction column for the data file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">input_file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{standardize.output_file_path}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">output_file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{data.proc_dir}</span><span class="s2">/$</span><span class="si">{data.name}</span><span class="s2">.processed.csv&quot;</span><span class="p">)</span>
+    <span class="n">min_reactants</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">max_reactants</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">max_reactants_tokens</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">300</span>
+    <span class="n">min_agents</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">max_agents</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">max_agents_tokens</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">min_products</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">max_products</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">max_products_tokens</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span>
+    <span class="n">max_absolute_formal_charge</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">fragment_bond</span><span class="p">:</span> <span class="n">FragmentBond</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{common.fragment_bond}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">reaction_column_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{common.reaction_column_name}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AugmentConfig"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.config.AugmentConfig.html#rxn.reaction_preprocessing.config.AugmentConfig">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">AugmentConfig</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Configuration for the augmentation transformation step.</span>
+
+<span class="sd">    Fields:</span>
+<span class="sd">        input_file_path:  The input file path (one SMILES per line).</span>
+<span class="sd">        output_file_path: The output file path.</span>
+<span class="sd">        tokenize: if tokenization is to be performed</span>
+<span class="sd">        random_type: The randomization type to be applied</span>
+<span class="sd">        permutations: number of randomic permutations for input SMILES</span>
+<span class="sd">        reaction_column_name: Name of the reaction column for the data file.</span>
+<span class="sd">        rxn_section_to_augment: The section of the rxn SMILES to augment.</span>
+<span class="sd">            &quot;precursors&quot; for augmenting only the precursors</span>
+<span class="sd">            &quot;products&quot; for augmenting only the products</span>
+<span class="sd">        fragment_bond: Token used to denote a fragment bond in the reaction SMILES.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">input_file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{preprocess.output_file_path}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">output_file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{data.proc_dir}</span><span class="s2">/$</span><span class="si">{data.name}</span><span class="s2">.augmented.csv&quot;</span><span class="p">)</span>
+    <span class="n">tokenize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">random_type</span><span class="p">:</span> <span class="n">RandomType</span> <span class="o">=</span> <span class="n">RandomType</span><span class="o">.</span><span class="n">unrestricted</span>
+    <span class="n">permutations</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">reaction_column_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{common.reaction_column_name}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">rxn_section_to_augment</span><span class="p">:</span> <span class="n">ReactionSection</span> <span class="o">=</span> <span class="n">ReactionSection</span><span class="o">.</span><span class="n">precursors</span>
+    <span class="n">fragment_bond</span><span class="p">:</span> <span class="n">FragmentBond</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{common.fragment_bond}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SplitConfig"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.config.SplitConfig.html#rxn.reaction_preprocessing.config.SplitConfig">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">SplitConfig</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Configuration for the split transformation step.</span>
+
+<span class="sd">    Fields:</span>
+<span class="sd">        input_file_path: The input file path.</span>
+<span class="sd">        output_directory: The directory containing the files after splitting.</span>
+<span class="sd">        split_ratio: The split ratio between training, and test and validation sets.</span>
+<span class="sd">        reaction_column_name: Name of the reaction column for the data file.</span>
+<span class="sd">        index_column: Name of the column used to generate the hash ensuring</span>
+<span class="sd">            stable splitting.</span>
+<span class="sd">        hash_seed: Seed for the hashing function used for splitting.</span>
+<span class="sd">        shuffle_seed: Seed for shuffling the train split.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">input_file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{preprocess.output_file_path}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">output_directory</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{data.proc_dir}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">split_ratio</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span>
+    <span class="n">reaction_column_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{common.reaction_column_name}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">index_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{split.reaction_column_name}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">hash_seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span>
+    <span class="n">shuffle_seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span></div>
+
+
+<div class="viewcode-block" id="InputOutputTuple"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.config.InputOutputTuple.html#rxn.reaction_preprocessing.config.InputOutputTuple">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">InputOutputTuple</span><span class="p">:</span>
+    <span class="n">inp</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">MISSING</span>
+    <span class="n">out</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">MISSING</span></div>
+
+
+<div class="viewcode-block" id="InputOutputTupleWithColumnName"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.config.InputOutputTupleWithColumnName.html#rxn.reaction_preprocessing.config.InputOutputTupleWithColumnName">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">InputOutputTupleWithColumnName</span><span class="p">:</span>
+    <span class="n">inp</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">MISSING</span>
+    <span class="n">out</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">MISSING</span>
+    <span class="n">reaction_column_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{tokenize.reaction_column_name}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TokenizeConfig"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.config.TokenizeConfig.html#rxn.reaction_preprocessing.config.TokenizeConfig">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">TokenizeConfig</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Configuration for the tokenization transformation step.</span>
+
+<span class="sd">    Fields:</span>
+<span class="sd">        input_output_pairs: Paths to the input and output files.</span>
+<span class="sd">        reaction_column_name: Name of the reaction column for the data file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">input_output_pairs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">InputOutputTupleWithColumnName</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">InputOutputTupleWithColumnName</span><span class="p">(</span>
+                <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{data.proc_dir}</span><span class="s2">/$</span><span class="si">{data.name}</span><span class="s2">.processed.train.csv&quot;</span><span class="p">),</span>
+                <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{data.proc_dir}</span><span class="s2">/$</span><span class="si">{data.name}</span><span class="s2">.processed.train&quot;</span><span class="p">),</span>
+            <span class="p">),</span>
+            <span class="n">InputOutputTupleWithColumnName</span><span class="p">(</span>
+                <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{data.proc_dir}</span><span class="s2">/$</span><span class="si">{data.name}</span><span class="s2">.processed.validation.csv&quot;</span><span class="p">),</span>
+                <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{data.proc_dir}</span><span class="s2">/$</span><span class="si">{data.name}</span><span class="s2">.processed.validation&quot;</span><span class="p">),</span>
+            <span class="p">),</span>
+            <span class="n">InputOutputTupleWithColumnName</span><span class="p">(</span>
+                <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{data.proc_dir}</span><span class="s2">/$</span><span class="si">{data.name}</span><span class="s2">.processed.test.csv&quot;</span><span class="p">),</span>
+                <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{data.proc_dir}</span><span class="s2">/$</span><span class="si">{data.name}</span><span class="s2">.processed.test&quot;</span><span class="p">),</span>
+            <span class="p">),</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">reaction_column_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{common.reaction_column_name}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Config"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.config.Config.html#rxn.reaction_preprocessing.config.Config">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">Config</span><span class="p">:</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">DataConfig</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">DataConfig</span><span class="p">)</span>
+    <span class="n">common</span><span class="p">:</span> <span class="n">CommonConfig</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">CommonConfig</span><span class="p">)</span>
+    <span class="n">rxn_import</span><span class="p">:</span> <span class="n">RxnImportConfig</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">RxnImportConfig</span><span class="p">)</span>
+    <span class="n">standardize</span><span class="p">:</span> <span class="n">StandardizeConfig</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">StandardizeConfig</span><span class="p">)</span>
+    <span class="n">preprocess</span><span class="p">:</span> <span class="n">PreprocessConfig</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">PreprocessConfig</span><span class="p">)</span>
+    <span class="n">augment</span><span class="p">:</span> <span class="n">AugmentConfig</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">AugmentConfig</span><span class="p">)</span>
+    <span class="n">split</span><span class="p">:</span> <span class="n">SplitConfig</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">SplitConfig</span><span class="p">)</span>
+    <span class="n">tokenize</span><span class="p">:</span> <span class="n">TokenizeConfig</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">TokenizeConfig</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_generic_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Config&quot;</span><span class="p">:</span>
+        <span class="n">cfg_dict</span> <span class="o">=</span> <span class="n">OmegaConf</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">OmegaConf</span><span class="o">.</span><span class="n">structured</span><span class="p">(</span><span class="n">Config</span><span class="p">),</span> <span class="n">config</span><span class="p">)</span>
+        <span class="n">cfg</span> <span class="o">=</span> <span class="n">OmegaConf</span><span class="o">.</span><span class="n">to_object</span><span class="p">(</span><span class="n">cfg_dict</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cfg</span>  <span class="c1"># type: ignore</span></div>
+
+
+<span class="n">cs</span> <span class="o">=</span> <span class="n">ConfigStore</span><span class="o">.</span><span class="n">instance</span><span class="p">()</span>
+<span class="n">cs</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">group</span><span class="o">=</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;base_data&quot;</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="n">DataConfig</span><span class="p">)</span>
+<span class="n">cs</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">group</span><span class="o">=</span><span class="s2">&quot;common&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;base_common&quot;</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="n">CommonConfig</span><span class="p">)</span>
+<span class="n">cs</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">group</span><span class="o">=</span><span class="s2">&quot;rxn_import&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;base_rxn_import&quot;</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="n">RxnImportConfig</span><span class="p">)</span>
+<span class="n">cs</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">group</span><span class="o">=</span><span class="s2">&quot;standardize&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;base_standardize&quot;</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="n">StandardizeConfig</span><span class="p">)</span>
+<span class="n">cs</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">group</span><span class="o">=</span><span class="s2">&quot;preprocess&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;base_preprocess&quot;</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="n">PreprocessConfig</span><span class="p">)</span>
+<span class="n">cs</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">group</span><span class="o">=</span><span class="s2">&quot;augment&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;base_augment&quot;</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="n">AugmentConfig</span><span class="p">)</span>
+<span class="n">cs</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">group</span><span class="o">=</span><span class="s2">&quot;tokenize&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;base_tokenize&quot;</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="n">TokenizeConfig</span><span class="p">)</span>
+<span class="n">cs</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">group</span><span class="o">=</span><span class="s2">&quot;split&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;base_split&quot;</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="n">SplitConfig</span><span class="p">)</span>
+<span class="n">cs</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;base_config&quot;</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="n">Config</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright IBM RXN team 2022.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

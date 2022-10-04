@@ -1,0 +1,38 @@
+rxn.reaction\_preprocessing.standardizer
+========================================
+
+.. automodule:: rxn.reaction_preprocessing.standardizer
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      standardize
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      Standardizer
+   
+   
+
+   
+   
+   
+
+
+

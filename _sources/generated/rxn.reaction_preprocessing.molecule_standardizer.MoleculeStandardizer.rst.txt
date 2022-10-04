@@ -1,0 +1,28 @@
+rxn.reaction\_preprocessing.molecule\_standardizer.MoleculeStandardizer
+=======================================================================
+
+.. currentmodule:: rxn.reaction_preprocessing.molecule_standardizer
+
+.. autoclass:: MoleculeStandardizer
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~MoleculeStandardizer.__init__
+      ~MoleculeStandardizer.standardize
+      ~MoleculeStandardizer.standardize_in_equation
+      ~MoleculeStandardizer.standardize_in_equation_with_errors
+   
+   
+
+   
+   
+   

@@ -1,0 +1,6 @@
+rxn.reaction\_preprocessing.utils.add\_custom\_logger\_to\_file
+===============================================================
+
+.. currentmodule:: rxn.reaction_preprocessing.utils
+
+.. autofunction:: add_custom_logger_to_file

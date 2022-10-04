@@ -1,0 +1,6 @@
+rxn.reaction\_preprocessing.importer.reformat\_smiles
+=====================================================
+
+.. currentmodule:: rxn.reaction_preprocessing.importer
+
+.. autofunction:: reformat_smiles

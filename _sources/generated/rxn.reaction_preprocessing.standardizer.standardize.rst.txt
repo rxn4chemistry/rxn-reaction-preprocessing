@@ -1,0 +1,6 @@
+rxn.reaction\_preprocessing.standardizer.standardize
+====================================================
+
+.. currentmodule:: rxn.reaction_preprocessing.standardizer
+
+.. autofunction:: standardize

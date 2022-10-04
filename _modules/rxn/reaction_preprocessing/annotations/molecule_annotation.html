@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>rxn.reaction_preprocessing.annotations.molecule_annotation &mdash; RXN reaction preprocessing 0.1 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> RXN reaction preprocessing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../README.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api.html">Python API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">RXN reaction preprocessing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+      <li>rxn.reaction_preprocessing.annotations.molecule_annotation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for rxn.reaction_preprocessing.annotations.molecule_annotation</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">auto</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">attr</span>
+<span class="kn">from</span> <span class="nn">rxn.chemutils.multicomponent_smiles</span> <span class="kn">import</span> <span class="n">multicomponent_smiles_to_list</span>
+<span class="kn">from</span> <span class="nn">rxn.utilities.types</span> <span class="kn">import</span> <span class="n">RxnEnum</span>
+
+
+<div class="viewcode-block" id="AnnotationDecision"><a class="viewcode-back" href="../../../../generated/rxn.reaction_preprocessing.annotations.molecule_annotation.AnnotationDecision.html#rxn.reaction_preprocessing.annotations.molecule_annotation.AnnotationDecision">[docs]</a><span class="k">class</span> <span class="nc">AnnotationDecision</span><span class="p">(</span><span class="n">RxnEnum</span><span class="p">):</span>
+    <span class="n">ACCEPT</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">REJECT</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="MoleculeAnnotation"><a class="viewcode-back" href="../../../../generated/rxn.reaction_preprocessing.annotations.molecule_annotation.MoleculeAnnotation.html#rxn.reaction_preprocessing.annotations.molecule_annotation.MoleculeAnnotation">[docs]</a><span class="nd">@attr</span><span class="o">.</span><span class="n">s</span><span class="p">(</span><span class="n">auto_attribs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MoleculeAnnotation</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Specifies a molecule annotation, i.e. a SMILES string that may have an</span>
+<span class="sd">    updated SMILES, whether to keep it or not, etc.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">original_smiles</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">updated_smiles</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">decision</span><span class="p">:</span> <span class="n">AnnotationDecision</span>
+    <span class="n">categories</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">extra_info</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+
+<div class="viewcode-block" id="MoleculeAnnotation.__init__"><a class="viewcode-back" href="../../../../generated/rxn.reaction_preprocessing.annotations.molecule_annotation.MoleculeAnnotation.html#rxn.reaction_preprocessing.annotations.molecule_annotation.MoleculeAnnotation.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">original_smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">updated_smiles</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">decision</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">categories</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="o">**</span><span class="n">extra_info</span><span class="p">:</span> <span class="n">Any</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            original_smiles: original SMILES that is potentially present in a</span>
+<span class="sd">                data set. Fragment bonds are indicated by a tilde &#39;~&#39;.</span>
+<span class="sd">            updated_smiles: if specified, SMILES with which to replace</span>
+<span class="sd">                original_smiles. Also uses &#39;~&#39; for fragment bonds, and dots</span>
+<span class="sd">                &#39;.&#39; may be used to separate compounds from the solvent in which</span>
+<span class="sd">                they are solved.</span>
+<span class="sd">            decision: &quot;accept&quot; or &quot;reject&quot;.</span>
+<span class="sd">            categories: categories to which the annotation belongs to.</span>
+<span class="sd">            **extra_info: additional information not covered by the other</span>
+<span class="sd">                variables.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">decision_enum</span> <span class="o">=</span> <span class="n">AnnotationDecision</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">decision</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__attrs_init__</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
+            <span class="n">original_smiles</span><span class="o">=</span><span class="n">original_smiles</span><span class="p">,</span>
+            <span class="n">updated_smiles</span><span class="o">=</span><span class="n">updated_smiles</span><span class="p">,</span>
+            <span class="n">decision</span><span class="o">=</span><span class="n">decision_enum</span><span class="p">,</span>
+            <span class="n">categories</span><span class="o">=</span><span class="n">categories</span><span class="p">,</span>
+            <span class="n">extra_info</span><span class="o">=</span><span class="n">extra_info</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">original_without_fragment_bond</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get the original SMILES with dots instead of tildes to delimit fragments.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_smiles</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;~&quot;</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">updated_without_fragment_bond</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the updated SMILES with dots instead of tildes to delimit fragments.</span>
+
+<span class="sd">        Since dots may be used to delimit solvents from compounds, a list must be returned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">updated_smiles</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;No updated SMILES!&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">multicomponent_smiles_to_list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">updated_smiles</span><span class="p">,</span> <span class="s2">&quot;~&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="load_annotations"><a class="viewcode-back" href="../../../../generated/rxn.reaction_preprocessing.annotations.molecule_annotation.load_annotations.html#rxn.reaction_preprocessing.annotations.molecule_annotation.load_annotations">[docs]</a><span class="k">def</span> <span class="nf">load_annotations</span><span class="p">(</span><span class="n">json_file</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">MoleculeAnnotation</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load the molecule annotations from a JSON file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        json_file: path to the JSON file containing the annotations.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List of annotations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_file</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">json_content</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">MoleculeAnnotation</span><span class="p">(</span><span class="o">**</span><span class="n">block</span><span class="p">)</span> <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">json_content</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="load_annotations_multiple"><a class="viewcode-back" href="../../../../generated/rxn.reaction_preprocessing.annotations.molecule_annotation.load_annotations_multiple.html#rxn.reaction_preprocessing.annotations.molecule_annotation.load_annotations_multiple">[docs]</a><span class="k">def</span> <span class="nf">load_annotations_multiple</span><span class="p">(</span>
+    <span class="n">json_files</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">MoleculeAnnotation</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load the molecule annotations from multiple JSON files.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        json_files: paths to the JSON file containing the annotations.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List of annotations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">annotations</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">json_file</span> <span class="ow">in</span> <span class="n">json_files</span><span class="p">:</span>
+        <span class="n">annotations</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">load_annotations</span><span class="p">(</span><span class="n">json_file</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">annotations</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright IBM RXN team 2022.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

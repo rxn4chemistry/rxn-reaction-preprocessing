@@ -1,0 +1,39 @@
+rxn.reaction\_preprocessing.augmenter
+=====================================
+
+.. automodule:: rxn.reaction_preprocessing.augmenter
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      augment
+      molecules_permutation_given_index
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      Augmenter
+   
+   
+
+   
+   
+   
+
+
+

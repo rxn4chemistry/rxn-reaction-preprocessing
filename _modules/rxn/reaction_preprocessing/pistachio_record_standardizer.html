@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>rxn.reaction_preprocessing.pistachio_record_standardizer &mdash; RXN reaction preprocessing 0.1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> RXN reaction preprocessing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../README.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">Python API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">RXN reaction preprocessing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>rxn.reaction_preprocessing.pistachio_record_standardizer</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for rxn.reaction_preprocessing.pistachio_record_standardizer</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span>
+
+<span class="kn">from</span> <span class="nn">rxn.chemutils.reaction_smiles</span> <span class="kn">import</span> <span class="n">parse_any_reaction_smiles</span>
+<span class="kn">from</span> <span class="nn">rxn.chemutils.utils</span> <span class="kn">import</span> <span class="n">remove_atom_mapping</span>
+
+<span class="kn">from</span> <span class="nn">rxn.reaction_preprocessing</span> <span class="kn">import</span> <span class="n">MixedReactionFilter</span>
+<span class="kn">from</span> <span class="nn">rxn.reaction_preprocessing.annotations.molecule_annotation</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">load_annotations_multiple</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">rxn.reaction_preprocessing.config</span> <span class="kn">import</span> <span class="n">PreprocessConfig</span><span class="p">,</span> <span class="n">StandardizeConfig</span>
+<span class="kn">from</span> <span class="nn">rxn.reaction_preprocessing.molecule_standardizer</span> <span class="kn">import</span> <span class="n">MoleculeStandardizer</span>
+<span class="kn">from</span> <span class="nn">rxn.reaction_preprocessing.reaction_standardizer</span> <span class="kn">import</span> <span class="n">ReactionStandardizer</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
+
+
+<div class="viewcode-block" id="PistachioRecordStandardizer"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.pistachio_record_standardizer.PistachioRecordStandardizer.html#rxn.reaction_preprocessing.pistachio_record_standardizer.PistachioRecordStandardizer">[docs]</a><span class="k">class</span> <span class="nc">PistachioRecordStandardizer</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class to standardize the reactions in Pistachio records.</span>
+
+<span class="sd">    It combines some aspects of the STANDARDIZE and PREPROCESS steps.</span>
+
+<span class="sd">    The main goal is to standardize the reaction SMILES and filter invalid</span>
+<span class="sd">    reaction records. The individual SMILES strings for the components are</span>
+<span class="sd">    also standardized, but the error is not propagated if this fails.</span>
+
+<span class="sd">    Duplicates are not removed here, as the criterion to do so is unclear, and</span>
+<span class="sd">    also because this class does not store previously seen reactions.</span>
+
+<span class="sd">    The initialization from StandardizeConfig and PreprocessConfig is not optimal,</span>
+<span class="sd">    as it (currently) contains more information than is needed, such as the location</span>
+<span class="sd">    of the CSV files to load from and write to.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PistachioRecordStandardizer.__init__"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.pistachio_record_standardizer.PistachioRecordStandardizer.html#rxn.reaction_preprocessing.pistachio_record_standardizer.PistachioRecordStandardizer.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">cfg_standardize</span><span class="p">:</span> <span class="n">StandardizeConfig</span><span class="p">,</span> <span class="n">cfg_preprocess</span><span class="p">:</span> <span class="n">PreprocessConfig</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fragment_bond</span> <span class="o">=</span> <span class="n">cfg_standardize</span><span class="o">.</span><span class="n">fragment_bond</span><span class="o">.</span><span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">molecule_standardizer</span> <span class="o">=</span> <span class="n">MoleculeStandardizer</span><span class="p">(</span>
+            <span class="n">annotations</span><span class="o">=</span><span class="n">load_annotations_multiple</span><span class="p">(</span>
+                <span class="n">cfg_standardize</span><span class="o">.</span><span class="n">annotation_file_paths</span>
+            <span class="p">),</span>
+            <span class="n">discard_missing_annotations</span><span class="o">=</span><span class="n">cfg_standardize</span><span class="o">.</span><span class="n">discard_unannotated_metals</span><span class="p">,</span>
+            <span class="n">canonicalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reaction_standardizer</span> <span class="o">=</span> <span class="n">ReactionStandardizer</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">reaction_filter</span> <span class="o">=</span> <span class="n">MixedReactionFilter</span><span class="p">(</span>
+            <span class="n">max_reactants</span><span class="o">=</span><span class="n">cfg_preprocess</span><span class="o">.</span><span class="n">max_reactants</span><span class="p">,</span>
+            <span class="n">max_agents</span><span class="o">=</span><span class="n">cfg_preprocess</span><span class="o">.</span><span class="n">max_agents</span><span class="p">,</span>
+            <span class="n">max_products</span><span class="o">=</span><span class="n">cfg_preprocess</span><span class="o">.</span><span class="n">max_products</span><span class="p">,</span>
+            <span class="n">min_reactants</span><span class="o">=</span><span class="n">cfg_preprocess</span><span class="o">.</span><span class="n">min_reactants</span><span class="p">,</span>
+            <span class="n">min_agents</span><span class="o">=</span><span class="n">cfg_preprocess</span><span class="o">.</span><span class="n">min_agents</span><span class="p">,</span>
+            <span class="n">min_products</span><span class="o">=</span><span class="n">cfg_preprocess</span><span class="o">.</span><span class="n">min_products</span><span class="p">,</span>
+            <span class="n">max_reactants_tokens</span><span class="o">=</span><span class="n">cfg_preprocess</span><span class="o">.</span><span class="n">max_reactants_tokens</span><span class="p">,</span>
+            <span class="n">max_agents_tokens</span><span class="o">=</span><span class="n">cfg_preprocess</span><span class="o">.</span><span class="n">max_agents_tokens</span><span class="p">,</span>
+            <span class="n">max_products_tokens</span><span class="o">=</span><span class="n">cfg_preprocess</span><span class="o">.</span><span class="n">max_products_tokens</span><span class="p">,</span>
+            <span class="n">max_absolute_formal_charge</span><span class="o">=</span><span class="n">cfg_preprocess</span><span class="o">.</span><span class="n">max_absolute_formal_charge</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># in earlier versions, this was &quot;reactionSmiles&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reaction_smiles_field</span> <span class="o">=</span> <span class="s2">&quot;smiles&quot;</span></div>
+
+<div class="viewcode-block" id="PistachioRecordStandardizer.standardize"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.pistachio_record_standardizer.PistachioRecordStandardizer.html#rxn.reaction_preprocessing.pistachio_record_standardizer.PistachioRecordStandardizer.standardize">[docs]</a>    <span class="k">def</span> <span class="nf">standardize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reaction_record</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Standardize a Pistachio reaction record.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            reaction_record:</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Do not do changes in-place</span>
+        <span class="n">reaction_record</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">reaction_record</span><span class="p">)</span>
+
+        <span class="n">reaction_smiles</span> <span class="o">=</span> <span class="n">reaction_record</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">reaction_smiles_field</span><span class="p">]</span>
+        <span class="n">reaction_smiles</span> <span class="o">=</span> <span class="n">remove_atom_mapping</span><span class="p">(</span><span class="n">reaction_smiles</span><span class="p">)</span>
+        <span class="n">reaction</span> <span class="o">=</span> <span class="n">parse_any_reaction_smiles</span><span class="p">(</span><span class="n">reaction_smiles</span><span class="p">)</span>
+        <span class="n">reaction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">molecule_standardizer</span><span class="o">.</span><span class="n">standardize_in_equation</span><span class="p">(</span><span class="n">reaction</span><span class="p">)</span>
+        <span class="n">reaction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reaction_standardizer</span><span class="o">.</span><span class="n">standardize</span><span class="p">(</span><span class="n">reaction</span><span class="p">)</span>
+
+        <span class="c1"># This will raise if the filters do not pass</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reaction_filter</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">reaction</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">component_dict</span> <span class="ow">in</span> <span class="n">reaction_record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;components&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_try_standardize_component</span><span class="p">(</span><span class="n">component_dict</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">action_dict</span> <span class="ow">in</span> <span class="n">reaction_record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;actions&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+            <span class="k">for</span> <span class="n">component_dict</span> <span class="ow">in</span> <span class="n">action_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;components&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_try_standardize_component</span><span class="p">(</span><span class="n">component_dict</span><span class="p">)</span>
+
+        <span class="n">reaction_record</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">reaction_smiles_field</span><span class="p">]</span> <span class="o">=</span> <span class="n">reaction</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fragment_bond</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">reaction_record</span></div>
+
+    <span class="k">def</span> <span class="nf">_try_standardize_component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Standardize one component in the Pistachio record. Does not raise</span>
+<span class="sd">        any exception if this fails.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">smiles</span> <span class="o">=</span> <span class="n">component_dict</span><span class="p">[</span><span class="s2">&quot;smiles&quot;</span><span class="p">]</span>
+            <span class="n">standardized_smiles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">molecule_standardizer</span><span class="o">.</span><span class="n">standardize</span><span class="p">(</span><span class="n">smiles</span><span class="p">)</span>
+
+            <span class="c1"># IMPORTANT: as we need a string, not a list, we must convert</span>
+            <span class="c1"># the list to a string again, i.e. use a fragment bond even if</span>
+            <span class="c1"># the molecule standardizer provides multiple separate molecules.</span>
+            <span class="n">component_dict</span><span class="p">[</span><span class="s2">&quot;smiles&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">standardized_smiles</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="c1"># if there was any error (KeyError, standardization error, etc.), we</span>
+            <span class="c1"># do nothing</span>
+            <span class="k">return</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright IBM RXN team 2022.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

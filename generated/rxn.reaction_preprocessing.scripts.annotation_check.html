@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>rxn.reaction_preprocessing.scripts.annotation_check &mdash; RXN reaction preprocessing 0.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="rxn.reaction_preprocessing.scripts.annotation_check.iterate_rxn_smiles" href="rxn.reaction_preprocessing.scripts.annotation_check.iterate_rxn_smiles.html" />
+    <link rel="prev" title="rxn.reaction_preprocessing.scripts" href="rxn.reaction_preprocessing.scripts.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> RXN reaction preprocessing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../README.html">README</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">Python API</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="rxn.reaction_preprocessing.html">rxn.reaction_preprocessing</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="rxn.reaction_preprocessing.annotations.html">rxn.reaction_preprocessing.annotations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rxn.reaction_preprocessing.augmenter.html">rxn.reaction_preprocessing.augmenter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rxn.reaction_preprocessing.cleaner.html">rxn.reaction_preprocessing.cleaner</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rxn.reaction_preprocessing.config.html">rxn.reaction_preprocessing.config</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rxn.reaction_preprocessing.importer.html">rxn.reaction_preprocessing.importer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rxn.reaction_preprocessing.main.html">rxn.reaction_preprocessing.main</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rxn.reaction_preprocessing.mixed_reaction_filter.html">rxn.reaction_preprocessing.mixed_reaction_filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rxn.reaction_preprocessing.molecule_standardizer.html">rxn.reaction_preprocessing.molecule_standardizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rxn.reaction_preprocessing.pistachio_record_standardizer.html">rxn.reaction_preprocessing.pistachio_record_standardizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rxn.reaction_preprocessing.preprocessor.html">rxn.reaction_preprocessing.preprocessor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rxn.reaction_preprocessing.reaction_standardizer.html">rxn.reaction_preprocessing.reaction_standardizer</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="rxn.reaction_preprocessing.scripts.html">rxn.reaction_preprocessing.scripts</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">rxn.reaction_preprocessing.scripts.annotation_check</a></li>
+<li class="toctree-l4"><a class="reference internal" href="rxn.reaction_preprocessing.scripts.combine_class_token.html">rxn.reaction_preprocessing.scripts.combine_class_token</a></li>
+<li class="toctree-l4"><a class="reference internal" href="rxn.reaction_preprocessing.scripts.find_missing_annotations.html">rxn.reaction_preprocessing.scripts.find_missing_annotations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="rxn.reaction_preprocessing.scripts.standardize_pistachio_records.html">rxn.reaction_preprocessing.scripts.standardize_pistachio_records</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="rxn.reaction_preprocessing.smiles_tokenizer.html">rxn.reaction_preprocessing.smiles_tokenizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rxn.reaction_preprocessing.special_tokens.html">rxn.reaction_preprocessing.special_tokens</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rxn.reaction_preprocessing.stable_data_splitter.html">rxn.reaction_preprocessing.stable_data_splitter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rxn.reaction_preprocessing.standardizer.html">rxn.reaction_preprocessing.standardizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rxn.reaction_preprocessing.utils.html">rxn.reaction_preprocessing.utils</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">RXN reaction preprocessing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../api.html">API</a> &raquo;</li>
+          <li><a href="rxn.reaction_preprocessing.html">rxn.reaction_preprocessing</a> &raquo;</li>
+          <li><a href="rxn.reaction_preprocessing.scripts.html">rxn.reaction_preprocessing.scripts</a> &raquo;</li>
+      <li>rxn.reaction_preprocessing.scripts.annotation_check</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/generated/rxn.reaction_preprocessing.scripts.annotation_check.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-rxn.reaction_preprocessing.scripts.annotation_check">
+<span id="rxn-reaction-preprocessing-scripts-annotation-check"></span><h1>rxn.reaction_preprocessing.scripts.annotation_check<a class="headerlink" href="#module-rxn.reaction_preprocessing.scripts.annotation_check" title="Permalink to this heading"></a></h1>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="rxn.reaction_preprocessing.scripts.annotation_check.iterate_rxn_smiles.html#rxn.reaction_preprocessing.scripts.annotation_check.iterate_rxn_smiles" title="rxn.reaction_preprocessing.scripts.annotation_check.iterate_rxn_smiles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">iterate_rxn_smiles</span></code></a>(csv_file, column_name)</p></td>
+<td><p><dl class="field-list simple">
+<dt class="field-odd">param csv_file</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="rxn.reaction_preprocessing.scripts.html" class="btn btn-neutral float-left" title="rxn.reaction_preprocessing.scripts" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="rxn.reaction_preprocessing.scripts.annotation_check.iterate_rxn_smiles.html" class="btn btn-neutral float-right" title="rxn.reaction_preprocessing.scripts.annotation_check.iterate_rxn_smiles" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright IBM RXN team 2022.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

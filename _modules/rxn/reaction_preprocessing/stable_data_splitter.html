@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>rxn.reaction_preprocessing.stable_data_splitter &mdash; RXN reaction preprocessing 0.1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> RXN reaction preprocessing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../README.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">Python API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">RXN reaction preprocessing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>rxn.reaction_preprocessing.stable_data_splitter</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for rxn.reaction_preprocessing.stable_data_splitter</h1><div class="highlight"><pre>
+<span></span><span class="c1"># LICENSED INTERNAL CODE. PROPERTY OF IBM.</span>
+<span class="c1"># IBM Research Zurich Licensed Internal Code</span>
+<span class="c1"># (C) Copyright IBM Corp. 2022</span>
+<span class="c1"># ALL RIGHTS RESERVED</span>
+<span class="sd">&quot;&quot;&quot; A utility class to split data sets in a stable manner. &quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Hashable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">xxhash</span> <span class="kn">import</span> <span class="n">xxh64_intdigest</span>
+
+<span class="kn">from</span> <span class="nn">rxn.reaction_preprocessing.config</span> <span class="kn">import</span> <span class="n">SplitConfig</span>
+<span class="kn">from</span> <span class="nn">rxn.reaction_preprocessing.utils</span> <span class="kn">import</span> <span class="n">DataSplit</span>
+
+
+<div class="viewcode-block" id="StableSplitter"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.stable_data_splitter.StableSplitter.html#rxn.reaction_preprocessing.stable_data_splitter.StableSplitter">[docs]</a><span class="k">class</span> <span class="nc">StableSplitter</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Split data in a reproducible manner, based on the hash of values required</span>
+<span class="sd">    to always be in the same split.</span>
+
+<span class="sd">    Useful for instance to ensure that a reaction product with a given SMILES</span>
+<span class="sd">    will always be in the same split.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">HASH_SIZE</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="mi">64</span>
+
+<div class="viewcode-block" id="StableSplitter.__init__"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.stable_data_splitter.StableSplitter.html#rxn.reaction_preprocessing.stable_data_splitter.StableSplitter.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">split_ratio</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">total_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            split_ratio: The approximate split ratio for test and validation set.</span>
+<span class="sd">            total_size: Total size of the dataset, must be provided only if</span>
+<span class="sd">                max_if_valid is not None.</span>
+<span class="sd">            seed: seed to use for hashing. The default of 0 corresponds to the</span>
+<span class="sd">                default value in the xxhash implementation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hash_fn</span> <span class="o">=</span> <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="n">xxh64_intdigest</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">test_ratio</span> <span class="o">=</span> <span class="n">split_ratio</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">valid_ratio</span> <span class="o">=</span> <span class="n">split_ratio</span>
+
+        <span class="c1"># Compute these here to avoid repeating the calculations all the time</span>
+        <span class="c1"># in the get_split function</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_test_threshold</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_ratio</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">HASH_SIZE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validation_threshold</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">test_ratio</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">valid_ratio</span>
+        <span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">HASH_SIZE</span></div>
+
+    <span class="k">def</span> <span class="nf">get_split</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">split_value</span><span class="p">:</span> <span class="n">Hashable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataSplit</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hash_fn</span><span class="p">(</span><span class="n">split_value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_test_threshold</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">DataSplit</span><span class="o">.</span><span class="n">TEST</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validation_threshold</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">DataSplit</span><span class="o">.</span><span class="n">VALIDATION</span>
+        <span class="k">return</span> <span class="n">DataSplit</span><span class="o">.</span><span class="n">TRAIN</span></div>
+
+
+<div class="viewcode-block" id="StableDataSplitter"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.stable_data_splitter.StableDataSplitter.html#rxn.reaction_preprocessing.stable_data_splitter.StableDataSplitter">[docs]</a><span class="k">class</span> <span class="nc">StableDataSplitter</span><span class="p">:</span>
+<div class="viewcode-block" id="StableDataSplitter.split"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.stable_data_splitter.StableDataSplitter.html#rxn.reaction_preprocessing.stable_data_splitter.StableDataSplitter.split">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">split</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">reaction_column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">index_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">split_ratio</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
+        <span class="n">hash_seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">shuffle_seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Creates a stable split into training, validation, and test sets. Returns a boolean mask</span>
+<span class="sd">        for each set, to not duplicate the DataFrame while preserving the original.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            df: The pandas DataFrame to be split into training, validation, and test sets.</span>
+<span class="sd">            reaction_column_name: Name of the reaction column for the data file.</span>
+<span class="sd">            index_column: The name of the column used to generate the hash which ensures</span>
+<span class="sd">                stable splitting.</span>
+<span class="sd">            split_ratio: The split ratio. Defaults to 0.05.</span>
+<span class="sd">            hash_seed: seed to use for hashing. The default of 0 corresponds to</span>
+<span class="sd">                the default value in the xxhash implementation.</span>
+<span class="sd">            shuffle_seed: Seed for shuffling the train split.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A tuple of three pandas DataFrames for the three splits.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">splitter</span> <span class="o">=</span> <span class="n">StableSplitter</span><span class="p">(</span>
+            <span class="n">split_ratio</span><span class="o">=</span><span class="n">split_ratio</span><span class="p">,</span>
+            <span class="n">total_size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">),</span>
+            <span class="n">seed</span><span class="o">=</span><span class="n">hash_seed</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Get a pandas Series for the splits by first getting a pandas Series</span>
+        <span class="c1"># for the values to hash, and then do the actual hashing / split attribution.</span>
+        <span class="n">pre_hash_series</span> <span class="o">=</span> <span class="n">StableDataSplitter</span><span class="o">.</span><span class="n">_pre_hashing_series</span><span class="p">(</span>
+            <span class="n">df</span><span class="p">,</span> <span class="n">index_column</span><span class="o">=</span><span class="n">index_column</span><span class="p">,</span> <span class="n">reaction_column_name</span><span class="o">=</span><span class="n">reaction_column_name</span>
+        <span class="p">)</span>
+        <span class="n">data_split</span> <span class="o">=</span> <span class="n">pre_hash_series</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">splitter</span><span class="o">.</span><span class="n">get_split</span><span class="p">)</span>
+
+        <span class="n">train_df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">data_split</span> <span class="o">==</span> <span class="n">DataSplit</span><span class="o">.</span><span class="n">TRAIN</span><span class="p">]</span>
+        <span class="n">validation_df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">data_split</span> <span class="o">==</span> <span class="n">DataSplit</span><span class="o">.</span><span class="n">VALIDATION</span><span class="p">]</span>
+        <span class="n">test_df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">data_split</span> <span class="o">==</span> <span class="n">DataSplit</span><span class="o">.</span><span class="n">TEST</span><span class="p">]</span>
+
+        <span class="c1"># Shuffle the training split</span>
+        <span class="n">train_df</span> <span class="o">=</span> <span class="n">train_df</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">frac</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">shuffle_seed</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">train_df</span><span class="p">,</span> <span class="n">validation_df</span><span class="p">,</span> <span class="n">test_df</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_pre_hashing_series</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">index_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">reaction_column_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">index_column</span> <span class="o">==</span> <span class="s2">&quot;products&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">df</span><span class="p">[</span><span class="n">reaction_column_name</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">value</span><span class="p">:</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;&gt;&gt;&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">index_column</span> <span class="o">==</span> <span class="s2">&quot;precursors&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">df</span><span class="p">[</span><span class="n">reaction_column_name</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">value</span><span class="p">:</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;&gt;&gt;&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">index_column</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">df</span><span class="p">[</span><span class="n">index_column</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">index_column</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="split"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.stable_data_splitter.split.html#rxn.reaction_preprocessing.stable_data_splitter.split">[docs]</a><span class="k">def</span> <span class="nf">split</span><span class="p">(</span><span class="n">cfg</span><span class="p">:</span> <span class="n">SplitConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">output_directory</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">output_directory</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">Path</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">input_file_path</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Input file for standardization does not exist: </span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">input_file_path</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">input_file_path</span><span class="p">,</span> <span class="n">lineterminator</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1"># Split into train, validation, and test sets, but do not export yet</span>
+    <span class="n">train</span><span class="p">,</span> <span class="n">validation</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">StableDataSplitter</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">,</span>
+        <span class="n">reaction_column_name</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">reaction_column_name</span><span class="p">,</span>
+        <span class="n">index_column</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">index_column</span><span class="p">,</span>
+        <span class="n">split_ratio</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">split_ratio</span><span class="p">,</span>
+        <span class="n">hash_seed</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">hash_seed</span><span class="p">,</span>
+        <span class="n">shuffle_seed</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">shuffle_seed</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Get the file name without the extension</span>
+    <span class="n">stem</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">input_file_path</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span>
+
+    <span class="c1"># Example of exporting one of the sets</span>
+    <span class="n">train</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_directory</span><span class="p">,</span> <span class="n">stem</span> <span class="o">+</span> <span class="s2">&quot;.train.csv&quot;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">validation</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_directory</span><span class="p">,</span> <span class="n">stem</span> <span class="o">+</span> <span class="s2">&quot;.validation.csv&quot;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+    <span class="n">test</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_directory</span><span class="p">,</span> <span class="n">stem</span> <span class="o">+</span> <span class="s2">&quot;.test.csv&quot;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright IBM RXN team 2022.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

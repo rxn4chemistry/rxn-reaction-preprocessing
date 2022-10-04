@@ -1,0 +1,28 @@
+rxn.reaction\_preprocessing.utils.RandomType
+============================================
+
+.. currentmodule:: rxn.reaction_preprocessing.utils
+
+.. autoclass:: RandomType
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~RandomType.molecules
+      ~RandomType.unrestricted
+      ~RandomType.restricted
+      ~RandomType.rotated
+   
+   

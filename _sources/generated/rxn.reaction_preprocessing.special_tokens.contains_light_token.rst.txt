@@ -1,0 +1,6 @@
+rxn.reaction\_preprocessing.special\_tokens.contains\_light\_token
+==================================================================
+
+.. currentmodule:: rxn.reaction_preprocessing.special_tokens
+
+.. autofunction:: contains_light_token

@@ -1,0 +1,39 @@
+rxn.reaction\_preprocessing.config.Config
+=========================================
+
+.. currentmodule:: rxn.reaction_preprocessing.config
+
+.. autoclass:: Config
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Config.__init__
+      ~Config.from_generic_config
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Config.data
+      ~Config.common
+      ~Config.rxn_import
+      ~Config.standardize
+      ~Config.preprocess
+      ~Config.augment
+      ~Config.split
+      ~Config.tokenize
+   
+   
