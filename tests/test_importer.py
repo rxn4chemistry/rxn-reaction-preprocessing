@@ -35,7 +35,7 @@ def output_file() -> Generator[str, None, None]:
         yield output_file
 
 
-def test_import_from_txt(input_file: str, output_file: str):
+def test_import_from_txt(input_file: str, output_file: str) -> None:
     # Write some reactions to a TXT file
     reactions = ["CC>>CC", "OO>>OO", "C.C.O>>CCO", "C.[Na+].[Cl-]>>C"]
     dump_list_to_file(reactions, input_file)
@@ -56,7 +56,7 @@ def test_import_from_txt(input_file: str, output_file: str):
     assert df["rxn_original"].tolist() == reactions
 
 
-def test_import_from_csv(input_file: str, output_file: str):
+def test_import_from_csv(input_file: str, output_file: str) -> None:
     # Write some reactions to a CSV file
     reactions = ["CC>>CC", "OO>>OO", "C.C.O>>CCO", "C.[Na+].[Cl-]>>C"]
     dummy_data = ["A", "B", "C", "D"]
@@ -81,7 +81,7 @@ def test_import_from_csv(input_file: str, output_file: str):
     assert df["smiles"].tolist() == reactions
 
 
-def test_import_from_tsv(input_file: str, output_file: str):
+def test_import_from_tsv(input_file: str, output_file: str) -> None:
     # Write some reactions to a TSV file
     reactions = ["CC>>CC", "OO>>OO", "C.C.O>>CCO", "C.[Na+].[Cl-]>>C"]
     dummy_data = ["A", "B", "C", "D"]
@@ -106,7 +106,7 @@ def test_import_from_tsv(input_file: str, output_file: str):
     assert df["smiles"].tolist() == reactions
 
 
-def test_smiles_format_is_updated(input_file: str, output_file: str):
+def test_smiles_format_is_updated(input_file: str, output_file: str) -> None:
     # The import must support both extended reaction SMILES (with "|f:" notation),
     # as well as reaction SMILES with the fragment bond "~", even in the same file.
     reactions = [
@@ -144,7 +144,7 @@ def test_smiles_format_is_updated(input_file: str, output_file: str):
     assert df["smiles"].tolist() == reactions
 
 
-def test_dot_as_fragment_bond(input_file: str, output_file: str):
+def test_dot_as_fragment_bond(input_file: str, output_file: str) -> None:
     # When the dot is given as a fragment bond, other fragment information is allowed in
     # the input, but will not be present anymore in the output.
     reactions = [
@@ -182,7 +182,7 @@ def test_dot_as_fragment_bond(input_file: str, output_file: str):
     assert df["smiles"].tolist() == reactions
 
 
-def test_rename_column_to_avoid_overwrite(input_file: str, output_file: str):
+def test_rename_column_to_avoid_overwrite(input_file: str, output_file: str) -> None:
     reactions = ["CC>>CC", "OO>>OO", "C.C.O>>CCO", "C.[Na+].[Cl-]>>C |f:1.2|"]
     expected = ["CC>>CC", "OO>>OO", "C.C.O>>CCO", "C.[Na+]~[Cl-]>>C"]
 
@@ -207,7 +207,9 @@ def test_rename_column_to_avoid_overwrite(input_file: str, output_file: str):
     assert df["rxn_original"].tolist() == reactions
 
 
-def test_raises_when_column_name_is_incorrect(input_file: str, output_file: str):
+def test_raises_when_column_name_is_incorrect(
+    input_file: str, output_file: str
+) -> None:
     # Write some reactions to a CSV file
     reactions = ["CC>>CC", "OO>>OO", "C.C.O>>CCO", "C.[Na+].[Cl-]>>C"]
     pd.DataFrame({"smiles": reactions}).to_csv(input_file, index=False)
@@ -226,7 +228,7 @@ def test_raises_when_column_name_is_incorrect(input_file: str, output_file: str)
         rxn_import(cfg)
 
 
-def test_light_and_heat(input_file: str, output_file: str):
+def test_light_and_heat(input_file: str, output_file: str) -> None:
     reactions = ["CC>>CC", "OO>>OO", "C.C.O>>CCO", "C=C>>CC"]
     has_light = [False, True, True, False]
     has_heat = [False, True, False, True]
@@ -263,7 +265,9 @@ def test_light_and_heat(input_file: str, output_file: str):
     assert df["smiles"].tolist() == reactions
 
 
-def test_light_and_heat_with_inexisting_column(input_file: str, output_file: str):
+def test_light_and_heat_with_inexisting_column(
+    input_file: str, output_file: str
+) -> None:
     reactions = ["CC>>CC", "OO>>OO", "C.C.O>>CCO", "C=C>>CC"]
     pd.DataFrame({"smiles": reactions}).to_csv(input_file, index=False)
 
@@ -282,7 +286,9 @@ def test_light_and_heat_with_inexisting_column(input_file: str, output_file: str
         rxn_import(cfg)
 
 
-def test_light_and_heat_with_non_boolean_type(input_file: str, output_file: str):
+def test_light_and_heat_with_non_boolean_type(
+    input_file: str, output_file: str
+) -> None:
     reactions = ["CC>>CC", "OO>>OO", "C.C.O>>CCO", "C=C>>CC"]
     has_light = ["no", "yes", "no", "yes"]  # Not valid - must be boolean
     pd.DataFrame({"smiles": reactions, "light": has_light}).to_csv(
@@ -304,7 +310,7 @@ def test_light_and_heat_with_non_boolean_type(input_file: str, output_file: str)
         rxn_import(cfg)
 
 
-def test_atom_mapping_removal(input_file: str, output_file: str):
+def test_atom_mapping_removal(input_file: str, output_file: str) -> None:
     reactions = ["[CH3:1][CH3:2]>>[CH2:1]=[CH2:2]", "OO>>OO", "[CH4:1].C.O>>[CH3:1]CO"]
     expected = ["[CH3][CH3]>>[CH2]=[CH2]", "OO>>OO", "[CH4].C.O>>[CH3]CO"]
     pd.DataFrame({"smiles": reactions}).to_csv(input_file, index=False)
@@ -328,7 +334,7 @@ def test_atom_mapping_removal(input_file: str, output_file: str):
     assert pd.read_csv(output_file)["rxn"].tolist() == reactions
 
 
-def test_invalid_reactions_are_ignored(input_file: str, output_file: str):
+def test_invalid_reactions_are_ignored(input_file: str, output_file: str) -> None:
     # Write some reactions to a CSV file. Two of them (indices 1 and 4) are invalid.
     reactions = [
         "CC>>CC",

@@ -134,9 +134,9 @@ class Standardizer:
         annotations: List[MoleculeAnnotation],
         discard_unannotated_metals: bool,
         reaction_column_name: str,
-        fragment_bond: str = None,
+        fragment_bond: Optional[str] = None,
         remove_stereo_if_not_defined_in_precursors: bool = False,
-    ):
+    ) -> "Standardizer":
         """
         A helper function to read a list or csv of VALID reactions (in the sense of RDKIT).
 

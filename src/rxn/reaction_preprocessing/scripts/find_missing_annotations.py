@@ -2,11 +2,11 @@ from typing import Optional
 
 import click
 
-from rxn.reaction_preprocessing import Standardizer
 from rxn.reaction_preprocessing.annotations.molecule_annotation import (
     load_annotations_multiple,
 )
 from rxn.reaction_preprocessing.config import DEFAULT_ANNOTATION_FILES
+from rxn.reaction_preprocessing.standardizer import Standardizer
 
 
 @click.command()
@@ -21,7 +21,7 @@ from rxn.reaction_preprocessing.config import DEFAULT_ANNOTATION_FILES
 @click.option("--fragment_bond", default="~")
 def main(
     csv_file: str, output_csv: Optional[str], column_name: str, fragment_bond: str
-):
+) -> None:
     """Find the missing annotation in a set of reactions.
 
     The missing annotations will be printed to standard output, and optionally

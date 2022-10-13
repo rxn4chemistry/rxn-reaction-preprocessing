@@ -16,7 +16,7 @@ annotations_file = str(
 
 
 @pytest.fixture
-def standardizer():
+def standardizer() -> Standardizer:
     df = pd.DataFrame(
         {
             "rxn": [
@@ -37,7 +37,7 @@ def standardizer():
 
 
 @pytest.fixture
-def standardizer_without_fragment():
+def standardizer_without_fragment() -> Standardizer:
     df = pd.DataFrame(
         {
             "rxn": [
@@ -56,7 +56,7 @@ def standardizer_without_fragment():
     return Standardizer(df, annotations, True, "rxn", fragment_bond=None)
 
 
-def test_standardization(standardizer: Standardizer):
+def test_standardization(standardizer: Standardizer) -> None:
     new_df = standardizer.standardize().df
     converted_rxns = [
         "O=C1CCC2(CC1)OCCO2>>C[C@@H]1CC2(CCC1=O)OCCO2",
@@ -77,7 +77,7 @@ def test_standardization(standardizer: Standardizer):
     )
 
 
-def test_standardization_non_canonical(standardizer: Standardizer):
+def test_standardization_non_canonical(standardizer: Standardizer) -> None:
     new_df = standardizer.standardize(canonicalize=False).df
     converted_rxns = [
         "O=C1CCC2(CC1)OCCO2>>O=C1CCC2(C[C@H]1C)OCCO2",
@@ -98,7 +98,9 @@ def test_standardization_non_canonical(standardizer: Standardizer):
     )
 
 
-def test_standardization_without_fragment(standardizer_without_fragment: Standardizer):
+def test_standardization_without_fragment(
+    standardizer_without_fragment: Standardizer,
+) -> None:
     new_df = standardizer_without_fragment.standardize().df
 
     converted_rxns = [
@@ -121,7 +123,7 @@ def test_standardization_without_fragment(standardizer_without_fragment: Standar
 
 def test_standardization_without_discarding_unannotated(
     standardizer_without_fragment: Standardizer,
-):
+) -> None:
     standardizer_without_fragment.molecule_standardizer.discard_unannotated_metals = (
         False
     )
@@ -146,7 +148,9 @@ def test_standardization_without_discarding_unannotated(
     )
 
 
-def test_standardization_remove_stereo_when_only_in_product(standardizer: Standardizer):
+def test_standardization_remove_stereo_when_only_in_product(
+    standardizer: Standardizer,
+) -> None:
     standardizer.remove_stereo_if_not_defined_in_precursors = True
     new_df = standardizer.standardize().df
     converted_rxns = [

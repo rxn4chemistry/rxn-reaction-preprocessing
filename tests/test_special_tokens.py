@@ -14,12 +14,12 @@ from rxn.reaction_preprocessing.special_tokens import (
 )
 
 
-def test_special_tokens_are_canonical():
+def test_special_tokens_are_canonical() -> None:
     assert canonicalize_smiles(LIGHT_TOKEN) == LIGHT_TOKEN
     assert canonicalize_smiles(HEAT_TOKEN) == HEAT_TOKEN
 
 
-def test_add_light_token():
+def test_add_light_token() -> None:
     # in-place
     reaction = ReactionEquation.from_string("A.B>>C")
     updated = add_light_token(reaction, in_place=True)
@@ -34,7 +34,7 @@ def test_add_light_token():
     assert reaction.to_string() == "A.B>>C"
 
 
-def test_add_heat_token():
+def test_add_heat_token() -> None:
     # in-place
     reaction = ReactionEquation.from_string("A.B>>C")
     updated = add_heat_token(reaction, in_place=True)
@@ -49,7 +49,7 @@ def test_add_heat_token():
     assert reaction.to_string() == "A.B>>C"
 
 
-def test_contains_light_token():
+def test_contains_light_token() -> None:
     # no light token
     reaction = ReactionEquation.from_string("A.B>>C")
     assert not contains_light_token(reaction)
@@ -74,7 +74,7 @@ def test_contains_light_token():
     assert not contains_light_token(reaction)
 
 
-def test_contains_heat_token():
+def test_contains_heat_token() -> None:
     # No heat token
     reaction = ReactionEquation.from_string("A.B>>C")
     assert not contains_heat_token(reaction)
@@ -99,7 +99,7 @@ def test_contains_heat_token():
     assert not contains_heat_token(reaction)
 
 
-def test_strip_all_special_tokens():
+def test_strip_all_special_tokens() -> None:
     # No special token - no change needed
     reaction = ReactionEquation.from_string("A.B>>C")
     assert strip_all_special_tokens(reaction).to_string() == "A.B>>C"
@@ -132,7 +132,7 @@ def test_strip_all_special_tokens():
     assert updated != reaction
 
 
-def test_strip_light_token():
+def test_strip_light_token() -> None:
     # No special token - no change needed
     reaction = ReactionEquation.from_string("A.B>>C")
     assert strip_light_token(reaction).to_string() == "A.B>>C"
@@ -159,7 +159,7 @@ def test_strip_light_token():
     assert updated != reaction
 
 
-def test_strip_heat_token():
+def test_strip_heat_token() -> None:
     # No special token - no change needed
     reaction = ReactionEquation.from_string("A.B>>C")
     assert strip_heat_token(reaction).to_string() == "A.B>>C"
@@ -186,7 +186,7 @@ def test_strip_heat_token():
     assert updated != reaction
 
 
-def test_add_on_lists():
+def test_add_on_lists() -> None:
     # The add_* functions work not only on ReactionEquation instances,
     # but also on lists of strings
 
@@ -207,7 +207,7 @@ def test_add_on_lists():
     assert smiles == ["A", "B", "C"]
 
 
-def test_contains_on_iterables():
+def test_contains_on_iterables() -> None:
     # The contains_* functions work not only on ReactionEquation instances,
     # but also on iterables of strings
 
@@ -226,7 +226,7 @@ def test_contains_on_iterables():
     assert contains_light_token(("A", "B", LIGHT_TOKEN, "C.D"))
 
 
-def test_strip_on_list():
+def test_strip_on_list() -> None:
     # The strip_* functions work not only on ReactionEquation instances,
     # but also on lists of strings
 

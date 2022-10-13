@@ -10,7 +10,7 @@ from rxn.reaction_preprocessing.annotations.molecule_annotation import (
 )
 
 
-def test_molecule_annotation():
+def test_molecule_annotation() -> None:
     # basic instantiation check
     annotation = MoleculeAnnotation(
         original_smiles="CC~O~N",
@@ -43,7 +43,7 @@ def test_molecule_annotation():
         _ = annotation.updated_without_fragment_bond
 
 
-def test_import_from_file():
+def test_import_from_file() -> None:
     annotation_file = str(Path(__file__).parent / "test_molecule_annotations.json")
     annotations = load_annotations(annotation_file)
 
@@ -63,7 +63,7 @@ def test_import_from_file():
     assert fourth.decision is AnnotationDecision.REJECT
 
 
-def test_import_from_multiple_files():
+def test_import_from_multiple_files() -> None:
     annotation_file = str(Path(__file__).parent / "test_molecule_annotations.json")
 
     # Loading 1 file only delivers the same if called from path or from list of paths

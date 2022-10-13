@@ -9,7 +9,7 @@ from rxn.reaction_preprocessing import MixedReactionFilter, Preprocessor
 
 
 @pytest.fixture
-def preprocessor():
+def preprocessor() -> Preprocessor:
     df = pd.DataFrame(
         {
             "rxn": [
@@ -25,7 +25,7 @@ def preprocessor():
 
 
 @pytest.fixture
-def filter():
+def filter() -> MixedReactionFilter:
     return MixedReactionFilter(
         max_reactants=5,
         max_agents=0,
@@ -40,21 +40,23 @@ def filter():
     )
 
 
-def test_filter(preprocessor, filter):
+def test_filter(preprocessor: Preprocessor, filter: MixedReactionFilter) -> None:
     preprocessor.filter(filter, False)
     assert not preprocessor.df._rxn_valid.iloc[0]
     assert preprocessor.df._rxn_valid.iloc[1]
     assert not preprocessor.df._rxn_valid.iloc[2]
 
 
-def test_filter_verbose(preprocessor, filter):
+def test_filter_verbose(
+    preprocessor: Preprocessor, filter: MixedReactionFilter
+) -> None:
     preprocessor.filter(filter, True)
     assert len(preprocessor.df._rxn_valid_messages.iloc[0]) == 3
     assert len(preprocessor.df._rxn_valid_messages.iloc[1]) == 0
     assert len(preprocessor.df._rxn_valid_messages.iloc[2]) == 7
 
 
-def test_preprocess_with_rdkit_bug_for_concatenated_smiles():
+def test_preprocess_with_rdkit_bug_for_concatenated_smiles() -> None:
     # In an earlier version, preprocessing failed for rare cases when RDKit cannot
     # convert concatenated SMILES into an RDKit Mol.
     # Was related to https://github.com/rdkit/rdkit/issues/4266

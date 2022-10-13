@@ -7,7 +7,7 @@ from rxn.reaction_preprocessing.annotations.molecule_annotation import (
 
 
 class MoleculeNotAnnotated(ValueError):
-    def __init__(self, smiles):
+    def __init__(self, smiles: str):
         super().__init__(f'The molecule "{smiles}" was not annotated.')
 
 

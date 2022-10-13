@@ -9,12 +9,12 @@ def standardizer() -> ReactionStandardizer:
     return ReactionStandardizer()
 
 
-def test_merges_reactants_and_reagents(standardizer: ReactionStandardizer):
+def test_merges_reactants_and_reagents(standardizer: ReactionStandardizer) -> None:
     reaction = ReactionEquation.from_string("A.B.C>D.E>F.G")
     assert standardizer(reaction).to_string() == "A.B.C.D.E>>F.G"
 
 
-def test_removes_precursors_from_product(standardizer: ReactionStandardizer):
+def test_removes_precursors_from_product(standardizer: ReactionStandardizer) -> None:
     # in the reactants
     reaction = ReactionEquation.from_string("A.B.C>D.E>F.A.G")
     assert standardizer(reaction).to_string() == "A.B.C.D.E>>F.G"
@@ -34,7 +34,7 @@ def test_removes_precursors_from_product(standardizer: ReactionStandardizer):
     assert standardizer(reaction).to_string("~") == "A.B~F>>G~A"
 
 
-def test_remove_duplicate_compounds(standardizer: ReactionStandardizer):
+def test_remove_duplicate_compounds(standardizer: ReactionStandardizer) -> None:
     reaction = ReactionEquation.from_string("A.B.C.A.D>B>F.G.F")
     assert standardizer(reaction).to_string() == "A.B.C.D>>F.G"
 
@@ -43,12 +43,12 @@ def test_remove_duplicate_compounds(standardizer: ReactionStandardizer):
     assert standardizer(reaction).to_string("~") == "A.A~B.B.C~D>>E"
 
 
-def test_sorts_the_compounds(standardizer: ReactionStandardizer):
+def test_sorts_the_compounds(standardizer: ReactionStandardizer) -> None:
     reaction = ReactionEquation.from_string("N.A>D.E>M.F")
     assert standardizer(reaction).to_string() == "A.D.E.N>>F.M"
 
 
-def test_does_not_modify_original_reaction(standardizer: ReactionStandardizer):
+def test_does_not_modify_original_reaction(standardizer: ReactionStandardizer) -> None:
     # example with multiple things that will be changed
     rxn_string = "D.B.A>C>D.E"
     expected = "A.B.C.D>>E"

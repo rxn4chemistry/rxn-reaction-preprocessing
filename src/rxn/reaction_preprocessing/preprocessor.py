@@ -7,7 +7,7 @@ import logging
 import typing
 from collections import Counter
 from pathlib import Path
-from typing import Callable, List
+from typing import Callable, List, Optional
 
 import numpy as np
 import pandas as pd
@@ -32,7 +32,7 @@ class Preprocessor:
         valid_column: str = "_rxn_valid",
         valid_message_column: str = "_rxn_valid_messages",
         fragment_bond: str = ".",
-        clean_data=True,
+        clean_data: bool = True,
     ):
         """Creates a new instance of the Preprocessor class.
 
@@ -62,7 +62,7 @@ class Preprocessor:
     #
     # Private Methods
     #
-    def __clean_data(self):
+    def __clean_data(self) -> None:
         """Drops records from the internal pandas DataFrame that do not contain valid reaction
         SMARTS (WARNING: Very naive, just checks for two greater-thans)"""
         self.df.drop(
@@ -122,9 +122,11 @@ class Preprocessor:
         self,
         filter: MixedReactionFilter,
         verbose: bool = False,
-        filter_func: Callable[[str, MixedReactionFilter], bool] = None,
-        filter_func_verbose: Callable[[str, MixedReactionFilter], List[str]] = None,
-    ):
+        filter_func: Optional[Callable[[str, MixedReactionFilter], bool]] = None,
+        filter_func_verbose: Optional[
+            Callable[[str, MixedReactionFilter], List[str]]
+        ] = None,
+    ) -> "Preprocessor":
         """Applies filter functions to the reaction. Alternatives for the default filter functions
         can be supplied. The default filters remove reactions containing molecules that could not
         be parse by rdkit's MolFromSmiles.
@@ -196,7 +198,7 @@ class Preprocessor:
         rxn_column = self.__reaction_column_name
         self.df[rxn_column] = self.df[rxn_column].apply(standardize_smiles)
 
-    def remove_duplicates(self):
+    def remove_duplicates(self) -> "Preprocessor":
         """A wrapper around pandas' drop_duplicates with the argument subset
         set to the reaction column name.
 
@@ -206,7 +208,7 @@ class Preprocessor:
         self.df.drop_duplicates(subset=[self.__reaction_column_name], inplace=True)
         return self
 
-    def remove_invalids(self):
+    def remove_invalids(self) -> "Preprocessor":
         """A wrapper around removing invalid options from pandas DataFrame.
 
         Returns:
@@ -218,7 +220,7 @@ class Preprocessor:
         )
         return self
 
-    def print_stats(self):
+    def print_stats(self) -> "Preprocessor":
         """Prints statistics of the filtration to stdout.
 
         Returns:
@@ -250,7 +252,9 @@ class Preprocessor:
     # Static Methods
     #
     @staticmethod
-    def read_csv(filepath: str, reaction_column_name: str, fragment_bond: str = "."):
+    def read_csv(
+        filepath: str, reaction_column_name: str, fragment_bond: str = "."
+    ) -> "Preprocessor":
         """A helper function to read a list or csv of reactions.
 
         Args:

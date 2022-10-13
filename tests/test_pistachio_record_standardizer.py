@@ -84,7 +84,7 @@ def create_dummy_record(
     }
 
 
-def test_pistachio_record_standardizer():
+def test_pistachio_record_standardizer() -> None:
     # Set up the standardizer, and overwrite its annotations manually
     config_standardize = StandardizeConfig(
         fragment_bond=FragmentBond.TILDE, annotation_file_paths=[]

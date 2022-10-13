@@ -6,7 +6,7 @@ from rxn.reaction_preprocessing.annotations.rejected_molecules_filter import (
 )
 
 
-def test_molecule_filter_with_molecule_smiles():
+def test_molecule_filter_with_molecule_smiles() -> None:
     rejected_molecules = ["O", "C[O-].[Na+]"]
     molecule_filter = RejectedMoleculesFilter(rejected_molecules)
 
@@ -24,7 +24,7 @@ def test_molecule_filter_with_molecule_smiles():
     assert molecule_filter.is_valid_molecule_smiles("[Na+].C[O-]")
 
 
-def test_molecule_filter_with_reaction_smiles():
+def test_molecule_filter_with_reaction_smiles() -> None:
     rejected_molecules = ["O", "C[O-].[Na+]"]
     molecule_filter = RejectedMoleculesFilter(rejected_molecules)
 
@@ -51,7 +51,7 @@ def test_molecule_filter_with_reaction_smiles():
     assert molecule_filter.is_valid_molecule_smiles("C[O-]~[Na+]")
 
 
-def test_molecule_filter_from_annotations():
+def test_molecule_filter_from_annotations() -> None:
     annotations = [
         MoleculeAnnotation("O", None, "accept", []),
         MoleculeAnnotation("C[O-]~[Na+]", None, "reject", []),

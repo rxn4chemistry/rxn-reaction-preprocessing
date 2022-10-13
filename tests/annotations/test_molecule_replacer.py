@@ -14,7 +14,7 @@ replacements: Dict[str, Union[str, List[str]]] = {
 }
 
 
-def test_replace_molecule_smiles():
+def test_replace_molecule_smiles() -> None:
     molecule_replacer = MoleculeReplacer(replacements)
 
     # Replaces the molecules only when they exactly match the full SMILES
@@ -38,7 +38,7 @@ def test_replace_molecule_smiles():
     ]
 
 
-def test_replace_in_reaction_smiles():
+def test_replace_in_reaction_smiles() -> None:
     molecule_replacer = MoleculeReplacer(replacements)
 
     # 1) No change if nothing matches
@@ -70,7 +70,7 @@ def test_replace_in_reaction_smiles():
     assert molecule_replacer.replace_in_reaction_smiles(smiles, "~") == smiles
 
 
-def test_replace_in_reaction_equation():
+def test_replace_in_reaction_equation() -> None:
     molecule_replacer = MoleculeReplacer(replacements)
 
     # 1) '(C)(C)' is replaced by 'CC'
@@ -89,7 +89,7 @@ def test_replace_in_reaction_equation():
     ) == ReactionEquation(["CC", "[C].[Pd]", "CCCC", "O"], [], ["CCO"])
 
 
-def test_molecule_replacer_from_annotations():
+def test_molecule_replacer_from_annotations() -> None:
     annotations = [
         MoleculeAnnotation("O", None, "accept", []),
         MoleculeAnnotation("(C)(C)", "CC", "reject", []),

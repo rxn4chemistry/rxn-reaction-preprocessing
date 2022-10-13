@@ -16,7 +16,9 @@ from rxn.utilities.files import count_lines, iterate_lines_from_file
     is_flag=True,
     help='If given, "[" and "]" will not be added around the class id.',
 )
-def main(tokenized_products: str, class_ids: str, output_file: str, no_brackets: bool):
+def main(
+    tokenized_products: str, class_ids: str, output_file: str, no_brackets: bool
+) -> None:
     """Combine the class tokens with the file with the tokenized products."""
 
     n_products = count_lines(tokenized_products)

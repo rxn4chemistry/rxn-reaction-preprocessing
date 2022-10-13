@@ -5,11 +5,11 @@ from typing import Any, Dict
 from rxn.chemutils.reaction_smiles import parse_any_reaction_smiles
 from rxn.chemutils.utils import remove_atom_mapping
 
-from rxn.reaction_preprocessing import MixedReactionFilter
 from rxn.reaction_preprocessing.annotations.molecule_annotation import (
     load_annotations_multiple,
 )
 from rxn.reaction_preprocessing.config import PreprocessConfig, StandardizeConfig
+from rxn.reaction_preprocessing.mixed_reaction_filter import MixedReactionFilter
 from rxn.reaction_preprocessing.molecule_standardizer import MoleculeStandardizer
 from rxn.reaction_preprocessing.reaction_standardizer import ReactionStandardizer
 
