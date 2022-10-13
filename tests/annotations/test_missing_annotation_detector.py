@@ -16,7 +16,7 @@ def mock_requires_annotation(smiles: str) -> bool:
     return "1" in smiles
 
 
-def test_molecule_needs_annotation():
+def test_molecule_needs_annotation() -> None:
     annotated_molecules = {
         "CCCC",
         "C1CC1",
@@ -37,7 +37,7 @@ def test_molecule_needs_annotation():
     assert not mad.molecule_needs_annotation("c1ccccc1")
 
 
-def test_missing_annotations_in_reaction_equations():
+def test_missing_annotations_in_reaction_equations() -> None:
     annotated_molecules = {
         "CCCC",
         "C1CC1",
@@ -74,7 +74,7 @@ def test_missing_annotations_in_reaction_equations():
     assert list(mad.missing_in_reaction_equations(reactions)) == expected_molecules
 
 
-def test_missing_annotations_in_reaction_smiles():
+def test_missing_annotations_in_reaction_smiles() -> None:
     annotated_molecules = {
         "CCCC",
         "C1CC1",
@@ -104,7 +104,7 @@ def test_missing_annotations_in_reaction_smiles():
     ) == ["C1NC1", "CCC1CC1", "N.CCC1NC1"]
 
 
-def test_default_required_annotations():
+def test_default_required_annotations() -> None:
     # If the callback is not provided, falls back to the extended transition metals
     annotated_molecules = {
         "C[Pd]C",
@@ -118,7 +118,7 @@ def test_default_required_annotations():
     assert mad.molecule_needs_annotation("C[Al](C)C")
 
 
-def test_from_annotations():
+def test_from_annotations() -> None:
     annotations = [
         MoleculeAnnotation("C[Pd]C", None, "accept", []),
         MoleculeAnnotation("O[Pd]O", None, "reject", []),

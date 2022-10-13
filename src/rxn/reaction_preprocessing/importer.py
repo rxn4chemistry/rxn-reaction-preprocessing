@@ -117,7 +117,7 @@ def _add_token(
 ) -> str:
     """Function to use in pandas.apply to update the reaction SMILES."""
 
-    reaction_smiles = row[cfg.reaction_column_name]
+    reaction_smiles: str = row[cfg.reaction_column_name]
     special_flag_active = row[column_to_check]
 
     if not isinstance(special_flag_active, bool):

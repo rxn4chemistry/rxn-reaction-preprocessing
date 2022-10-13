@@ -11,7 +11,7 @@ from rxn.reaction_preprocessing.utils import ReactionSection, reset_random_seed
 
 
 @pytest.fixture
-def augmenter():
+def augmenter() -> Augmenter:
     reset_random_seed()
     df = pd.DataFrame(
         {
@@ -25,7 +25,7 @@ def augmenter():
     return Augmenter(df, "rxn", fragment_bond="~")
 
 
-def test_restricted(augmenter):
+def test_restricted(augmenter: Augmenter) -> None:
     new_df = augmenter.augment(rrp.RandomType.restricted, permutations=1)
 
     expected = [
@@ -36,7 +36,7 @@ def test_restricted(augmenter):
     assert new_df["rxn_restricted"].tolist() == expected
 
 
-def test_unrestricted(augmenter):
+def test_unrestricted(augmenter: Augmenter) -> None:
     new_df = augmenter.augment(rrp.RandomType.unrestricted, permutations=1)
 
     expected = [
@@ -47,7 +47,7 @@ def test_unrestricted(augmenter):
     assert new_df["rxn_unrestricted"].tolist() == expected
 
 
-def test_rotated(augmenter):
+def test_rotated(augmenter: Augmenter) -> None:
     new_df = augmenter.augment(rrp.RandomType.rotated, permutations=1)
 
     expected = [
@@ -58,7 +58,7 @@ def test_rotated(augmenter):
     assert new_df["rxn_rotated"].tolist() == expected
 
 
-def test_molecules_order(augmenter):
+def test_molecules_order(augmenter: Augmenter) -> None:
     new_df = augmenter.augment(rrp.RandomType.molecules, permutations=1)
 
     expected = [
@@ -69,7 +69,7 @@ def test_molecules_order(augmenter):
     assert new_df["rxn_molecules"].tolist() == expected
 
 
-def test_multiple_augmentation_molecules(augmenter):
+def test_multiple_augmentation_molecules(augmenter: Augmenter) -> None:
     new_df = augmenter.augment(rrp.RandomType.molecules, permutations=3)
 
     expected = [
@@ -83,7 +83,7 @@ def test_multiple_augmentation_molecules(augmenter):
     assert new_df["rxn_molecules"].tolist() == expected
 
 
-def test_multiple_augmentation_rotated(augmenter):
+def test_multiple_augmentation_rotated(augmenter: Augmenter) -> None:
     new_df = augmenter.augment(rrp.RandomType.rotated, permutations=3)
 
     expected = [
@@ -100,7 +100,7 @@ def test_multiple_augmentation_rotated(augmenter):
     assert new_df["rxn_rotated"].tolist() == expected
 
 
-def test_multiple_augmentation_rotated_on_products(augmenter):
+def test_multiple_augmentation_rotated_on_products(augmenter: Augmenter) -> None:
     new_df = augmenter.augment(
         rrp.RandomType.rotated,
         rxn_section_to_augment=ReactionSection.products,

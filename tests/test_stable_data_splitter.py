@@ -22,11 +22,11 @@ def random_strings(n: int) -> List[str]:
 
 
 @pytest.fixture
-def data():
+def data() -> pd.DataFrame:
     return pd.DataFrame(data={"col_1": random_strings(1000)})
 
 
-def test_split(data):
+def test_split(data: pd.DataFrame) -> None:
     train, validate, test = StableDataSplitter.split(
         data, "rxn", "col_1", split_ratio=0.05
     )
@@ -85,7 +85,7 @@ def test_split(data):
     ]
 
 
-def test_split_with_different_hash_seed(data):
+def test_split_with_different_hash_seed(data: pd.DataFrame) -> None:
     train1, validate1, test1 = StableDataSplitter.split(data, "rxn", "col_1")
     train2, validate2, test2 = StableDataSplitter.split(
         data, "rxn", "col_1", hash_seed=123
@@ -111,7 +111,7 @@ def all_samples_in_one_split(splits: Sequence[pd.DataFrame]) -> bool:
     return number_non_empty_splits == 1
 
 
-def test_split_on_products():
+def test_split_on_products() -> None:
     # With products splitting, all the reactions end up in the same split
     df = pd.DataFrame(
         data={"col_1": ["C>>CCC", "CC>>CCC", "CCC>>CCC", "CCCC>>CCC", "CCCCC>>CCC"]}
@@ -134,7 +134,7 @@ def test_split_on_products():
     assert not all_samples_in_one_split(splits)
 
 
-def test_split_on_reactants():
+def test_split_on_reactants() -> None:
     # With precursors splitting, all the reactions end up in the same split
     df = pd.DataFrame(
         data={
@@ -165,7 +165,7 @@ def test_split_on_reactants():
     assert not all_samples_in_one_split(splits)
 
 
-def test_train_split_is_shuffled():
+def test_train_split_is_shuffled() -> None:
     df = pd.DataFrame(data={"col_1": random_strings(1000)})
 
     train, validate, test = StableDataSplitter.split(

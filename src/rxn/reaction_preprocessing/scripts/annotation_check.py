@@ -30,7 +30,7 @@ def iterate_rxn_smiles(csv_file: str, column_name: str) -> Generator[str, None, 
 @click.option(
     "--column_name", required=True, help="Column containing the reaction SMILES"
 )
-def main(csv_file: str, column_name: str):
+def main(csv_file: str, column_name: str) -> None:
     """Check for missing annotations: what is already annotated (accepted /
     rejected), what still needs to be annotated."""
 

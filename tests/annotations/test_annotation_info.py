@@ -15,7 +15,7 @@ annotations = [
 ]
 
 
-def test_is_annotated():
+def test_is_annotated() -> None:
     annotation_info = AnnotationInfo(annotations)
 
     # The thee given molecules
@@ -29,7 +29,7 @@ def test_is_annotated():
     assert not annotation_info.is_annotated("[C]~CCCC~[Pd]")
 
 
-def test_is_accepted():
+def test_is_accepted() -> None:
     annotation_info = AnnotationInfo(annotations)
 
     # The thee given molecules
@@ -45,7 +45,7 @@ def test_is_accepted():
         _ = annotation_info.is_accepted("[C]~CCCC~[Pd]")
 
 
-def test_is_rejected():
+def test_is_rejected() -> None:
     annotation_info = AnnotationInfo(annotations)
 
     # The thee given molecules

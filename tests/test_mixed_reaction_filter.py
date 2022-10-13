@@ -62,77 +62,127 @@ def alchemic_reaction() -> ReactionEquation:
     return ReactionEquation.from_string("C>[Hg]>[Au]")
 
 
-def test_max_reactants_exceeded(filter, good_reaction, bad_reaction):
+def test_max_reactants_exceeded(
+    filter: MixedReactionFilter,
+    good_reaction: ReactionEquation,
+    bad_reaction: ReactionEquation,
+) -> None:
     assert not filter.max_reactants_exceeded(good_reaction)
     assert filter.max_reactants_exceeded(bad_reaction)
 
 
-def test_max_agents_exceeded(filter, good_reaction, bad_reaction):
+def test_max_agents_exceeded(
+    filter: MixedReactionFilter,
+    good_reaction: ReactionEquation,
+    bad_reaction: ReactionEquation,
+) -> None:
     assert not filter.max_agents_exceeded(good_reaction)
     assert filter.max_agents_exceeded(bad_reaction)
 
 
-def test_max_products_exceeded(filter, good_reaction, bad_reaction):
+def test_max_products_exceeded(
+    filter: MixedReactionFilter,
+    good_reaction: ReactionEquation,
+    bad_reaction: ReactionEquation,
+) -> None:
     assert not filter.max_products_exceeded(good_reaction)
     assert filter.max_products_exceeded(bad_reaction)
 
 
-def test_min_reactants_subceeded(filter, good_reaction, small_reaction):
+def test_min_reactants_subceeded(
+    filter: MixedReactionFilter,
+    good_reaction: ReactionEquation,
+    small_reaction: ReactionEquation,
+) -> None:
     assert not filter.min_reactants_subceeded(good_reaction)
     assert filter.min_reactants_subceeded(small_reaction)
 
 
-def test_min_agents_subceeded(filter, good_reaction, small_reaction):
+def test_min_agents_subceeded(
+    filter: MixedReactionFilter,
+    good_reaction: ReactionEquation,
+    small_reaction: ReactionEquation,
+) -> None:
     assert not filter.min_agents_subceeded(good_reaction)
 
 
-def test_min_products_subceeded(filter, good_reaction, small_reaction):
+def test_min_products_subceeded(
+    filter: MixedReactionFilter,
+    good_reaction: ReactionEquation,
+    small_reaction: ReactionEquation,
+) -> None:
     assert not filter.min_products_subceeded(good_reaction)
     assert filter.min_products_subceeded(small_reaction)
 
 
 def test_products_subset_of_reactants(
-    filter, good_reaction, bad_reaction, reaction_with_no_product
-):
+    filter: MixedReactionFilter,
+    good_reaction: ReactionEquation,
+    bad_reaction: ReactionEquation,
+    reaction_with_no_product: ReactionEquation,
+) -> None:
     assert not filter.products_subset_of_reactants(reaction_with_no_product)
     assert not filter.products_subset_of_reactants(good_reaction)
     assert filter.products_subset_of_reactants(bad_reaction)
 
 
 def test_products_single_atoms(
-    filter, good_reaction, bad_reaction, reaction_with_no_product
-):
+    filter: MixedReactionFilter,
+    good_reaction: ReactionEquation,
+    bad_reaction: ReactionEquation,
+    reaction_with_no_product: ReactionEquation,
+) -> None:
     assert not filter.products_single_atoms(reaction_with_no_product)
     assert not filter.products_single_atoms(good_reaction)
     assert filter.products_single_atoms(bad_reaction)
 
 
-def test_max_reactant_tokens_exceeded(filter, good_reaction, big_reaction):
+def test_max_reactant_tokens_exceeded(
+    filter: MixedReactionFilter,
+    good_reaction: ReactionEquation,
+    big_reaction: ReactionEquation,
+) -> None:
     assert not filter.max_reactant_tokens_exceeded(good_reaction)
     assert filter.max_reactant_tokens_exceeded(big_reaction)
 
 
-def test_max_agent_tokens_exceeded(filter, good_reaction, big_reaction):
+def test_max_agent_tokens_exceeded(
+    filter: MixedReactionFilter,
+    good_reaction: ReactionEquation,
+    big_reaction: ReactionEquation,
+) -> None:
     assert not filter.max_agent_tokens_exceeded(good_reaction)
     assert filter.max_agent_tokens_exceeded(big_reaction)
 
 
-def test_max_product_tokens_exceeded(filter, good_reaction, big_reaction):
+def test_max_product_tokens_exceeded(
+    filter: MixedReactionFilter,
+    good_reaction: ReactionEquation,
+    big_reaction: ReactionEquation,
+) -> None:
     assert not filter.max_product_tokens_exceeded(good_reaction)
     assert filter.max_product_tokens_exceeded(big_reaction)
 
 
-def test_formal_charge_exceeded(filter, good_reaction, bad_reaction):
+def test_formal_charge_exceeded(
+    filter: MixedReactionFilter,
+    good_reaction: ReactionEquation,
+    bad_reaction: ReactionEquation,
+) -> None:
     assert not filter.formal_charge_exceeded(good_reaction)
     assert filter.formal_charge_exceeded(bad_reaction)
 
 
-def test_different_atom_types(filter, good_reaction, alchemic_reaction):
+def test_different_atom_types(
+    filter: MixedReactionFilter,
+    good_reaction: ReactionEquation,
+    alchemic_reaction: ReactionEquation,
+) -> None:
     assert not filter.different_atom_types(good_reaction)
     assert filter.different_atom_types(alchemic_reaction)
 
 
-def test_invalid_smiles(filter: MixedReactionFilter):
+def test_invalid_smiles(filter: MixedReactionFilter) -> None:
     # "[J]" is not a valid molecule
     reaction_with_invalid_smiles = ReactionEquation.from_string(
         "CCCCO.CCCCN.[J]>>CCCCOCCCCN"
@@ -145,7 +195,7 @@ def test_invalid_smiles(filter: MixedReactionFilter):
     )
 
 
-def test_smiles_with_asterisks(filter: MixedReactionFilter):
+def test_smiles_with_asterisks(filter: MixedReactionFilter) -> None:
     reactions_with_asterisks = [
         ReactionEquation.from_string("CCCCO.CCCCN>>CCCCOCCCCN*"),
         ReactionEquation.from_string("CCCCO.CCCCN*>>CCCCOCCCCN"),
@@ -155,10 +205,14 @@ def test_smiles_with_asterisks(filter: MixedReactionFilter):
         assert not filter.is_valid(reaction)
 
 
-def test_exception(filter, good_reaction, bad_reaction):
+def test_exception(
+    filter: MixedReactionFilter,
+    good_reaction: ReactionEquation,
+    bad_reaction: ReactionEquation,
+) -> None:
     # Nothing raised
-    _ = filter.validate(good_reaction)
+    filter.validate(good_reaction)
 
     # exception raised
     with pytest.raises(ReactionFilterError):
-        _ = filter.validate(bad_reaction)
+        filter.validate(bad_reaction)

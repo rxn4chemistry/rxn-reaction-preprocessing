@@ -8,11 +8,11 @@ from rxn.reaction_preprocessing import SmilesTokenizer
 
 
 @pytest.fixture
-def tokenizer():
+def tokenizer() -> SmilesTokenizer:
     return SmilesTokenizer()
 
 
-def test_tokenize(tokenizer):
+def test_tokenize(tokenizer: SmilesTokenizer) -> None:
     # Should be a more complete / complex test reaction
     assert (
         tokenizer.tokenize("[14C]Cl.O[Na]>O>[Na]Cl.[14C]O")

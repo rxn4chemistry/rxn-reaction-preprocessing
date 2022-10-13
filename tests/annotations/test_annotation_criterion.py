@@ -6,7 +6,7 @@ from rxn.reaction_preprocessing.annotations.annotation_criterion import (
 )
 
 
-def test_extended_transition_metals():
+def test_extended_transition_metals() -> None:
     # Test the function to get the extended transition metals
     elements_to_check = set(AnnotationCriterion.extended_transition_metals())
 
@@ -25,7 +25,7 @@ def test_extended_transition_metals():
     assert "Sn" not in elements_to_check
 
 
-def test_annotation_criterion():
+def test_annotation_criterion() -> None:
     # Here we indicate that in addition to the transition metals, phosphorus
     # requires an annotation, and also that Pd does not require annotations.
     annotation_criterion = AnnotationCriterion(

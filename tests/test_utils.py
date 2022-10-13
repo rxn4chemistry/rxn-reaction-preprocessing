@@ -5,7 +5,7 @@ from rxn.chemutils.reaction_equation import ReactionEquation
 from rxn.reaction_preprocessing.utils import MolEquation
 
 
-def test_mol_equation():
+def test_mol_equation() -> None:
     # Dummy example to check if the MolEquation contains the correct number of atoms
     reaction_equation = ReactionEquation.from_string("CC.O>Cl>CCO")
     mol_equation = MolEquation.from_reaction_equation(reaction_equation)

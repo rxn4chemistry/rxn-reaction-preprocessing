@@ -14,7 +14,7 @@ from rxn.reaction_preprocessing.molecule_standardizer import (
 )
 
 
-def test_callable():
+def test_callable() -> None:
     standardizer = MoleculeStandardizer()
 
     smiles_strings = ["C(C)", "CC", "C1=CC=CC=C1"]
@@ -24,7 +24,7 @@ def test_callable():
         assert standardizer(smiles) == standardizer.standardize(smiles)
 
 
-def test_tilde_as_fragment_bond():
+def test_tilde_as_fragment_bond() -> None:
     standardizer = MoleculeStandardizer()
 
     fragment_ok = "C.O"
@@ -41,7 +41,7 @@ def test_tilde_as_fragment_bond():
     assert exc_info.type is ValueError
 
 
-def test_invalid_smiles():
+def test_invalid_smiles() -> None:
     standardizer = MoleculeStandardizer()
 
     smiles = "C(C)(C)(C)"
@@ -61,7 +61,7 @@ def test_invalid_smiles():
         _ = MoleculeStandardizer(canonicalize=False).standardize(invalid_smiles)
 
 
-def test_annotated_as_rejected():
+def test_annotated_as_rejected() -> None:
     rejected_smiles = "CCC"
     annotations = [
         MoleculeAnnotation(
@@ -80,7 +80,7 @@ def test_annotated_as_rejected():
         _ = standardizer_with_annotations(rejected_smiles)
 
 
-def test_missing_annotation():
+def test_missing_annotation() -> None:
     # transition metals require an annotation
     tm_smiles = "C[Pd]C"
     annotations = [
@@ -108,7 +108,7 @@ def test_missing_annotation():
     assert standardizer_with_annotations(tm_smiles) == [tm_smiles]
 
 
-def test_replacements():
+def test_replacements() -> None:
     annotations = [
         MoleculeAnnotation(
             original_smiles="CC", updated_smiles=None, decision="accept", categories=[]
@@ -139,7 +139,7 @@ def test_replacements():
     assert standardizer("CCCC") == ["CC", "CC"]
 
 
-def test_canonicalization_before_rejection_check():
+def test_canonicalization_before_rejection_check() -> None:
     non_canonical_smiles = "CC(C)"
     rejected_smiles = "CCC"
     annotations = [
@@ -161,7 +161,7 @@ def test_canonicalization_before_rejection_check():
     )
 
 
-def test_missing_annotation_check_after_rejection_check():
+def test_missing_annotation_check_after_rejection_check() -> None:
     # The RejectedMolecule exception has priority over the MissingAnnotation one.
     rejected_smiles = "C[Pd]C"
     annotations = [
@@ -187,7 +187,7 @@ def test_missing_annotation_check_after_rejection_check():
         _ = standardizer(rejected_smiles)
 
 
-def test_discarding_isotope_info():
+def test_discarding_isotope_info() -> None:
     # As a check: doing the isotope info removal after canonicalization does
     # not always lead to a canonical SMILES
     assert remove_isotope_information(
@@ -200,7 +200,7 @@ def test_discarding_isotope_info():
     assert standardizer.standardize("[14CH3]COC") == [canonicalize_smiles("CCOC")]
 
 
-def test_standardize_in_equation():
+def test_standardize_in_equation() -> None:
     annotations = [
         MoleculeAnnotation(
             original_smiles="CC", updated_smiles=None, decision="accept", categories=[]

@@ -24,7 +24,7 @@ class MoleculeStandardizationError(ValueError):
 class RejectedMolecule(MoleculeStandardizationError):
     """Exception raised when standardizing a molecule annotated as "Rejected"."""
 
-    def __init__(self, smiles):
+    def __init__(self, smiles: str):
         """
         Args:
             smiles: rejected SMILES string.
@@ -35,7 +35,7 @@ class RejectedMolecule(MoleculeStandardizationError):
 class MissingAnnotation(MoleculeStandardizationError):
     """Exception raised when standardizing a molecule that should be annotated."""
 
-    def __init__(self, smiles):
+    def __init__(self, smiles: str):
         """
         Args:
             smiles: rejected SMILES string.
