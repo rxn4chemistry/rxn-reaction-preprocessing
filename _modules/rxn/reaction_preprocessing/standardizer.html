@@ -201,9 +201,9 @@
         <span class="n">annotations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">MoleculeAnnotation</span><span class="p">],</span>
         <span class="n">discard_unannotated_metals</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
         <span class="n">reaction_column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">fragment_bond</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fragment_bond</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">remove_stereo_if_not_defined_in_precursors</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">):</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Standardizer&quot;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A helper function to read a list or csv of VALID reactions (in the sense of RDKIT).</span>
 

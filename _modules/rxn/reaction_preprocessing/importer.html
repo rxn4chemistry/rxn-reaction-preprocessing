@@ -184,7 +184,7 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Function to use in pandas.apply to update the reaction SMILES.&quot;&quot;&quot;</span>
 
-    <span class="n">reaction_smiles</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="n">cfg</span><span class="o">.</span><span class="n">reaction_column_name</span><span class="p">]</span>
+    <span class="n">reaction_smiles</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="n">cfg</span><span class="o">.</span><span class="n">reaction_column_name</span><span class="p">]</span>
     <span class="n">special_flag_active</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="n">column_to_check</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">special_flag_active</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>

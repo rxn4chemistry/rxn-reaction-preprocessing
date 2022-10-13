@@ -110,6 +110,7 @@
 <li><p><strong>valid_column</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, default: <code class="docutils literal notranslate"><span class="pre">'_rxn_valid'</span></code>) – </p></li>
 <li><p><strong>valid_message_column</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, default: <code class="docutils literal notranslate"><span class="pre">'_rxn_valid_messages'</span></code>) – </p></li>
 <li><p><strong>fragment_bond</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, default: <code class="docutils literal notranslate"><span class="pre">'.'</span></code>) – </p></li>
+<li><p><strong>clean_data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, default: <code class="docutils literal notranslate"><span class="pre">True</span></code>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -128,7 +129,7 @@
 messages to in verbose mode (will be created if it doesn’t
 exist). Defaults to “_rxn_valid_messages”.</p></li>
 <li><p><strong>fragment_bond</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, default: <code class="docutils literal notranslate"><span class="pre">'.'</span></code>) – The token that represents fragment bonds in the reaction SMILES.</p></li>
-<li><p><strong>clean_data</strong> – Whether to run a simple pre-cleaning of the input data
+<li><p><strong>clean_data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, default: <code class="docutils literal notranslate"><span class="pre">True</span></code>) – Whether to run a simple pre-cleaning of the input data
 (naive check for valid SMARTS reactions based on the number of
 greater-thans in the string). Defaults to True.</p></li>
 </ul>
@@ -182,8 +183,11 @@ deemed invalid. Defaults to False.</p></li>
 <li><p><strong>filter_func_verbose</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <a class="reference internal" href="rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.html#rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter" title="rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter"><code class="xref py py-class docutils literal notranslate"><span class="pre">MixedReactionFilter</span></code></a>], <code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]], default: <code class="docutils literal notranslate"><span class="pre">None</span></code>) – A custom verbose filter function. Defaults to None.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Itself.</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#rxn.reaction_preprocessing.preprocessor.Preprocessor" title="rxn.reaction_preprocessing.preprocessor.Preprocessor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Preprocessor</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Itself.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -193,8 +197,11 @@ deemed invalid. Defaults to False.</p></li>
 <span class="sig-name descname"><span class="pre">print_stats</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rxn/reaction_preprocessing/preprocessor.html#Preprocessor.print_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rxn.reaction_preprocessing.preprocessor.Preprocessor.print_stats" title="Permalink to this definition"></a></dt>
 <dd><p>Prints statistics of the filtration to stdout.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Itself.</p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#rxn.reaction_preprocessing.preprocessor.Preprocessor" title="rxn.reaction_preprocessing.preprocessor.Preprocessor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Preprocessor</span></code></a></p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Itself.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -242,8 +249,11 @@ wil be given to the reaction column if the input file has no headers).</p></li>
 <dd><p>A wrapper around pandas’ drop_duplicates with the argument subset
 set to the reaction column name.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Itself.</p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#rxn.reaction_preprocessing.preprocessor.Preprocessor" title="rxn.reaction_preprocessing.preprocessor.Preprocessor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Preprocessor</span></code></a></p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Itself.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -253,8 +263,11 @@ set to the reaction column name.</p>
 <span class="sig-name descname"><span class="pre">remove_invalids</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rxn/reaction_preprocessing/preprocessor.html#Preprocessor.remove_invalids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rxn.reaction_preprocessing.preprocessor.Preprocessor.remove_invalids" title="Permalink to this definition"></a></dt>
 <dd><p>A wrapper around removing invalid options from pandas DataFrame.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Itself.</p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#rxn.reaction_preprocessing.preprocessor.Preprocessor" title="rxn.reaction_preprocessing.preprocessor.Preprocessor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Preprocessor</span></code></a></p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Itself.</p>
 </dd>
 </dl>
 </dd></dl>

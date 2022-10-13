@@ -91,7 +91,7 @@
 <div class="viewcode-block" id="RejectedMolecule"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.molecule_standardizer.RejectedMolecule.html#rxn.reaction_preprocessing.molecule_standardizer.RejectedMolecule">[docs]</a><span class="k">class</span> <span class="nc">RejectedMolecule</span><span class="p">(</span><span class="n">MoleculeStandardizationError</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Exception raised when standardizing a molecule annotated as &quot;Rejected&quot;.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">smiles</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            smiles: rejected SMILES string.</span>
@@ -102,7 +102,7 @@
 <div class="viewcode-block" id="MissingAnnotation"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.molecule_standardizer.MissingAnnotation.html#rxn.reaction_preprocessing.molecule_standardizer.MissingAnnotation">[docs]</a><span class="k">class</span> <span class="nc">MissingAnnotation</span><span class="p">(</span><span class="n">MoleculeStandardizationError</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Exception raised when standardizing a molecule that should be annotated.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">smiles</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            smiles: rejected SMILES string.</span>
