@@ -49,7 +49,7 @@ class MoleculeAnnotation:
         """
 
         decision_enum = AnnotationDecision.from_string(decision)
-        self.__attrs_init__(  # type: ignore
+        self.__attrs_init__(
             original_smiles=original_smiles,
             updated_smiles=updated_smiles,
             decision=decision_enum,
