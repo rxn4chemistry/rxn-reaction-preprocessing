@@ -7,7 +7,6 @@ from pathlib import Path
 from typing import List, Optional
 
 import pandas as pd
-from rdkit import RDLogger
 from rxn.chemutils.miscellaneous import remove_chiral_centers
 from rxn.chemutils.reaction_smiles import parse_any_reaction_smiles
 
@@ -17,8 +16,76 @@ from rxn.reaction_preprocessing.annotations.molecule_annotation import (
 )
 from rxn.reaction_preprocessing.config import StandardizeConfig
 from rxn.reaction_preprocessing.molecule_standardizer import MoleculeStandardizer
+import attr
 
-RDLogger.DisableLog("rdApp.*")
+
+@attr.s(auto_attribs=True)
+class StandardizationOutput:
+    """Contains the results and additional information for the standardization
+    of one reaction SMILES."""
+
+    standardized_rxn_smiles: str
+    invalid_smiles: List[str]
+    rejected_smiles: List[str]
+    missing_annotations: List[str]
+
+
+class InnerStandardizer:
+    def __init__(
+        self,
+        annotations: List[MoleculeAnnotation],
+        discard_unannotated_metals: bool,
+        remove_stereo_if_not_defined_in_precursors: bool = False,
+        fragment_bond: Optional[str] = None,
+    ):
+        self.molecule_standardizer = MoleculeStandardizer(
+            annotations=annotations,
+            discard_missing_annotations=discard_unannotated_metals,
+            canonicalize=True,
+        )
+        self.remove_stereo_if_not_defined_in_precursors = (
+            remove_stereo_if_not_defined_in_precursors
+        )
+        self.fragment_bond = fragment_bond
+
+    def standardize(self, rxn_smiles: str) -> StandardizationOutput:
+        """ """
+
+        # Remove stereo information from products, if needed
+        rxn_smiles = self._remove_stereo_if_not_defined_in_precursors(rxn_smiles)
+
+        # Read the reaction SMILES while allowing for different formats (with
+        # fragment bond, extended reaction SMILES, etc.).
+        reaction_equation = parse_any_reaction_smiles(rxn_smiles)
+
+        (
+            standardized_reaction,
+            invalid_smiles,
+            rejected_smiles,
+            missing_annotations,
+        ) = self.molecule_standardizer.standardize_in_equation_with_errors(
+            reaction_equation, propagate_exceptions=False
+        )
+
+        standardized_smiles = standardized_reaction.to_string(self.fragment_bond)
+        return StandardizationOutput(
+            standardized_rxn_smiles=standardized_smiles,
+            invalid_smiles=invalid_smiles,
+            rejected_smiles=rejected_smiles,
+            missing_annotations=missing_annotations,
+        )
+
+    def _remove_stereo_if_not_defined_in_precursors(self, rxn_smiles: str) -> str:
+        """
+        Remove stereocenters from products if not explainable by precursors.
+        """
+        if not self.remove_stereo_if_not_defined_in_precursors:
+            return rxn_smiles
+
+        reactants, reagents, products = rxn_smiles.split(">")
+        if "@" in products and not ("@" in reactants or "@" in reagents):
+            rxn_smiles = remove_chiral_centers(rxn_smiles)  # replaces with the group
+        return rxn_smiles
 
 
 class Standardizer:
@@ -43,12 +110,11 @@ class Standardizer:
             remove_stereo_if_not_defined_in_precursors: Remove chiral centers from products.
         """
         self.df = df
-        self.molecule_standardizer = MoleculeStandardizer(
+        self.inner_standardizer = InnerStandardizer(
             annotations=annotations,
-            discard_missing_annotations=discard_unannotated_metals,
-            canonicalize=True,
+            discard_unannotated_metals=discard_unannotated_metals,
+            fragment_bond=fragment_bond,
         )
-        self.fragment_bond = fragment_bond
         self.remove_stereo_if_not_defined_in_precursors = (
             remove_stereo_if_not_defined_in_precursors
         )
@@ -58,18 +124,6 @@ class Standardizer:
         self.invalid_smiles_column = f"{self.rxn_column}_invalid_smiles"
         self.rejected_smiles_column = f"{self.rxn_column}_rejected_smiles"
         self.missing_annotations_column = f"{self.rxn_column}_missing_annotations"
-
-    def __remove_stereo_if_not_defined_in_precursors(self, rxn_smiles: str) -> str:
-        """
-        Remove stereocenters from products if not explainable by precursors.
-        """
-        if not self.remove_stereo_if_not_defined_in_precursors:
-            return rxn_smiles
-
-        reactants, reagents, products = rxn_smiles.split(">")
-        if "@" in products and not ("@" in reactants or "@" in reagents):
-            rxn_smiles = remove_chiral_centers(rxn_smiles)  # replaces with the group
-        return rxn_smiles
 
     def standardize(self, canonicalize: bool = True) -> "Standardizer":
         """
@@ -107,25 +161,15 @@ class Standardizer:
         # Get RXN SMILES from the column
         rxn_smiles = x[self.rxn_before_std_column]
 
-        # Remove stereo information from products, if needed
-        rxn_smiles = self.__remove_stereo_if_not_defined_in_precursors(rxn_smiles)
+        standardization_output = self.inner_standardizer.standardize(rxn_smiles)
 
-        # Read the reaction SMILES while allowing for different formats (with
-        # fragment bond, extended reaction SMILES, etc.).
-        reaction_equation = parse_any_reaction_smiles(rxn_smiles)
-
-        (
-            standardized_reaction,
-            invalid_smiles,
-            rejected_smiles,
-            missing_annotations,
-        ) = self.molecule_standardizer.standardize_in_equation_with_errors(
-            reaction_equation, propagate_exceptions=False
-        )
-
-        standardized_smiles = standardized_reaction.to_string(self.fragment_bond)
         return pd.Series(
-            [standardized_smiles, invalid_smiles, rejected_smiles, missing_annotations]
+            [
+                standardization_output.standardized_rxn_smiles,
+                standardization_output.invalid_smiles,
+                standardization_output.rejected_smiles,
+                standardization_output.missing_annotations,
+            ]
         )
 
     @staticmethod
