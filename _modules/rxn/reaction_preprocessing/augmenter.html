@@ -259,7 +259,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">rxn_section_to_augment</span> <span class="ow">is</span> <span class="n">ReactionSection</span><span class="o">.</span><span class="n">precursors</span><span class="p">:</span>
-
             <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;precursors_</span><span class="si">{</span><span class="n">random_type</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__reaction_column_name</span>
             <span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">smiles</span><span class="p">:</span> <span class="n">smiles</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;&gt;&gt;&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
@@ -271,7 +270,6 @@
             <span class="n">columns_to_join</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;precursors_</span><span class="si">{</span><span class="n">random_type</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;products&quot;</span><span class="p">]</span>
 
         <span class="k">elif</span> <span class="n">rxn_section_to_augment</span> <span class="ow">is</span> <span class="n">ReactionSection</span><span class="o">.</span><span class="n">products</span><span class="p">:</span>
-
             <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;products_</span><span class="si">{</span><span class="n">random_type</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__reaction_column_name</span>
             <span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">smiles</span><span class="p">:</span> <span class="n">smiles</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;&gt;&gt;&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
@@ -282,7 +280,6 @@
             <span class="n">columns_to_augment</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;products_</span><span class="si">{</span><span class="n">random_type</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
             <span class="n">columns_to_join</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;precursors&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;products_</span><span class="si">{</span><span class="n">random_type</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Invalid reaction section to augment: </span><span class="si">{</span><span class="n">rxn_section_to_augment</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
