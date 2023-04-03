@@ -8,12 +8,20 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    name: Build the Sphinx docs
     steps:
     - uses: actions/checkout@v3
-    - name: Build HTML
-      uses: ammaraskar/sphinx-action@0.4
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v3
       with:
-        pre-build-command: "pip install -e .[rdkit]"
+        python-version: 3.8
+    - name: Install package dependencies
+      run: pip install -e .[rdkit]
+    - name: Install sphinx dependencies
+      run: pip install -r docs/requirements.txt
+    - name: Make docs
+      working-directory: ./docs
+      run: make html
     - name: Upload artifacts
       uses: actions/upload-artifact@v3
       with:
