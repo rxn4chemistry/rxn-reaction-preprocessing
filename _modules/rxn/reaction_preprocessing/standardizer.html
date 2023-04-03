@@ -98,7 +98,7 @@
         <span class="n">fragment_bond</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">remove_stereo_if_not_defined_in_precursors</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Creates a new instance of the Standardizer class.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a new instance of the Standardizer class.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            df: A pandas DataFrame containing the reaction SMILES.</span>
@@ -127,7 +127,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">missing_annotations_column</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">rxn_column</span><span class="si">}</span><span class="s2">_missing_annotations&quot;</span></div>
 
     <span class="k">def</span> <span class="nf">__remove_stereo_if_not_defined_in_precursors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rxn_smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Remove stereocenters from products if not explainable by precursors.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">remove_stereo_if_not_defined_in_precursors</span><span class="p">:</span>
@@ -139,7 +139,7 @@
         <span class="k">return</span> <span class="n">rxn_smiles</span>
 
 <div class="viewcode-block" id="Standardizer.standardize"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.standardizer.Standardizer.html#rxn.reaction_preprocessing.standardizer.Standardizer.standardize">[docs]</a>    <span class="k">def</span> <span class="nf">standardize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">canonicalize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Standardizer&quot;</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Standardizes the entries of self.df[self.__reaction_column_name]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">molecule_standardizer</span><span class="o">.</span><span class="n">canonicalize</span> <span class="o">=</span> <span class="n">canonicalize</span>
@@ -163,7 +163,7 @@
         <span class="k">return</span> <span class="bp">self</span></div>
 
 <div class="viewcode-block" id="Standardizer.process_row"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.standardizer.Standardizer.html#rxn.reaction_preprocessing.standardizer.Standardizer.process_row">[docs]</a>    <span class="k">def</span> <span class="nf">process_row</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Function applied to every row of the dataframe to get the new columns.</span>
 
 <span class="sd">        Returns:</span>
@@ -204,7 +204,7 @@
         <span class="n">fragment_bond</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">remove_stereo_if_not_defined_in_precursors</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Standardizer&quot;</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A helper function to read a list or csv of VALID reactions (in the sense of RDKIT).</span>
 
 <span class="sd">        Args:</span>

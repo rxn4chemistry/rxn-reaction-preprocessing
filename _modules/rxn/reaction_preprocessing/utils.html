@@ -103,21 +103,21 @@
 
 
 <div class="viewcode-block" id="root_directory"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.utils.root_directory.html#rxn.reaction_preprocessing.utils.root_directory">[docs]</a><span class="k">def</span> <span class="nf">root_directory</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns the path to the root directory of the repository</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="data_directory"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.utils.data_directory.html#rxn.reaction_preprocessing.utils.data_directory">[docs]</a><span class="k">def</span> <span class="nf">data_directory</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns the path to the data directory at the root of the repository</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;data&quot;</span></div>
 
 
 <div class="viewcode-block" id="standardization_files_directory"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.utils.standardization_files_directory.html#rxn.reaction_preprocessing.utils.standardization_files_directory">[docs]</a><span class="k">def</span> <span class="nf">standardization_files_directory</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns the path to the data directory at the root of the repository</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">data_directory</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;standardization-files&quot;</span></div>
@@ -130,7 +130,7 @@
 
 <div class="viewcode-block" id="MolEquation"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.utils.MolEquation.html#rxn.reaction_preprocessing.utils.MolEquation">[docs]</a><span class="nd">@attr</span><span class="o">.</span><span class="n">s</span><span class="p">(</span><span class="n">auto_attribs</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">MolEquation</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Same as a ReactionEquation, except that RDKit Mol objects are stored</span>
 <span class="sd">    instead of the SMILES.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -149,17 +149,17 @@
 
 
 <div class="viewcode-block" id="get_formal_charge_for_mols"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.utils.get_formal_charge_for_mols.html#rxn.reaction_preprocessing.utils.get_formal_charge_for_mols">[docs]</a><span class="k">def</span> <span class="nf">get_formal_charge_for_mols</span><span class="p">(</span><span class="n">mols</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Mol</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Get the formal charge for a group of RDKit Mols.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the formal charge for a group of RDKit Mols.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">GetFormalCharge</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span> <span class="k">for</span> <span class="n">mol</span> <span class="ow">in</span> <span class="n">mols</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="get_atoms_for_mols"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.utils.get_atoms_for_mols.html#rxn.reaction_preprocessing.utils.get_atoms_for_mols">[docs]</a><span class="k">def</span> <span class="nf">get_atoms_for_mols</span><span class="p">(</span><span class="n">mols</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Mol</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;Get the set of atoms for a list of RDKit Mols.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the set of atoms for a list of RDKit Mols.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">{</span><span class="n">atom</span><span class="o">.</span><span class="n">GetSymbol</span><span class="p">()</span> <span class="k">for</span> <span class="n">mol</span> <span class="ow">in</span> <span class="n">mols</span> <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetAtoms</span><span class="p">()}</span></div>
 
 
 <div class="viewcode-block" id="add_custom_logger_to_file"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.utils.add_custom_logger_to_file.html#rxn.reaction_preprocessing.utils.add_custom_logger_to_file">[docs]</a><span class="k">def</span> <span class="nf">add_custom_logger_to_file</span><span class="p">(</span><span class="n">log_file</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Set up logging to a file.</span>
 
 <span class="sd">    This is a bit more complex than usual because hydra sets up the logger</span>
@@ -175,7 +175,7 @@
 
 
 <div class="viewcode-block" id="overwrite_logging_format"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.utils.overwrite_logging_format.html#rxn.reaction_preprocessing.utils.overwrite_logging_format">[docs]</a><span class="k">def</span> <span class="nf">overwrite_logging_format</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Reset the log format to our default, instead of using the hydra default.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">root_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>

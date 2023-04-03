@@ -83,7 +83,7 @@
 
 
 <div class="viewcode-block" id="StableSplitter"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.stable_data_splitter.StableSplitter.html#rxn.reaction_preprocessing.stable_data_splitter.StableSplitter">[docs]</a><span class="k">class</span> <span class="nc">StableSplitter</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Split data in a reproducible manner, based on the hash of values required</span>
 <span class="sd">    to always be in the same split.</span>
 
@@ -99,7 +99,7 @@
         <span class="n">total_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            split_ratio: The approximate split ratio for test and validation set.</span>
 <span class="sd">            total_size: Total size of the dataset, must be provided only if</span>
@@ -138,7 +138,7 @@
         <span class="n">hash_seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">shuffle_seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Creates a stable split into training, validation, and test sets. Returns a boolean mask</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a stable split into training, validation, and test sets. Returns a boolean mask</span>
 <span class="sd">        for each set, to not duplicate the DataFrame while preserving the original.</span>
 
 <span class="sd">        Args:</span>

@@ -78,7 +78,7 @@
 
 
 <div class="viewcode-block" id="MissingAnnotationDetector"><a class="viewcode-back" href="../../../../generated/rxn.reaction_preprocessing.annotations.missing_annotation_detector.MissingAnnotationDetector.html#rxn.reaction_preprocessing.annotations.missing_annotation_detector.MissingAnnotationDetector">[docs]</a><span class="k">class</span> <span class="nc">MissingAnnotationDetector</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Find reactions with molecules that should be annotated, taking into account</span>
 <span class="sd">    a set of already-annotated molecules.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -88,7 +88,7 @@
         <span class="n">annotated_molecules</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">requires_annotation_fn</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            annotated_molecules: set of already-annotated molecules.</span>
 <span class="sd">            requires_annotation_fn: function with which to decide whether a molecule</span>
@@ -101,7 +101,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">requires_annotation_fn</span> <span class="o">=</span> <span class="n">requires_annotation_fn</span></div>
 
 <div class="viewcode-block" id="MissingAnnotationDetector.molecule_needs_annotation"><a class="viewcode-back" href="../../../../generated/rxn.reaction_preprocessing.annotations.missing_annotation_detector.MissingAnnotationDetector.html#rxn.reaction_preprocessing.annotations.missing_annotation_detector.MissingAnnotationDetector.molecule_needs_annotation">[docs]</a>    <span class="k">def</span> <span class="nf">molecule_needs_annotation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Whether a molecule needs annotation.</span>
 
 <span class="sd">        Checks the overlap between the elements in the molecule and the extended</span>
@@ -115,7 +115,7 @@
 <div class="viewcode-block" id="MissingAnnotationDetector.missing_in_reaction_equation"><a class="viewcode-back" href="../../../../generated/rxn.reaction_preprocessing.annotations.missing_annotation_detector.MissingAnnotationDetector.html#rxn.reaction_preprocessing.annotations.missing_annotation_detector.MissingAnnotationDetector.missing_in_reaction_equation">[docs]</a>    <span class="k">def</span> <span class="nf">missing_in_reaction_equation</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">reaction_equation</span><span class="p">:</span> <span class="n">ReactionEquation</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;In a reaction equation, find the molecules requiring annotation.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;In a reaction equation, find the molecules requiring annotation.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">smiles</span> <span class="ow">in</span> <span class="n">reaction_equation</span><span class="o">.</span><span class="n">iter_all_smiles</span><span class="p">():</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">molecule_needs_annotation</span><span class="p">(</span><span class="n">smiles</span><span class="p">):</span>
                 <span class="k">yield</span> <span class="n">smiles</span></div>
@@ -123,7 +123,7 @@
 <div class="viewcode-block" id="MissingAnnotationDetector.missing_in_reaction_equations"><a class="viewcode-back" href="../../../../generated/rxn.reaction_preprocessing.annotations.missing_annotation_detector.MissingAnnotationDetector.html#rxn.reaction_preprocessing.annotations.missing_annotation_detector.MissingAnnotationDetector.missing_in_reaction_equations">[docs]</a>    <span class="k">def</span> <span class="nf">missing_in_reaction_equations</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">reaction_equations</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">ReactionEquation</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;In multiple reaction equations, find the molecules requiring annotation.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;In multiple reaction equations, find the molecules requiring annotation.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">reaction_equation</span> <span class="ow">in</span> <span class="n">reaction_equations</span><span class="p">:</span>
             <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">missing_in_reaction_equation</span><span class="p">(</span><span class="n">reaction_equation</span><span class="p">)</span></div>
 
@@ -132,7 +132,7 @@
         <span class="n">reaction_smiles</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">],</span>
         <span class="n">fragment_bond</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        In one or multiple reaction SMILES, find the molecules requiring annotation.</span>
 
 <span class="sd">        Args:</span>
@@ -154,7 +154,7 @@
         <span class="n">molecule_annotations</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">MoleculeAnnotation</span><span class="p">],</span>
         <span class="n">requires_annotation_fn</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;MissingAnnotationDetector&quot;</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a MissingAnnotationDetector instance from existing molecule annotations.</span>
 
 <span class="sd">        Args:</span>

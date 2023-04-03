@@ -76,19 +76,19 @@
 
 
 <div class="viewcode-block" id="RejectedMoleculesFilter"><a class="viewcode-back" href="../../../../generated/rxn.reaction_preprocessing.annotations.rejected_molecules_filter.RejectedMoleculesFilter.html#rxn.reaction_preprocessing.annotations.rejected_molecules_filter.RejectedMoleculesFilter">[docs]</a><span class="k">class</span> <span class="nc">RejectedMoleculesFilter</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class to filter rejected molecules (potentially based on annotations).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="RejectedMoleculesFilter.__init__"><a class="viewcode-back" href="../../../../generated/rxn.reaction_preprocessing.annotations.rejected_molecules_filter.RejectedMoleculesFilter.html#rxn.reaction_preprocessing.annotations.rejected_molecules_filter.RejectedMoleculesFilter.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rejected_molecules</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            rejected_molecules: Molecules to reject. Use dots for fragment bonds!</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rejected_molecules</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">rejected_molecules</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="RejectedMoleculesFilter.is_valid_molecule_smiles"><a class="viewcode-back" href="../../../../generated/rxn.reaction_preprocessing.annotations.rejected_molecules_filter.RejectedMoleculesFilter.html#rxn.reaction_preprocessing.annotations.rejected_molecules_filter.RejectedMoleculesFilter.is_valid_molecule_smiles">[docs]</a>    <span class="k">def</span> <span class="nf">is_valid_molecule_smiles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Whether a molecule SMILES is considered to be valid.</span>
 
 <span class="sd">        Args:</span>
@@ -99,7 +99,7 @@
 <div class="viewcode-block" id="RejectedMoleculesFilter.is_valid_reaction_smiles"><a class="viewcode-back" href="../../../../generated/rxn.reaction_preprocessing.annotations.rejected_molecules_filter.RejectedMoleculesFilter.html#rxn.reaction_preprocessing.annotations.rejected_molecules_filter.RejectedMoleculesFilter.is_valid_reaction_smiles">[docs]</a>    <span class="k">def</span> <span class="nf">is_valid_reaction_smiles</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fragment_bond</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Whether a reaction SMILES is considered to be valid.</span>
 
 <span class="sd">        Args:</span>
@@ -111,7 +111,7 @@
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="RejectedMoleculesFilter.is_valid_reaction_equation"><a class="viewcode-back" href="../../../../generated/rxn.reaction_preprocessing.annotations.rejected_molecules_filter.RejectedMoleculesFilter.html#rxn.reaction_preprocessing.annotations.rejected_molecules_filter.RejectedMoleculesFilter.is_valid_reaction_equation">[docs]</a>    <span class="k">def</span> <span class="nf">is_valid_reaction_equation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reaction_equation</span><span class="p">:</span> <span class="n">ReactionEquation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Whether a reaction equation is considered to be valid.</span>
 
 <span class="sd">        Args:</span>
@@ -126,7 +126,7 @@
     <span class="k">def</span> <span class="nf">from_molecule_annotations</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span> <span class="n">molecule_annotations</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">MoleculeAnnotation</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;RejectedMoleculesFilter&quot;</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Instantiate from existing molecule annotations.</span>
 
 <span class="sd">        Args:</span>

@@ -87,7 +87,7 @@
 
 
 <div class="viewcode-block" id="ReactionFilterError"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.mixed_reaction_filter.ReactionFilterError.html#rxn.reaction_preprocessing.mixed_reaction_filter.ReactionFilterError">[docs]</a><span class="k">class</span> <span class="nc">ReactionFilterError</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Exception raised when calling validate() on reactions not passing one</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception raised when calling validate() on reactions not passing one</span>
 <span class="sd">    or several filters.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reaction</span><span class="p">:</span> <span class="n">ReactionEquation</span><span class="p">,</span> <span class="n">reasons</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
@@ -115,7 +115,7 @@
         <span class="n">max_products_tokens</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
         <span class="n">max_absolute_formal_charge</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Creates a new instance of the type MixedReactionFilter.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a new instance of the type MixedReactionFilter.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            max_reactants: The maximum number of reactant molecules.</span>
@@ -161,7 +161,7 @@
         <span class="p">]</span></div>
 
 <div class="viewcode-block" id="MixedReactionFilter.validate"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.html#rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reaction</span><span class="p">:</span> <span class="n">ReactionEquation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Make sure that the given reaction is valid; if not, an exception will</span>
 <span class="sd">        be raised.</span>
 
@@ -177,7 +177,7 @@
             <span class="k">raise</span> <span class="n">ReactionFilterError</span><span class="p">(</span><span class="n">reaction</span><span class="p">,</span> <span class="n">reasons</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MixedReactionFilter.is_valid"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.html#rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.is_valid">[docs]</a>    <span class="k">def</span> <span class="nf">is_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reaction</span><span class="p">:</span> <span class="n">ReactionEquation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Whether a reaction is valid based on the rules set on the instance of this</span>
 <span class="sd">        MixedReactionFilter class.</span>
 
@@ -190,7 +190,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">def</span> <span class="nf">callbacks</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="nb">bool</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
-            <span class="sd">&quot;&quot;&quot;Generator function for providing the checks to make as</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Generator function for providing the checks to make as</span>
 <span class="sd">            callable objects.</span>
 
 <span class="sd">            Formulating it as a generator makes it efficient; for instance,</span>
@@ -234,7 +234,7 @@
         <span class="k">return</span> <span class="n">valid</span><span class="p">,</span> <span class="n">reasons</span>
 
 <div class="viewcode-block" id="MixedReactionFilter.max_reactants_exceeded"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.html#rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.max_reactants_exceeded">[docs]</a>    <span class="k">def</span> <span class="nf">max_reactants_exceeded</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reaction</span><span class="p">:</span> <span class="n">ReactionEquation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Checks whether the number of reactants exceeds the maximum.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks whether the number of reactants exceeds the maximum.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            reaction: The reaction to test.</span>
@@ -246,7 +246,7 @@
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">reaction</span><span class="o">.</span><span class="n">reactants</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_reactants</span></div>
 
 <div class="viewcode-block" id="MixedReactionFilter.max_agents_exceeded"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.html#rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.max_agents_exceeded">[docs]</a>    <span class="k">def</span> <span class="nf">max_agents_exceeded</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reaction</span><span class="p">:</span> <span class="n">ReactionEquation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Checks whether the number of agents exceeds the maximum.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks whether the number of agents exceeds the maximum.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            reaction: The reaction to test.</span>
@@ -258,7 +258,7 @@
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">reaction</span><span class="o">.</span><span class="n">agents</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_agents</span></div>
 
 <div class="viewcode-block" id="MixedReactionFilter.max_products_exceeded"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.html#rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.max_products_exceeded">[docs]</a>    <span class="k">def</span> <span class="nf">max_products_exceeded</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reaction</span><span class="p">:</span> <span class="n">ReactionEquation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Checks whether the number of products exceeds the maximum.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks whether the number of products exceeds the maximum.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            reaction: The reaction to test.</span>
@@ -270,7 +270,7 @@
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">reaction</span><span class="o">.</span><span class="n">products</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_products</span></div>
 
 <div class="viewcode-block" id="MixedReactionFilter.min_reactants_subceeded"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.html#rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.min_reactants_subceeded">[docs]</a>    <span class="k">def</span> <span class="nf">min_reactants_subceeded</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reaction</span><span class="p">:</span> <span class="n">ReactionEquation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Checks whether the number of reactants exceeds the maximum.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks whether the number of reactants exceeds the maximum.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            reaction: The reaction to test.</span>
@@ -282,7 +282,7 @@
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">reaction</span><span class="o">.</span><span class="n">reactants</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_reactants</span></div>
 
 <div class="viewcode-block" id="MixedReactionFilter.min_agents_subceeded"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.html#rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.min_agents_subceeded">[docs]</a>    <span class="k">def</span> <span class="nf">min_agents_subceeded</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reaction</span><span class="p">:</span> <span class="n">ReactionEquation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Checks whether the number of agents exceeds the maximum.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks whether the number of agents exceeds the maximum.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            reaction: The reaction to test.</span>
@@ -294,7 +294,7 @@
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">reaction</span><span class="o">.</span><span class="n">agents</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_agents</span></div>
 
 <div class="viewcode-block" id="MixedReactionFilter.min_products_subceeded"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.html#rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.min_products_subceeded">[docs]</a>    <span class="k">def</span> <span class="nf">min_products_subceeded</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reaction</span><span class="p">:</span> <span class="n">ReactionEquation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Checks whether the number of products exceeds the maximum.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks whether the number of products exceeds the maximum.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            reaction: The reaction to test.</span>
@@ -306,7 +306,7 @@
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">reaction</span><span class="o">.</span><span class="n">products</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_products</span></div>
 
 <div class="viewcode-block" id="MixedReactionFilter.products_subset_of_reactants"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.html#rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.products_subset_of_reactants">[docs]</a>    <span class="k">def</span> <span class="nf">products_subset_of_reactants</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reaction</span><span class="p">:</span> <span class="n">ReactionEquation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Checks whether the set of products is a subset of the set of reactants.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks whether the set of products is a subset of the set of reactants.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            reaction: The reaction to test.</span>
@@ -322,7 +322,7 @@
 <div class="viewcode-block" id="MixedReactionFilter.products_single_atoms"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.html#rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.products_single_atoms">[docs]</a>    <span class="k">def</span> <span class="nf">products_single_atoms</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">reaction</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">MolEquation</span><span class="p">,</span> <span class="n">ReactionEquation</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Checks whether the products solely consist of single atoms.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks whether the products solely consist of single atoms.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            reaction: The reaction to test.</span>
@@ -338,7 +338,7 @@
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="MixedReactionFilter.max_reactant_tokens_exceeded"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.html#rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.max_reactant_tokens_exceeded">[docs]</a>    <span class="k">def</span> <span class="nf">max_reactant_tokens_exceeded</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reaction</span><span class="p">:</span> <span class="n">ReactionEquation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Check whether the number of reactant tokens exceeds the maximum.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether the number of reactant tokens exceeds the maximum.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            reaction: The reaction to test.</span>
@@ -351,7 +351,7 @@
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="MixedReactionFilter.max_agent_tokens_exceeded"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.html#rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.max_agent_tokens_exceeded">[docs]</a>    <span class="k">def</span> <span class="nf">max_agent_tokens_exceeded</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reaction</span><span class="p">:</span> <span class="n">ReactionEquation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Check whether the number of agent tokens exceeds the maximum.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether the number of agent tokens exceeds the maximum.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            reaction: The reaction to test.</span>
@@ -362,7 +362,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group_tokens_exceeded</span><span class="p">(</span><span class="n">reaction</span><span class="o">.</span><span class="n">agents</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_agents_tokens</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MixedReactionFilter.max_product_tokens_exceeded"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.html#rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.max_product_tokens_exceeded">[docs]</a>    <span class="k">def</span> <span class="nf">max_product_tokens_exceeded</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reaction</span><span class="p">:</span> <span class="n">ReactionEquation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Check whether the number of product tokens exceeds the maximum.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether the number of product tokens exceeds the maximum.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            reaction: The reaction to test.</span>
@@ -373,7 +373,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group_tokens_exceeded</span><span class="p">(</span><span class="n">reaction</span><span class="o">.</span><span class="n">products</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_products_tokens</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_group_tokens_exceeded</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">smiles_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">threshold</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Check whether the number of SMILES tokens in a group exceeds the maximum.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether the number of SMILES tokens in a group exceeds the maximum.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            [type]: Whether the number of product tokens exceeds the maximum.</span>
@@ -387,7 +387,7 @@
 <div class="viewcode-block" id="MixedReactionFilter.formal_charge_exceeded"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.html#rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.formal_charge_exceeded">[docs]</a>    <span class="k">def</span> <span class="nf">formal_charge_exceeded</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">reaction</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">MolEquation</span><span class="p">,</span> <span class="n">ReactionEquation</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Check whether the absolute formal charge of the reactants, agents,</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether the absolute formal charge of the reactants, agents,</span>
 <span class="sd">        or products exceeds a maximum.</span>
 
 <span class="sd">        Args:</span>
@@ -410,7 +410,7 @@
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="MixedReactionFilter.invalid_atom_type"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.html#rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.invalid_atom_type">[docs]</a>    <span class="k">def</span> <span class="nf">invalid_atom_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reaction</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">MolEquation</span><span class="p">,</span> <span class="n">ReactionEquation</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check whether the reaction contains atoms with invalid atom types such as the asterisk &quot;*&quot;.</span>
 
 <span class="sd">        Args:</span>
@@ -430,7 +430,7 @@
 <div class="viewcode-block" id="MixedReactionFilter.different_atom_types"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.html#rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.different_atom_types">[docs]</a>    <span class="k">def</span> <span class="nf">different_atom_types</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">reaction</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">MolEquation</span><span class="p">,</span> <span class="n">ReactionEquation</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Check whether the products contain atom types not found in the agents or reactants.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether the products contain atom types not found in the agents or reactants.</span>
 
 <span class="sd">        It handles the presence of placeholders for polymer head and tail representations.</span>
 

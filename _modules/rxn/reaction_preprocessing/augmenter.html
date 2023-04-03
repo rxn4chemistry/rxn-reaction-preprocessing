@@ -90,7 +90,7 @@
 <div class="viewcode-block" id="molecules_permutation_given_index"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.augmenter.molecules_permutation_given_index.html#rxn.reaction_preprocessing.augmenter.molecules_permutation_given_index">[docs]</a><span class="k">def</span> <span class="nf">molecules_permutation_given_index</span><span class="p">(</span>
     <span class="n">molecules_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">permutation_index</span><span class="p">:</span> <span class="nb">int</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;str&quot;</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    https://stackoverflow.com/questions/5602488/random-picks-from-permutation-generator</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">molecules_list</span> <span class="o">=</span> <span class="n">molecules_list</span><span class="p">[:]</span>
@@ -107,7 +107,7 @@
 <div class="viewcode-block" id="Augmenter.__init__"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.augmenter.Augmenter.html#rxn.reaction_preprocessing.augmenter.Augmenter.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">reaction_column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fragment_bond</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Creates a new instance of the Augmenter class.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a new instance of the Augmenter class.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            df (pd.DataFrame): A pandas DataFrame containing the molecules SMILES.</span>
@@ -126,7 +126,7 @@
     <span class="k">def</span> <span class="nf">__randomize_smiles</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">random_type</span><span class="p">:</span> <span class="n">RandomType</span><span class="p">,</span> <span class="n">permutations</span><span class="p">:</span> <span class="nb">int</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Randomizes a molecules SMILES string that might contain fragment bonds</span>
 <span class="sd">        and returns a number of augmented versions of the SMILES equal to permutations.</span>
 
@@ -170,7 +170,7 @@
     <span class="k">def</span> <span class="nf">__randomize_smiles_without_fragment</span><span class="p">(</span>
         <span class="n">smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">random_type</span><span class="p">:</span> <span class="n">RandomType</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generates a random version of a SMILES without a fragment bond</span>
 
 <span class="sd">        Args:</span>
@@ -194,7 +194,7 @@
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">__randomize_molecules</span><span class="p">(</span><span class="n">smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">permutations</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Randomizes the order of the molecules inside a SMILES string that might</span>
 <span class="sd">        contain fragment bonds and returns a number of augmented versions of the</span>
 <span class="sd">        SMILES equal to permutations.</span>
@@ -236,7 +236,7 @@
         <span class="n">rxn_section_to_augment</span><span class="p">:</span> <span class="n">ReactionSection</span> <span class="o">=</span> <span class="n">ReactionSection</span><span class="o">.</span><span class="n">precursors</span><span class="p">,</span>
         <span class="n">permutations</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates samples for the augmentation. Returns a a pandas Series containing the</span>
 <span class="sd">        augmented samples.</span>
 
@@ -323,7 +323,7 @@
     <span class="k">def</span> <span class="nf">read_csv</span><span class="p">(</span>
         <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">reaction_column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fragment_bond</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Augmenter&quot;</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;A helper function to read a list or csv of SMILES.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A helper function to read a list or csv of SMILES.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            filepath (str): The path to the text file containing the molecules SMILES.</span>

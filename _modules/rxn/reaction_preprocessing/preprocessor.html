@@ -101,7 +101,7 @@
         <span class="n">fragment_bond</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="p">,</span>
         <span class="n">clean_data</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Creates a new instance of the Preprocessor class.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a new instance of the Preprocessor class.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            df: A pandas DataFrame containing the reaction SMARTS.</span>
@@ -130,7 +130,7 @@
     <span class="c1"># Private Methods</span>
     <span class="c1">#</span>
     <span class="k">def</span> <span class="nf">__clean_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Drops records from the internal pandas DataFrame that do not contain valid reaction</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Drops records from the internal pandas DataFrame that do not contain valid reaction</span>
 <span class="sd">        SMARTS (WARNING: Very naive, just checks for two greater-thans)&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__reaction_column_name</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;&gt;&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
@@ -142,7 +142,7 @@
         <span class="n">reaction_smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="nb">filter</span><span class="p">:</span> <span class="n">MixedReactionFilter</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;The default filter function.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The default filter function.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            reaction_smiles: An input reaction SMILES.</span>
@@ -163,7 +163,7 @@
         <span class="n">reaction_smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="nb">filter</span><span class="p">:</span> <span class="n">MixedReactionFilter</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;The default verbose filter function.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The default verbose filter function.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            reaction_smiles: An input reaction SMILES.</span>
@@ -194,7 +194,7 @@
             <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MixedReactionFilter</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
         <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Preprocessor&quot;</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Applies filter functions to the reaction. Alternatives for the default filter functions</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Applies filter functions to the reaction. Alternatives for the default filter functions</span>
 <span class="sd">        can be supplied. The default filters remove reactions containing molecules that could not</span>
 <span class="sd">        be parse by rdkit&#39;s MolFromSmiles.</span>
 
@@ -246,7 +246,7 @@
         <span class="k">return</span> <span class="bp">self</span></div>
 
 <div class="viewcode-block" id="Preprocessor.reaction_standardization"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.preprocessor.Preprocessor.html#rxn.reaction_preprocessing.preprocessor.Preprocessor.reaction_standardization">[docs]</a>    <span class="k">def</span> <span class="nf">reaction_standardization</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reaction standardization, including merging of reactants and reactants,</span>
 <span class="sd">        removal of duplicates, sorting, etc.</span>
 
@@ -256,7 +256,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">def</span> <span class="nf">standardize_smiles</span><span class="p">(</span><span class="n">rxn_smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-            <span class="sd">&quot;&quot;&quot;Function standardizing the reaction SMILES directly,</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Function standardizing the reaction SMILES directly,</span>
 <span class="sd">            to pass to pandas.apply().&quot;&quot;&quot;</span>
             <span class="n">reaction</span> <span class="o">=</span> <span class="n">parse_any_reaction_smiles</span><span class="p">(</span><span class="n">rxn_smiles</span><span class="p">)</span>
             <span class="n">reaction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reaction_standardizer</span><span class="p">(</span><span class="n">reaction</span><span class="p">)</span>
@@ -266,7 +266,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">rxn_column</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">rxn_column</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">standardize_smiles</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Preprocessor.remove_duplicates"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.preprocessor.Preprocessor.html#rxn.reaction_preprocessing.preprocessor.Preprocessor.remove_duplicates">[docs]</a>    <span class="k">def</span> <span class="nf">remove_duplicates</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Preprocessor&quot;</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;A wrapper around pandas&#39; drop_duplicates with the argument subset</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A wrapper around pandas&#39; drop_duplicates with the argument subset</span>
 <span class="sd">        set to the reaction column name.</span>
 
 <span class="sd">        Returns:</span>
@@ -276,7 +276,7 @@
         <span class="k">return</span> <span class="bp">self</span></div>
 
 <div class="viewcode-block" id="Preprocessor.remove_invalids"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.preprocessor.Preprocessor.html#rxn.reaction_preprocessing.preprocessor.Preprocessor.remove_invalids">[docs]</a>    <span class="k">def</span> <span class="nf">remove_invalids</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Preprocessor&quot;</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;A wrapper around removing invalid options from pandas DataFrame.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A wrapper around removing invalid options from pandas DataFrame.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Itself.</span>
@@ -288,7 +288,7 @@
         <span class="k">return</span> <span class="bp">self</span></div>
 
 <div class="viewcode-block" id="Preprocessor.print_stats"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.preprocessor.Preprocessor.html#rxn.reaction_preprocessing.preprocessor.Preprocessor.print_stats">[docs]</a>    <span class="k">def</span> <span class="nf">print_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Preprocessor&quot;</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Prints statistics of the filtration to stdout.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Prints statistics of the filtration to stdout.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Itself.</span>
@@ -310,7 +310,7 @@
                 <span class="n">headers</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Reason&quot;</span><span class="p">,</span> <span class="s2">&quot;Number of Reactions&quot;</span><span class="p">]</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;- The </span><span class="si">{</span><span class="n">counts</span><span class="p">[</span><span class="kc">False</span><span class="p">]</span><span class="si">}</span><span class="s2"> reactions were removed for the following reasons:</span><span class="se">\n</span><span class="s2">&quot;</span>
-                    <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">tabulate</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">Counter</span><span class="p">(</span><span class="n">reasons</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()),</span> <span class="n">headers</span><span class="p">,</span> <span class="n">tablefmt</span><span class="o">=</span><span class="s2">&quot;fancy_grid&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">tabulate</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">Counter</span><span class="p">(</span><span class="n">reasons</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()),</span><span class="w"> </span><span class="n">headers</span><span class="p">,</span><span class="w"> </span><span class="n">tablefmt</span><span class="o">=</span><span class="s2">&quot;fancy_grid&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
                 <span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span></div>
@@ -322,7 +322,7 @@
     <span class="k">def</span> <span class="nf">read_csv</span><span class="p">(</span>
         <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">reaction_column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fragment_bond</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Preprocessor&quot;</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;A helper function to read a list or csv of reactions.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A helper function to read a list or csv of reactions.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            filepath: The path to the text file containing the reactions.</span>

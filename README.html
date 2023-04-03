@@ -99,21 +99,21 @@ It has been tested on the following systems:</p>
 <section id="installation-guide">
 <h2>Installation guide<a class="headerlink" href="#installation-guide" title="Permalink to this heading"></a></h2>
 <p>The package can be installed from Pypi:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install rxn-reaction-preprocessing
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>rxn-reaction-preprocessing
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">RDKit</span></code> dependency is not installed automatically and can be installed via Conda or Pypi:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install RDKit from Conda</span>
-conda install -c conda-forge rdkit
+conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>rdkit
 
 <span class="c1"># Install RDKit from Pypi</span>
-pip install rdkit
+pip<span class="w"> </span>install<span class="w"> </span>rdkit
 <span class="c1"># for Python&lt;3.7</span>
 <span class="c1"># pip install rdkit-pypi</span>
 </pre></div>
 </div>
 <p>For local development, the package can be installed with:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install -e <span class="s2">&quot;.[dev]&quot;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev]&quot;</span>
 </pre></div>
 </div>
 </section>
@@ -125,47 +125,47 @@ pip install rdkit
 <p>Wrapper for all other scripts. Allows constructing flexible data pipelines. Entrypoint for Hydra structured configuration.</p>
 <p>For an overview of all available configuration parameters and default values, run: <code class="docutils literal notranslate"><span class="pre">rxn-data-pipeline</span> <span class="pre">--cfg</span> <span class="pre">job</span></code>.</p>
 <p>Configuration using YAML (see the file <code class="docutils literal notranslate"><span class="pre">config.py</span></code> for more options and their meaning):</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">defaults</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">base_config</span><span class="w"></span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">defaults</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">base_config</span>
 
-<span class="nt">data</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/tmp/inference/input.csv</span><span class="w"></span>
-<span class="w">  </span><span class="nt">proc_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/tmp/rxn-preproc/exp</span><span class="w"></span>
-<span class="nt">common</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">sequence</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="c1"># Define which steps and in which order to execute:</span><span class="w"></span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">IMPORT</span><span class="w"></span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">STANDARDIZE</span><span class="w"></span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PREPROCESS</span><span class="w"></span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SPLIT</span><span class="w"></span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TOKENIZE</span><span class="w"></span>
-<span class="w">  </span><span class="nt">fragment_bond</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TILDE</span><span class="w"></span>
-<span class="nt">preprocess</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">min_products</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span><span class="w"></span>
-<span class="nt">split</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">split_ratio</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.05</span><span class="w"></span>
-<span class="nt">tokenize</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">input_output_pairs</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">inp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${data.proc_dir}/${data.name}.processed.train.csv</span><span class="w"></span>
-<span class="w">      </span><span class="nt">out</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${data.proc_dir}/${data.name}.processed.train</span><span class="w"></span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">inp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${data.proc_dir}/${data.name}.processed.validation.csv</span><span class="w"></span>
-<span class="w">      </span><span class="nt">out</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${data.proc_dir}/${data.name}.processed.validation</span><span class="w"></span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">inp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${data.proc_dir}/${data.name}.processed.test.csv</span><span class="w"></span>
-<span class="w">      </span><span class="nt">out</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${data.proc_dir}/${data.name}.processed.test</span><span class="w"></span>
+<span class="nt">data</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/tmp/inference/input.csv</span>
+<span class="w">  </span><span class="nt">proc_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/tmp/rxn-preproc/exp</span>
+<span class="nt">common</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">sequence</span><span class="p">:</span>
+<span class="w">    </span><span class="c1"># Define which steps and in which order to execute:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">IMPORT</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">STANDARDIZE</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PREPROCESS</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SPLIT</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TOKENIZE</span>
+<span class="w">  </span><span class="nt">fragment_bond</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TILDE</span>
+<span class="nt">preprocess</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">min_products</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="nt">split</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">split_ratio</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.05</span>
+<span class="nt">tokenize</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">input_output_pairs</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">inp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${data.proc_dir}/${data.name}.processed.train.csv</span>
+<span class="w">      </span><span class="nt">out</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${data.proc_dir}/${data.name}.processed.train</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">inp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${data.proc_dir}/${data.name}.processed.validation.csv</span>
+<span class="w">      </span><span class="nt">out</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${data.proc_dir}/${data.name}.processed.validation</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">inp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${data.proc_dir}/${data.name}.processed.test.csv</span>
+<span class="w">      </span><span class="nt">out</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${data.proc_dir}/${data.name}.processed.test</span>
 </pre></div>
 </div>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>rxn-data-pipeline --config-dir . --config-name example_config
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>rxn-data-pipeline<span class="w"> </span>--config-dir<span class="w"> </span>.<span class="w"> </span>--config-name<span class="w"> </span>example_config
 </pre></div>
 </div>
 <p>Configuration using command line arguments (example):</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>rxn-data-pipeline <span class="se">\</span>
-  data.path<span class="o">=</span>/path/to/data/rxns-small.csv <span class="se">\</span>
-  data.proc_dir<span class="o">=</span>/path/to/proc/dir <span class="se">\</span>
-  common.fragment_bond<span class="o">=</span>TILDE <span class="se">\</span>
-  rxn_import.data_format<span class="o">=</span>TXT <span class="se">\</span>
-  tokenize.input_output_pairs.0.out<span class="o">=</span>train.txt <span class="se">\</span>
-  tokenize.input_output_pairs.1.out<span class="o">=</span>validation.txt <span class="se">\</span>
-  tokenize.input_output_pairs.2.out<span class="o">=</span>test.txt
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>rxn-data-pipeline<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>data.path<span class="o">=</span>/path/to/data/rxns-small.csv<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>data.proc_dir<span class="o">=</span>/path/to/proc/dir<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>common.fragment_bond<span class="o">=</span>TILDE<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>rxn_import.data_format<span class="o">=</span>TXT<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>tokenize.input_output_pairs.0.out<span class="o">=</span>train.txt<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>tokenize.input_output_pairs.1.out<span class="o">=</span>validation.txt<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>tokenize.input_output_pairs.2.out<span class="o">=</span>test.txt
 </pre></div>
 </div>
 </section>
@@ -180,48 +180,48 @@ In order for the scripts to work despite this, all the <code class="docutils lit
 <section id="a-pipeline-supporting-augmentation">
 <h3>A pipeline supporting augmentation<a class="headerlink" href="#a-pipeline-supporting-augmentation" title="Permalink to this heading"></a></h3>
 <p>A config supporting augmentation of the training split called <code class="docutils literal notranslate"><span class="pre">train-augmentation-config.yaml</span></code>:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">defaults</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">base_config</span><span class="w"></span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">defaults</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">base_config</span>
 
-<span class="nt">data</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pipeline-with-augmentation</span><span class="w"></span>
-<span class="w">  </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/tmp/file-with-reactions.txt</span><span class="w"></span>
-<span class="w">  </span><span class="nt">proc_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/tmp/rxn-preprocessing/experiment</span><span class="w"></span>
-<span class="nt">common</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">sequence</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="c1"># Define which steps and in which order to execute:</span><span class="w"></span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">IMPORT</span><span class="w"></span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">STANDARDIZE</span><span class="w"></span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PREPROCESS</span><span class="w"></span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SPLIT</span><span class="w"></span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">AUGMENT</span><span class="w"></span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TOKENIZE</span><span class="w"></span>
-<span class="w">  </span><span class="nt">fragment_bond</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TILDE</span><span class="w"></span>
-<span class="nt">rxn_import</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">data_format</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TXT</span><span class="w"></span>
-<span class="nt">preprocess</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">min_products</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
-<span class="nt">split</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">input_file_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${preprocess.output_file_path}</span><span class="w"></span>
-<span class="w">  </span><span class="nt">split_ratio</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.05</span><span class="w"></span>
-<span class="nt">augment</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">input_file_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${data.proc_dir}/${data.name}.processed.train.csv</span><span class="w"></span>
-<span class="w">  </span><span class="nt">output_file_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${data.proc_dir}/${data.name}.augmented.train.csv</span><span class="w"></span>
-<span class="w">  </span><span class="nt">permutations</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span><span class="w"></span>
-<span class="w">  </span><span class="nt">tokenize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"></span>
-<span class="w">  </span><span class="nt">random_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rotated</span><span class="w"></span>
-<span class="nt">tokenize</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">input_output_pairs</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">inp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${data.proc_dir}/${data.name}.augmented.train.csv</span><span class="w"></span>
-<span class="w">      </span><span class="nt">out</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${data.proc_dir}/${data.name}.augmented.train</span><span class="w"></span>
-<span class="w">      </span><span class="nt">reaction_column_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rxn_rotated</span><span class="w"></span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">inp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${data.proc_dir}/${data.name}.processed.validation.csv</span><span class="w"></span>
-<span class="w">      </span><span class="nt">out</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${data.proc_dir}/${data.name}.processed.validation</span><span class="w"></span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">inp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${data.proc_dir}/${data.name}.processed.test.csv</span><span class="w"></span>
-<span class="w">      </span><span class="nt">out</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${data.proc_dir}/${data.name}.processed.test</span><span class="w"></span>
+<span class="nt">data</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pipeline-with-augmentation</span>
+<span class="w">  </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/tmp/file-with-reactions.txt</span>
+<span class="w">  </span><span class="nt">proc_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/tmp/rxn-preprocessing/experiment</span>
+<span class="nt">common</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">sequence</span><span class="p">:</span>
+<span class="w">    </span><span class="c1"># Define which steps and in which order to execute:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">IMPORT</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">STANDARDIZE</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PREPROCESS</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SPLIT</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">AUGMENT</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TOKENIZE</span>
+<span class="w">  </span><span class="nt">fragment_bond</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TILDE</span>
+<span class="nt">rxn_import</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">data_format</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TXT</span>
+<span class="nt">preprocess</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">min_products</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="nt">split</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">input_file_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${preprocess.output_file_path}</span>
+<span class="w">  </span><span class="nt">split_ratio</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.05</span>
+<span class="nt">augment</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">input_file_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${data.proc_dir}/${data.name}.processed.train.csv</span>
+<span class="w">  </span><span class="nt">output_file_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${data.proc_dir}/${data.name}.augmented.train.csv</span>
+<span class="w">  </span><span class="nt">permutations</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
+<span class="w">  </span><span class="nt">tokenize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">random_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rotated</span>
+<span class="nt">tokenize</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">input_output_pairs</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">inp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${data.proc_dir}/${data.name}.augmented.train.csv</span>
+<span class="w">      </span><span class="nt">out</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${data.proc_dir}/${data.name}.augmented.train</span>
+<span class="w">      </span><span class="nt">reaction_column_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rxn_rotated</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">inp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${data.proc_dir}/${data.name}.processed.validation.csv</span>
+<span class="w">      </span><span class="nt">out</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${data.proc_dir}/${data.name}.processed.validation</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">inp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${data.proc_dir}/${data.name}.processed.test.csv</span>
+<span class="w">      </span><span class="nt">out</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${data.proc_dir}/${data.name}.processed.test</span>
 </pre></div>
 </div>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>rxn-data-pipeline --config-dir . --config-name train-augmentation-config
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>rxn-data-pipeline<span class="w"> </span>--config-dir<span class="w"> </span>.<span class="w"> </span>--config-name<span class="w"> </span>train-augmentation-config
 </pre></div>
 </div>
 </section>

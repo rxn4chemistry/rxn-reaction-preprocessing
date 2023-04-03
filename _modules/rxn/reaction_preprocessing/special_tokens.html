@@ -91,7 +91,7 @@
 
 
 <span class="k">class</span> <span class="nc">_SpecialToken</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Enum class for special reaction SMILES tokens.</span>
 
 <span class="sd">    Useful to avoid dealing with the token strings where not actually necessary.</span>
@@ -108,7 +108,7 @@
 <span class="k">def</span> <span class="nf">_add_special_tokens_to_list</span><span class="p">(</span>
     <span class="n">smiles_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">tokens</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">_SpecialToken</span><span class="p">],</span> <span class="n">in_place</span><span class="p">:</span> <span class="nb">bool</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;Add the required tokens to a list of SMILES.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add the required tokens to a list of SMILES.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">in_place</span><span class="p">:</span>
         <span class="n">smiles_list</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">smiles_list</span><span class="p">)</span>
 
@@ -121,7 +121,7 @@
 <span class="k">def</span> <span class="nf">_add_special_tokens</span><span class="p">(</span>
     <span class="n">reaction_or_list</span><span class="p">:</span> <span class="n">ReactionOrList</span><span class="p">,</span> <span class="n">tokens</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">_SpecialToken</span><span class="p">],</span> <span class="n">in_place</span><span class="p">:</span> <span class="nb">bool</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReactionOrList</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Add the required tokens to the reactants of a reaction or list of SMILES.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add the required tokens to the reactants of a reaction or list of SMILES.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">reaction_or_list</span><span class="p">,</span> <span class="n">ReactionEquation</span><span class="p">):</span>
         <span class="c1"># Create a copy of the ReactionEquation if not in-place - the copy can</span>
         <span class="c1"># then be updated in-place.</span>
@@ -139,7 +139,7 @@
 <div class="viewcode-block" id="add_light_token"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.special_tokens.add_light_token.html#rxn.reaction_preprocessing.special_tokens.add_light_token">[docs]</a><span class="k">def</span> <span class="nf">add_light_token</span><span class="p">(</span>
     <span class="n">reaction_or_list</span><span class="p">:</span> <span class="n">ReactionOrList</span><span class="p">,</span> <span class="n">in_place</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReactionOrList</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Add the light token to the precursors of a reaction or list of SMILES.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add the light token to the precursors of a reaction or list of SMILES.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_add_special_tokens</span><span class="p">(</span>
         <span class="n">reaction_or_list</span><span class="p">,</span> <span class="p">[</span><span class="n">_SpecialToken</span><span class="o">.</span><span class="n">LIGHT</span><span class="p">],</span> <span class="n">in_place</span><span class="o">=</span><span class="n">in_place</span>
     <span class="p">)</span></div>
@@ -148,7 +148,7 @@
 <div class="viewcode-block" id="add_heat_token"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.special_tokens.add_heat_token.html#rxn.reaction_preprocessing.special_tokens.add_heat_token">[docs]</a><span class="k">def</span> <span class="nf">add_heat_token</span><span class="p">(</span>
     <span class="n">reaction_or_list</span><span class="p">:</span> <span class="n">ReactionOrList</span><span class="p">,</span> <span class="n">in_place</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReactionOrList</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Add the heat token to the precursors of a reaction or list of SMILES.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add the heat token to the precursors of a reaction or list of SMILES.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_add_special_tokens</span><span class="p">(</span>
         <span class="n">reaction_or_list</span><span class="p">,</span> <span class="p">[</span><span class="n">_SpecialToken</span><span class="o">.</span><span class="n">HEAT</span><span class="p">],</span> <span class="n">in_place</span><span class="o">=</span><span class="n">in_place</span>
     <span class="p">)</span></div>
@@ -157,7 +157,7 @@
 <span class="k">def</span> <span class="nf">_contains_token</span><span class="p">(</span>
     <span class="n">reaction_or_iterable</span><span class="p">:</span> <span class="n">ReactionOrIterable</span><span class="p">,</span> <span class="n">token</span><span class="p">:</span> <span class="n">_SpecialToken</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Whether a reaction (or set of SMILES strings) contains the specified token.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Whether a reaction (or set of SMILES strings) contains the specified token.&quot;&quot;&quot;</span>
     <span class="n">smiles_iterable</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">reaction_or_iterable</span><span class="p">,</span> <span class="n">ReactionEquation</span><span class="p">):</span>
         <span class="n">smiles_iterable</span> <span class="o">=</span> <span class="n">reaction_or_iterable</span><span class="o">.</span><span class="n">iter_all_smiles</span><span class="p">()</span>
@@ -167,19 +167,19 @@
 
 
 <div class="viewcode-block" id="contains_light_token"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.special_tokens.contains_light_token.html#rxn.reaction_preprocessing.special_tokens.contains_light_token">[docs]</a><span class="k">def</span> <span class="nf">contains_light_token</span><span class="p">(</span><span class="n">reaction_or_iterable</span><span class="p">:</span> <span class="n">ReactionOrIterable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Whether a reaction (or set of SMILES strings) contains the light token.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Whether a reaction (or set of SMILES strings) contains the light token.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_contains_token</span><span class="p">(</span><span class="n">reaction_or_iterable</span><span class="p">,</span> <span class="n">_SpecialToken</span><span class="o">.</span><span class="n">LIGHT</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="contains_heat_token"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.special_tokens.contains_heat_token.html#rxn.reaction_preprocessing.special_tokens.contains_heat_token">[docs]</a><span class="k">def</span> <span class="nf">contains_heat_token</span><span class="p">(</span><span class="n">reaction_or_iterable</span><span class="p">:</span> <span class="n">ReactionOrIterable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Whether a reaction (or set of SMILES strings) contains the heat token.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Whether a reaction (or set of SMILES strings) contains the heat token.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_contains_token</span><span class="p">(</span><span class="n">reaction_or_iterable</span><span class="p">,</span> <span class="n">_SpecialToken</span><span class="o">.</span><span class="n">HEAT</span><span class="p">)</span></div>
 
 
 <span class="k">def</span> <span class="nf">_strip_special_tokens_from_list</span><span class="p">(</span>
     <span class="n">smiles_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">token_strings</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">in_place</span><span class="p">:</span> <span class="nb">bool</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;Strip the specified tokens from a list of SMILES strings.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Strip the specified tokens from a list of SMILES strings.&quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">in_place</span><span class="p">:</span>
         <span class="n">smiles_list</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">smiles_list</span><span class="p">)</span>
@@ -197,7 +197,7 @@
 <span class="k">def</span> <span class="nf">_strip_special_tokens</span><span class="p">(</span>
     <span class="n">reaction_or_list</span><span class="p">:</span> <span class="n">ReactionOrList</span><span class="p">,</span> <span class="n">tokens</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">_SpecialToken</span><span class="p">],</span> <span class="n">in_place</span><span class="p">:</span> <span class="nb">bool</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReactionOrList</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Strip the specified tokens from a reaction or list of SMILES strings.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Strip the specified tokens from a reaction or list of SMILES strings.&quot;&quot;&quot;</span>
     <span class="n">token_strings_to_remove</span> <span class="o">=</span> <span class="p">[</span><span class="n">token</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">tokens</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">reaction_or_list</span><span class="p">,</span> <span class="n">ReactionEquation</span><span class="p">):</span>
@@ -222,7 +222,7 @@
 <div class="viewcode-block" id="strip_all_special_tokens"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.special_tokens.strip_all_special_tokens.html#rxn.reaction_preprocessing.special_tokens.strip_all_special_tokens">[docs]</a><span class="k">def</span> <span class="nf">strip_all_special_tokens</span><span class="p">(</span>
     <span class="n">reaction_or_list</span><span class="p">:</span> <span class="n">ReactionOrList</span><span class="p">,</span> <span class="n">in_place</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReactionOrList</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Strip all the special tokens from a reaction or list of SMILES strings.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Strip all the special tokens from a reaction or list of SMILES strings.&quot;&quot;&quot;</span>
     <span class="c1"># NB: calling list on an enum class gets all the possible values.</span>
     <span class="k">return</span> <span class="n">_strip_special_tokens</span><span class="p">(</span>
         <span class="n">reaction_or_list</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">_SpecialToken</span><span class="p">),</span> <span class="n">in_place</span><span class="o">=</span><span class="n">in_place</span>
@@ -232,7 +232,7 @@
 <div class="viewcode-block" id="strip_heat_token"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.special_tokens.strip_heat_token.html#rxn.reaction_preprocessing.special_tokens.strip_heat_token">[docs]</a><span class="k">def</span> <span class="nf">strip_heat_token</span><span class="p">(</span>
     <span class="n">reaction_or_list</span><span class="p">:</span> <span class="n">ReactionOrList</span><span class="p">,</span> <span class="n">in_place</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReactionOrList</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Strip the heat from a reaction or list of SMILES strings.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Strip the heat from a reaction or list of SMILES strings.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_strip_special_tokens</span><span class="p">(</span>
         <span class="n">reaction_or_list</span><span class="p">,</span> <span class="p">[</span><span class="n">_SpecialToken</span><span class="o">.</span><span class="n">HEAT</span><span class="p">],</span> <span class="n">in_place</span><span class="o">=</span><span class="n">in_place</span>
     <span class="p">)</span></div>
@@ -241,7 +241,7 @@
 <div class="viewcode-block" id="strip_light_token"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.special_tokens.strip_light_token.html#rxn.reaction_preprocessing.special_tokens.strip_light_token">[docs]</a><span class="k">def</span> <span class="nf">strip_light_token</span><span class="p">(</span>
     <span class="n">reaction_or_list</span><span class="p">:</span> <span class="n">ReactionOrList</span><span class="p">,</span> <span class="n">in_place</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReactionOrList</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Strip the light token from a reaction or list of SMILES strings.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Strip the light token from a reaction or list of SMILES strings.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_strip_special_tokens</span><span class="p">(</span>
         <span class="n">reaction_or_list</span><span class="p">,</span> <span class="p">[</span><span class="n">_SpecialToken</span><span class="o">.</span><span class="n">LIGHT</span><span class="p">],</span> <span class="n">in_place</span><span class="o">=</span><span class="n">in_place</span>
     <span class="p">)</span></div>
