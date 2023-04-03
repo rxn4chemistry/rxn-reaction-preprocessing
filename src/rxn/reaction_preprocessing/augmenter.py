@@ -192,7 +192,6 @@ class Augmenter:
         """
 
         if rxn_section_to_augment is ReactionSection.precursors:
-
             self.df[f"precursors_{random_type.name}"] = self.df[
                 self.__reaction_column_name
             ].apply(lambda smiles: smiles.replace(" ", "").split(">>")[0])
@@ -204,7 +203,6 @@ class Augmenter:
             columns_to_join = [f"precursors_{random_type.name}", "products"]
 
         elif rxn_section_to_augment is ReactionSection.products:
-
             self.df[f"products_{random_type.name}"] = self.df[
                 self.__reaction_column_name
             ].apply(lambda smiles: smiles.replace(" ", "").split(">>")[1])
@@ -215,7 +213,6 @@ class Augmenter:
             columns_to_augment = [f"products_{random_type.name}"]
             columns_to_join = ["precursors", f"products_{random_type.name}"]
         else:
-
             raise ValueError(
                 f"Invalid reaction section to augment: {rxn_section_to_augment.name}"
             )

@@ -9,7 +9,6 @@ from rxn.reaction_preprocessing.config import TokenizeConfig
 
 
 class SmilesTokenizer:
-
     #
     # Public Methods
     #

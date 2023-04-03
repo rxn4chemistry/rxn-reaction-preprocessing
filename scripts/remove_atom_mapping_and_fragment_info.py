@@ -17,7 +17,6 @@ def main(
     remove_atom_maps: bool,
     fragment_bond: str,
 ):
-
     df = pd.read_csv(input_file_path)
     df["original_atom_mapped_rxn"] = df[rxn_smiles_column]
     if remove_atom_maps:
