@@ -181,6 +181,10 @@ def test_different_atom_types(
     assert not filter.different_atom_types(good_reaction)
     assert filter.different_atom_types(alchemic_reaction)
 
+    # hydrogen should not count as a different atom type
+    reaction = ReactionEquation.from_string(r"C=CC.CC.C>>[H]/C=C\C")
+    assert not filter.different_atom_types(reaction)
+
 
 def test_invalid_smiles(filter: MixedReactionFilter) -> None:
     # "[J]" is not a valid molecule
