@@ -13,7 +13,8 @@ from rxn.chemutils.tokenization import to_tokens
 
 from .utils import MolEquation, get_atoms_for_mols, get_formal_charge_for_mols
 
-POLYMER_HEAD_AND_TAIL_PLACEHOLDER_ATOMS = {"Kr", "Rn", "Xe"}
+_POLYMER_HEAD_AND_TAIL_PLACEHOLDER_ATOMS = {"Kr", "Rn", "Xe"}
+_ATOM_TYPES_ALLOWED_IN_PRODUCT = _POLYMER_HEAD_AND_TAIL_PLACEHOLDER_ATOMS | {"H"}
 
 SmilesBasedCheck = Callable[[ReactionEquation], bool]
 MolBasedCheck = Callable[[MolEquation], bool]
@@ -377,10 +378,8 @@ class MixedReactionFilter:
             reaction = MolEquation.from_reaction_equation(reaction)
 
         products_atoms = get_atoms_for_mols(reaction.products)
-        # ignore H atom (because usually implicit)
-        products_atoms -= {"H"}
-        # ignore atoms used in polymer representations
-        products_atoms -= POLYMER_HEAD_AND_TAIL_PLACEHOLDER_ATOMS
+        # ignore H atom (because usually implicit) and atoms used in polymer representations
+        products_atoms -= _ATOM_TYPES_ALLOWED_IN_PRODUCT
         agents_atoms = get_atoms_for_mols(reaction.agents)
         reactants_atoms = get_atoms_for_mols(reaction.reactants)
 
