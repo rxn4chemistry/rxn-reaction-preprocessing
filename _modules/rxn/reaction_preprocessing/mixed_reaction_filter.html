@@ -80,7 +80,8 @@
 
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">MolEquation</span><span class="p">,</span> <span class="n">get_atoms_for_mols</span><span class="p">,</span> <span class="n">get_formal_charge_for_mols</span>
 
-<span class="n">POLYMER_HEAD_AND_TAIL_PLACEHOLDER_ATOMS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Kr&quot;</span><span class="p">,</span> <span class="s2">&quot;Rn&quot;</span><span class="p">,</span> <span class="s2">&quot;Xe&quot;</span><span class="p">}</span>
+<span class="n">_POLYMER_HEAD_AND_TAIL_PLACEHOLDER_ATOMS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Kr&quot;</span><span class="p">,</span> <span class="s2">&quot;Rn&quot;</span><span class="p">,</span> <span class="s2">&quot;Xe&quot;</span><span class="p">}</span>
+<span class="n">_ATOM_TYPES_ALLOWED_IN_PRODUCT</span> <span class="o">=</span> <span class="n">_POLYMER_HEAD_AND_TAIL_PLACEHOLDER_ATOMS</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;H&quot;</span><span class="p">}</span>
 
 <span class="n">SmilesBasedCheck</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">ReactionEquation</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
 <span class="n">MolBasedCheck</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">MolEquation</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
@@ -444,8 +445,8 @@
             <span class="n">reaction</span> <span class="o">=</span> <span class="n">MolEquation</span><span class="o">.</span><span class="n">from_reaction_equation</span><span class="p">(</span><span class="n">reaction</span><span class="p">)</span>
 
         <span class="n">products_atoms</span> <span class="o">=</span> <span class="n">get_atoms_for_mols</span><span class="p">(</span><span class="n">reaction</span><span class="o">.</span><span class="n">products</span><span class="p">)</span>
-        <span class="c1"># ignore atoms used in polymer representations</span>
-        <span class="n">products_atoms</span> <span class="o">-=</span> <span class="n">POLYMER_HEAD_AND_TAIL_PLACEHOLDER_ATOMS</span>
+        <span class="c1"># ignore H atom (because usually implicit) and atoms used in polymer representations</span>
+        <span class="n">products_atoms</span> <span class="o">-=</span> <span class="n">_ATOM_TYPES_ALLOWED_IN_PRODUCT</span>
         <span class="n">agents_atoms</span> <span class="o">=</span> <span class="n">get_atoms_for_mols</span><span class="p">(</span><span class="n">reaction</span><span class="o">.</span><span class="n">agents</span><span class="p">)</span>
         <span class="n">reactants_atoms</span> <span class="o">=</span> <span class="n">get_atoms_for_mols</span><span class="p">(</span><span class="n">reaction</span><span class="o">.</span><span class="n">reactants</span><span class="p">)</span>
 
