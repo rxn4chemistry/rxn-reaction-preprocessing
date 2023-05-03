@@ -377,6 +377,8 @@ class MixedReactionFilter:
             reaction = MolEquation.from_reaction_equation(reaction)
 
         products_atoms = get_atoms_for_mols(reaction.products)
+        # ignore H atom (because usually implicit)
+        products_atoms -= {"H"}
         # ignore atoms used in polymer representations
         products_atoms -= POLYMER_HEAD_AND_TAIL_PLACEHOLDER_ATOMS
         agents_atoms = get_atoms_for_mols(reaction.agents)
