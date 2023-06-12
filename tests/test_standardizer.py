@@ -25,7 +25,7 @@ def standardizer() -> Standardizer:
                 "[Na]Cl.CC[Zn]CC~Cc1ccccc1>>[Na]Cl",  # substitution needed
                 "[Na]Cl.Cc1ccccc1~CC[Zn]CC>>[Na]Cl",  # substitution needed but performed only if canonicalization
                 "CC.CCC>>CCO",  # no substitution
-                "CC.[Na+5].CC>>[Na+]~[OH-]",  # invalid smiles -> '>>'
+                "CC.[NaK].CC>>[Na+]~[OH-]",  # invalid smiles -> '>>'
                 "CC(C)(C)O[K].CCO~CCO>>[Li]O",  # rejected reaction -> '>>'
                 r"CC(=O)/C=C(\C)O[V](=O)O/C(C)=C/C(C)=O.CCCC[N+](CCCC)(CCCC)CCCC~CCCC[N+](CCCC)(CCCC)CCCC~C1(=C(SC(=S)S1)[S-])[S-]~C1(=C(SC(=S)S1)[S-])[S-]~[Pd+2]>>O[K]",
                 # requires annotation -> '>>'
