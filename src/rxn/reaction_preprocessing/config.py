@@ -90,7 +90,7 @@ class RxnImportConfig:
 
     Fields:
         input_file: the input file path (.txt, .csv).
-        output_csv: the ouptut file path.
+        output_csv: the output file path.
         initial_data_format: whether the input file is in TXT or CSV format.
         reaction_column_name: name the column containing the reactions if the input
             is in CSV format. The value is ignored if the input is not in CSV format.
@@ -214,8 +214,9 @@ class SplitConfig:
         output_directory: The directory containing the files after splitting.
         split_ratio: The split ratio between training, and test and validation sets.
         reaction_column_name: Name of the reaction column for the data file.
-        index_column: Name of the column used to generate the hash ensuring
-            stable splitting.
+        index_column: The name of the column used to generate the hash which ensures
+            stable splitting. "products" and "precursors" are also allowed even if
+            they do not exist as columns.
         hash_seed: Seed for the hashing function used for splitting.
         shuffle_seed: Seed for shuffling the train split.
     """
@@ -224,7 +225,7 @@ class SplitConfig:
     output_directory: str = SI("${data.proc_dir}")
     split_ratio: float = 0.05
     reaction_column_name: str = SI("${common.reaction_column_name}")
-    index_column: str = SI("${split.reaction_column_name}")
+    index_column: str = "products"
     hash_seed: int = 42
     shuffle_seed: int = 42
 
