@@ -134,7 +134,8 @@ for each set, to not duplicate the DataFrame while preserving the original.</p>
 <li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – The pandas DataFrame to be split into training, validation, and test sets.</p></li>
 <li><p><strong>reaction_column_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Name of the reaction column for the data file.</p></li>
 <li><p><strong>index_column</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The name of the column used to generate the hash which ensures
-stable splitting.</p></li>
+stable splitting. “products” and “precursors” are also allowed even if
+they do not exist as columns.</p></li>
 <li><p><strong>split_ratio</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, default: <code class="docutils literal notranslate"><span class="pre">0.05</span></code>) – The split ratio. Defaults to 0.05.</p></li>
 <li><p><strong>hash_seed</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, default: <code class="docutils literal notranslate"><span class="pre">0</span></code>) – seed to use for hashing. The default of 0 corresponds to
 the default value in the xxhash implementation.</p></li>

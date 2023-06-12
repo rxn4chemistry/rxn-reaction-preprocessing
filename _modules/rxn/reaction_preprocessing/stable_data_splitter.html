@@ -145,7 +145,8 @@
 <span class="sd">            df: The pandas DataFrame to be split into training, validation, and test sets.</span>
 <span class="sd">            reaction_column_name: Name of the reaction column for the data file.</span>
 <span class="sd">            index_column: The name of the column used to generate the hash which ensures</span>
-<span class="sd">                stable splitting.</span>
+<span class="sd">                stable splitting. &quot;products&quot; and &quot;precursors&quot; are also allowed even if</span>
+<span class="sd">                they do not exist as columns.</span>
 <span class="sd">            split_ratio: The split ratio. Defaults to 0.05.</span>
 <span class="sd">            hash_seed: seed to use for hashing. The default of 0 corresponds to</span>
 <span class="sd">                the default value in the xxhash implementation.</span>
