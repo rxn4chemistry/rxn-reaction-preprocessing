@@ -78,7 +78,8 @@ class StableDataSplitter:
             df: The pandas DataFrame to be split into training, validation, and test sets.
             reaction_column_name: Name of the reaction column for the data file.
             index_column: The name of the column used to generate the hash which ensures
-                stable splitting.
+                stable splitting. "products" and "precursors" are also allowed even if
+                they do not exist as columns.
             split_ratio: The split ratio. Defaults to 0.05.
             hash_seed: seed to use for hashing. The default of 0 corresponds to
                 the default value in the xxhash implementation.
