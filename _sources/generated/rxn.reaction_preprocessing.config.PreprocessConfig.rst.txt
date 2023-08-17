@@ -28,6 +28,7 @@ rxn.reaction\_preprocessing.config.PreprocessConfig
    
       ~PreprocessConfig.fragment_bond
       ~PreprocessConfig.input_file_path
+      ~PreprocessConfig.keep_intermediate_columns
       ~PreprocessConfig.max_absolute_formal_charge
       ~PreprocessConfig.max_agents
       ~PreprocessConfig.max_agents_tokens

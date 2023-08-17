@@ -29,6 +29,7 @@ rxn.reaction\_preprocessing.config.StandardizeConfig
       ~StandardizeConfig.discard_unannotated_metals
       ~StandardizeConfig.fragment_bond
       ~StandardizeConfig.input_file_path
+      ~StandardizeConfig.keep_intermediate_columns
       ~StandardizeConfig.output_file_path
       ~StandardizeConfig.reaction_column_name
       ~StandardizeConfig.remove_stereo_if_not_defined_in_precursors

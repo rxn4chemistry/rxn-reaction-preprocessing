@@ -112,13 +112,14 @@
 <h1>rxn.reaction_preprocessing.config.CommonConfig<a class="headerlink" href="#rxn-reaction-preprocessing-config-commonconfig" title="Permalink to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="rxn.reaction_preprocessing.config.CommonConfig">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rxn.reaction_preprocessing.config.</span></span><span class="sig-name descname"><span class="pre">CommonConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sequence=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fragment_bond=FragmentBond.DOT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reaction_column_name='rxn'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rxn/reaction_preprocessing/config.html#CommonConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rxn.reaction_preprocessing.config.CommonConfig" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rxn.reaction_preprocessing.config.</span></span><span class="sig-name descname"><span class="pre">CommonConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sequence=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fragment_bond=FragmentBond.DOT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reaction_column_name='rxn'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_intermediate_columns=False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rxn/reaction_preprocessing/config.html#CommonConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rxn.reaction_preprocessing.config.CommonConfig" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Configuration used by multiple steps.</p>
 <dl class="simple">
 <dt>Fields:</dt><dd><p>sequence: Ordered sequence of data transformation steps to perform.
 fragment_bond: Token used to denote a fragment bond in the SMILES of the reactions to process.
-reaction_column_name: Name of the reaction column for the data file.</p>
+reaction_column_name: Name of the reaction column for the data file.
+keep_intermediate_columns: Whether the columns generated during preprocessing should be kept.</p>
 </dd>
 </dl>
 <dl class="field-list simple">
@@ -127,18 +128,20 @@ reaction_column_name: Name of the reaction column for the data file.</p>
 <li><p><strong>sequence</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="rxn.reaction_preprocessing.config.Step.html#rxn.reaction_preprocessing.config.Step" title="rxn.reaction_preprocessing.config.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">Step</span></code></a>], default: <code class="docutils literal notranslate"><span class="pre">&lt;factory&gt;</span></code>) – </p></li>
 <li><p><strong>fragment_bond</strong> (<a class="reference internal" href="rxn.reaction_preprocessing.config.FragmentBond.html#rxn.reaction_preprocessing.config.FragmentBond" title="rxn.reaction_preprocessing.config.FragmentBond"><code class="xref py py-class docutils literal notranslate"><span class="pre">FragmentBond</span></code></a>, default: <code class="docutils literal notranslate"><span class="pre">&lt;FragmentBond.DOT:</span> <span class="pre">'.'&gt;</span></code>) – </p></li>
 <li><p><strong>reaction_column_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, default: <code class="docutils literal notranslate"><span class="pre">'rxn'</span></code>) – </p></li>
+<li><p><strong>keep_intermediate_columns</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, default: <code class="docutils literal notranslate"><span class="pre">False</span></code>) – </p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="rxn.reaction_preprocessing.config.CommonConfig.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sequence=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fragment_bond=FragmentBond.DOT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reaction_column_name='rxn'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rxn.reaction_preprocessing.config.CommonConfig.__init__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sequence=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fragment_bond=FragmentBond.DOT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reaction_column_name='rxn'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_intermediate_columns=False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rxn.reaction_preprocessing.config.CommonConfig.__init__" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>sequence</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="rxn.reaction_preprocessing.config.Step.html#rxn.reaction_preprocessing.config.Step" title="rxn.reaction_preprocessing.config.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">Step</span></code></a>], default: <code class="docutils literal notranslate"><span class="pre">&lt;factory&gt;</span></code>) – </p></li>
 <li><p><strong>fragment_bond</strong> (<a class="reference internal" href="rxn.reaction_preprocessing.config.FragmentBond.html#rxn.reaction_preprocessing.config.FragmentBond" title="rxn.reaction_preprocessing.config.FragmentBond"><code class="xref py py-class docutils literal notranslate"><span class="pre">FragmentBond</span></code></a>, default: <code class="docutils literal notranslate"><span class="pre">&lt;FragmentBond.DOT:</span> <span class="pre">'.'&gt;</span></code>) – </p></li>
 <li><p><strong>reaction_column_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, default: <code class="docutils literal notranslate"><span class="pre">'rxn'</span></code>) – </p></li>
+<li><p><strong>keep_intermediate_columns</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, default: <code class="docutils literal notranslate"><span class="pre">False</span></code>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
@@ -173,10 +176,13 @@ reaction_column_name: Name of the reaction column for the data file.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">fragment_bond</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">reaction_column_name</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">keep_intermediate_columns</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">sequence</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">reaction_column_name</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">sequence</span></code></p></td>
 <td><p></p></td>
 </tr>
 </tbody>

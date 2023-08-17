@@ -136,6 +136,7 @@
 <span class="sd">        sequence: Ordered sequence of data transformation steps to perform.</span>
 <span class="sd">        fragment_bond: Token used to denote a fragment bond in the SMILES of the reactions to process.</span>
 <span class="sd">        reaction_column_name: Name of the reaction column for the data file.</span>
+<span class="sd">        keep_intermediate_columns: Whether the columns generated during preprocessing should be kept.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">sequence</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Step</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
@@ -148,7 +149,8 @@
         <span class="p">]</span>
     <span class="p">)</span>
     <span class="n">fragment_bond</span><span class="p">:</span> <span class="n">FragmentBond</span> <span class="o">=</span> <span class="n">FragmentBond</span><span class="o">.</span><span class="n">DOT</span>
-    <span class="n">reaction_column_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;rxn&quot;</span></div>
+    <span class="n">reaction_column_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;rxn&quot;</span>
+    <span class="n">keep_intermediate_columns</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 
 <div class="viewcode-block" id="RxnImportConfig"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.config.RxnImportConfig.html#rxn.reaction_preprocessing.config.RxnImportConfig">[docs]</a><span class="nd">@dataclass</span>
@@ -171,6 +173,9 @@
 <span class="sd">        column_for_heat: name of the column containing boolean values that indicate</span>
 <span class="sd">            whether the reaction happens under heat. If specified, the heat token will</span>
 <span class="sd">            be added to the precursors of the corresponding reactions.</span>
+<span class="sd">        keep_intermediate_columns: Whether the columns generated during preprocessing should be kept.</span>
+<span class="sd">        keep_original_rxn_column: if  ``keep_intermediate_columns`` is False, determines whether</span>
+<span class="sd">            the original column with the raw reaction SMILES is to be kept or not.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">input_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{data.path}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -181,7 +186,9 @@
     <span class="n">fragment_bond</span><span class="p">:</span> <span class="n">FragmentBond</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{common.fragment_bond}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="n">remove_atom_mapping</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">column_for_light</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">column_for_heat</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></div>
+    <span class="n">column_for_heat</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">keep_intermediate_columns</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{common.keep_intermediate_columns}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">keep_original_rxn_column</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 
 <div class="viewcode-block" id="StandardizeConfig"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.config.StandardizeConfig.html#rxn.reaction_preprocessing.config.StandardizeConfig">[docs]</a><span class="nd">@dataclass</span>
@@ -197,6 +204,7 @@
 <span class="sd">        fragment_bond: Token used to denote a fragment bond in the reaction SMILES.</span>
 <span class="sd">        reaction_column_name: Name of the reaction column for the data file.</span>
 <span class="sd">        remove_stereo_if_not_defined_in_precursors: Remove chiral centers from product.</span>
+<span class="sd">        keep_intermediate_columns: Whether the columns generated during preprocessing should be kept.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">input_file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{rxn_import.output_csv}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -205,7 +213,8 @@
     <span class="n">output_file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{data.proc_dir}</span><span class="s2">/$</span><span class="si">{data.name}</span><span class="s2">.standardized.csv&quot;</span><span class="p">)</span>
     <span class="n">fragment_bond</span><span class="p">:</span> <span class="n">FragmentBond</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{common.fragment_bond}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="n">reaction_column_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{common.reaction_column_name}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">remove_stereo_if_not_defined_in_precursors</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></div>
+    <span class="n">remove_stereo_if_not_defined_in_precursors</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">keep_intermediate_columns</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{common.keep_intermediate_columns}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="PreprocessConfig"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.config.PreprocessConfig.html#rxn.reaction_preprocessing.config.PreprocessConfig">[docs]</a><span class="nd">@dataclass</span>
@@ -227,6 +236,7 @@
 <span class="sd">        max_absolute_formal_charge: The maximum absolute formal charge.</span>
 <span class="sd">        fragment_bond: Token used to denote a fragment bond in the reaction SMILES.</span>
 <span class="sd">        reaction_column_name: Name of the reaction column for the data file.</span>
+<span class="sd">        keep_intermediate_columns: Whether the columns generated during preprocessing should be kept.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">input_file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{standardize.output_file_path}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -242,7 +252,8 @@
     <span class="n">max_products_tokens</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span>
     <span class="n">max_absolute_formal_charge</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span>
     <span class="n">fragment_bond</span><span class="p">:</span> <span class="n">FragmentBond</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{common.fragment_bond}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">reaction_column_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{common.reaction_column_name}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+    <span class="n">reaction_column_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{common.reaction_column_name}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">keep_intermediate_columns</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{common.keep_intermediate_columns}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="AugmentConfig"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.config.AugmentConfig.html#rxn.reaction_preprocessing.config.AugmentConfig">[docs]</a><span class="nd">@dataclass</span>
@@ -260,6 +271,7 @@
 <span class="sd">            &quot;precursors&quot; for augmenting only the precursors</span>
 <span class="sd">            &quot;products&quot; for augmenting only the products</span>
 <span class="sd">        fragment_bond: Token used to denote a fragment bond in the reaction SMILES.</span>
+<span class="sd">        keep_intermediate_columns: Whether the columns generated during preprocessing should be kept.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">input_file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{preprocess.output_file_path}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -269,7 +281,8 @@
     <span class="n">permutations</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">reaction_column_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{common.reaction_column_name}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="n">rxn_section_to_augment</span><span class="p">:</span> <span class="n">ReactionSection</span> <span class="o">=</span> <span class="n">ReactionSection</span><span class="o">.</span><span class="n">precursors</span>
-    <span class="n">fragment_bond</span><span class="p">:</span> <span class="n">FragmentBond</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{common.fragment_bond}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+    <span class="n">fragment_bond</span><span class="p">:</span> <span class="n">FragmentBond</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{common.fragment_bond}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">keep_intermediate_columns</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{common.keep_intermediate_columns}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="SplitConfig"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.config.SplitConfig.html#rxn.reaction_preprocessing.config.SplitConfig">[docs]</a><span class="nd">@dataclass</span>

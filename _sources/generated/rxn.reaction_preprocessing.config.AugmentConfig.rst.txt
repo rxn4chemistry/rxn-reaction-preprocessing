@@ -28,6 +28,7 @@ rxn.reaction\_preprocessing.config.AugmentConfig
    
       ~AugmentConfig.fragment_bond
       ~AugmentConfig.input_file_path
+      ~AugmentConfig.keep_intermediate_columns
       ~AugmentConfig.output_file_path
       ~AugmentConfig.permutations
       ~AugmentConfig.random_type

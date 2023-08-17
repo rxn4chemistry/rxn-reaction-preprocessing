@@ -27,6 +27,7 @@ rxn.reaction\_preprocessing.config.CommonConfig
    .. autosummary::
    
       ~CommonConfig.fragment_bond
+      ~CommonConfig.keep_intermediate_columns
       ~CommonConfig.reaction_column_name
       ~CommonConfig.sequence
    

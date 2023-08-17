@@ -369,6 +369,7 @@
         <span class="n">cfg</span><span class="o">.</span><span class="n">reaction_column_name</span><span class="p">,</span>
         <span class="n">fragment_bond</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">fragment_bond</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
     <span class="p">)</span>
+    <span class="n">columns_to_keep</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
 
     <span class="c1"># Remove duplicate reactions (useful for large dataset, this step is repeated later)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">df</span><span class="p">)</span><span class="si">}</span><span class="s2"> initial reactions.&quot;</span><span class="p">)</span>
@@ -391,6 +392,9 @@
 
     <span class="c1"># Drop the invalid reactions</span>
     <span class="n">pp</span><span class="o">.</span><span class="n">remove_invalids</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">cfg</span><span class="o">.</span><span class="n">keep_intermediate_columns</span><span class="p">:</span>
+        <span class="n">pp</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">columns_to_keep</span><span class="p">]</span>
 
     <span class="c1"># After dropping invalid columns, display stats again (as an example)</span>
     <span class="n">pp</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">output_file_path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>

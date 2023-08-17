@@ -73,6 +73,7 @@
 <span class="kn">from</span> <span class="nn">rxn.chemutils.reaction_equation</span> <span class="kn">import</span> <span class="n">ReactionEquation</span>
 <span class="kn">from</span> <span class="nn">rxn.chemutils.reaction_smiles</span> <span class="kn">import</span> <span class="n">parse_any_reaction_smiles</span>
 <span class="kn">from</span> <span class="nn">rxn.chemutils.utils</span> <span class="kn">import</span> <span class="n">remove_atom_mapping</span>
+<span class="kn">from</span> <span class="nn">rxn.utilities.containers</span> <span class="kn">import</span> <span class="n">remove_duplicates</span>
 
 <span class="kn">from</span> <span class="nn">rxn.reaction_preprocessing.config</span> <span class="kn">import</span> <span class="n">InitialDataFormat</span><span class="p">,</span> <span class="n">RxnImportConfig</span>
 <span class="kn">from</span> <span class="nn">rxn.reaction_preprocessing.special_tokens</span> <span class="kn">import</span> <span class="n">add_heat_token</span><span class="p">,</span> <span class="n">add_light_token</span>
@@ -281,6 +282,14 @@
 
     <span class="n">df</span> <span class="o">=</span> <span class="n">_load_initial</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
 
+    <span class="c1"># Define which columns are to keep when cfg.keep_intermediate_columns is False:</span>
+    <span class="c1"># The ones in the input file, except the one that is converted to the final rxn column</span>
+    <span class="n">raw_rxn_column</span> <span class="o">=</span> <span class="p">[</span><span class="n">cfg</span><span class="o">.</span><span class="n">input_csv_column_name</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">reaction_column_name</span><span class="si">}</span><span class="s2">_original&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">keep_original_rxn_column</span><span class="p">:</span>
+        <span class="n">raw_rxn_column</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">columns_to_keep</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">raw_rxn_column</span><span class="p">]</span>
+    <span class="n">columns_to_keep</span> <span class="o">=</span> <span class="n">remove_duplicates</span><span class="p">(</span><span class="n">columns_to_keep</span> <span class="o">+</span> <span class="p">[</span><span class="n">cfg</span><span class="o">.</span><span class="n">reaction_column_name</span><span class="p">])</span>
+
     <span class="c1"># Reformat the reaction SMILES</span>
     <span class="n">fn</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">reformat_smiles</span><span class="p">,</span> <span class="n">fragment_bond</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">fragment_bond</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
     <span class="n">df</span><span class="p">[</span><span class="n">cfg</span><span class="o">.</span><span class="n">reaction_column_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">_final_column_name_for_original</span><span class="p">(</span><span class="n">cfg</span><span class="p">)]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
@@ -294,6 +303,9 @@
 
     <span class="c1"># Remove atom mapping if necessary</span>
     <span class="n">_maybe_remove_atom_mapping</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">cfg</span><span class="o">.</span><span class="n">keep_intermediate_columns</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">columns_to_keep</span><span class="p">]</span>
 
     <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">output_csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 </pre></div>

@@ -254,8 +254,13 @@
         <span class="n">remove_stereo_if_not_defined_in_precursors</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">remove_stereo_if_not_defined_in_precursors</span><span class="p">,</span>
     <span class="p">)</span>
 
+    <span class="n">columns_to_keep</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">std</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+
     <span class="c1"># Perform standardization</span>
     <span class="n">std</span><span class="o">.</span><span class="n">standardize</span><span class="p">(</span><span class="n">canonicalize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">cfg</span><span class="o">.</span><span class="n">keep_intermediate_columns</span><span class="p">:</span>
+        <span class="n">std</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">std</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">columns_to_keep</span><span class="p">]</span>
 
     <span class="c1"># Exporting standardized samples</span>
     <span class="n">std</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">output_file_path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
