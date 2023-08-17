@@ -5,40 +5,29 @@
 This repository is devoted to preprocessing chemical reactions: standardization, filtering, etc. 
 It also includes code for stable train/test/validation splits and data augmentation.
 
-The documentation can be found [here](https://rxn4chemistry.github.io/rxn-reaction-preprocessing/).
+Links:
+* [GitHub repository](https://github.com/rxn4chemistry/rxn-reaction-preprocessing)
+* [Documentation](https://rxn4chemistry.github.io/rxn-reaction-preprocessing/)
+* [PyPI package](https://pypi.org/project/rxn-reaction-preprocessing/)
 
 ## System Requirements
 
 This package is supported on all operating systems.
 It has been tested on the following systems:
+* macOS: Big Sur (11.1)
+* Linux: Ubuntu 18.04.4
 
-+ macOS: Big Sur (11.1)
-
-+ Linux: Ubuntu 18.04.4
-
-A Python version of 3.6 or greater is recommended.
+A Python version of 3.7 or greater is recommended.
 
 ## Installation guide
 
 The package can be installed from Pypi:
-
 ```bash
-pip install rxn-reaction-preprocessing
+pip install rxn-reaction-preprocessing[rdkit]
 ```
-
-The `RDKit` dependency is not installed automatically and can be installed via Conda or Pypi:
-```bash
-# Install RDKit from Conda
-conda install -c conda-forge rdkit
-
-# Install RDKit from Pypi
-pip install rdkit
-# for Python<3.7
-# pip install rdkit-pypi
-```
+You can leave out `[rdkit]` if you prefer to install `rdkit` manually (via Conda or Pypi).
 
 For local development, the package can be installed with:
-
 ```bash
 pip install -e ".[dev]"
 ```
