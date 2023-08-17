@@ -6,6 +6,7 @@ import pandas as pd
 from rxn.chemutils.reaction_equation import ReactionEquation
 from rxn.chemutils.reaction_smiles import parse_any_reaction_smiles
 from rxn.chemutils.utils import remove_atom_mapping
+from rxn.utilities.containers import remove_duplicates
 
 from rxn.reaction_preprocessing.config import InitialDataFormat, RxnImportConfig
 from rxn.reaction_preprocessing.special_tokens import add_heat_token, add_light_token
@@ -214,6 +215,14 @@ def rxn_import(cfg: RxnImportConfig) -> None:
 
     df = _load_initial(cfg)
 
+    # Define which columns are to keep when cfg.keep_intermediate_columns is False:
+    # The ones in the input file, except the one that is converted to the final rxn column
+    raw_rxn_column = [cfg.input_csv_column_name, f"{cfg.reaction_column_name}_original"]
+    if cfg.keep_original_rxn_column:
+        raw_rxn_column = []
+    columns_to_keep = [c for c in df.columns if c not in raw_rxn_column]
+    columns_to_keep = remove_duplicates(columns_to_keep + [cfg.reaction_column_name])
+
     # Reformat the reaction SMILES
     fn = partial(reformat_smiles, fragment_bond=cfg.fragment_bond.value)
     df[cfg.reaction_column_name] = df[_final_column_name_for_original(cfg)].apply(fn)
@@ -227,5 +236,8 @@ def rxn_import(cfg: RxnImportConfig) -> None:
 
     # Remove atom mapping if necessary
     _maybe_remove_atom_mapping(df, cfg)
+
+    if not cfg.keep_intermediate_columns:
+        df = df[columns_to_keep]
 
     df.to_csv(cfg.output_csv, index=False)

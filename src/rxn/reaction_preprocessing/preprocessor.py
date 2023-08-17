@@ -302,6 +302,7 @@ def preprocess(cfg: PreprocessConfig) -> None:
         cfg.reaction_column_name,
         fragment_bond=cfg.fragment_bond.value,
     )
+    columns_to_keep = list(pp.df.columns)
 
     # Remove duplicate reactions (useful for large dataset, this step is repeated later)
     logger.info(f"- {len(pp.df)} initial reactions.")
@@ -324,6 +325,9 @@ def preprocess(cfg: PreprocessConfig) -> None:
 
     # Drop the invalid reactions
     pp.remove_invalids()
+
+    if not cfg.keep_intermediate_columns:
+        pp.df = pp.df[columns_to_keep]
 
     # After dropping invalid columns, display stats again (as an example)
     pp.df.to_csv(output_file_path, index=False)
