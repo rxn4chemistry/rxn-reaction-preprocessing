@@ -6,7 +6,7 @@
 import math
 import random
 from pathlib import Path
-from typing import List
+from typing import List, Set
 
 import pandas as pd
 from rxn.chemutils.smiles_randomization import (
@@ -51,6 +51,7 @@ class Augmenter:
         self.__reaction_column_name = reaction_column_name
         self.tokenizer = SmilesTokenizer()
         self.fragment_bond = fragment_bond
+        self.augmented_columns: Set[str] = set()
 
     #
     # Private Methods
@@ -239,7 +240,9 @@ class Augmenter:
             .reset_index()
         )
 
-        self.df[f"rxn_{random_type.name}"] = self.df.apply(
+        augmented_column_name = f"rxn_{random_type.name}"
+        self.augmented_columns.add(augmented_column_name)
+        self.df[augmented_column_name] = self.df.apply(
             lambda x: ">>".join(x[columns_to_join]), axis=1
         )
 
@@ -282,12 +285,18 @@ def augment(cfg: AugmentConfig) -> None:
     ag = Augmenter.read_csv(
         cfg.input_file_path, cfg.reaction_column_name, cfg.fragment_bond.value
     )
+    columns_to_keep = list(ag.df.columns)
 
     # Perform augmentation
-    augm = ag.augment(
+    ag.augment(
         random_type=cfg.random_type,
         rxn_section_to_augment=cfg.rxn_section_to_augment,
         permutations=cfg.permutations,
     )
+
+    columns_to_keep.extend(ag.augmented_columns)
+    if not cfg.keep_intermediate_columns:
+        ag.df = ag.df[columns_to_keep]
+
     # Exporting augmented samples
-    augm.to_csv(output_file_path, index=False)
+    ag.df.to_csv(output_file_path, index=False)
