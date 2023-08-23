@@ -69,6 +69,7 @@ class CommonConfig:
         sequence: Ordered sequence of data transformation steps to perform.
         fragment_bond: Token used to denote a fragment bond in the SMILES of the reactions to process.
         reaction_column_name: Name of the reaction column for the data file.
+        keep_intermediate_columns: Whether the columns generated during preprocessing should be kept.
     """
 
     sequence: List[Step] = field(
@@ -82,6 +83,7 @@ class CommonConfig:
     )
     fragment_bond: FragmentBond = FragmentBond.DOT
     reaction_column_name: str = "rxn"
+    keep_intermediate_columns: bool = False
 
 
 @dataclass
@@ -90,7 +92,7 @@ class RxnImportConfig:
 
     Fields:
         input_file: the input file path (.txt, .csv).
-        output_csv: the ouptut file path.
+        output_csv: the output file path.
         initial_data_format: whether the input file is in TXT or CSV format.
         reaction_column_name: name the column containing the reactions if the input
             is in CSV format. The value is ignored if the input is not in CSV format.
@@ -104,6 +106,9 @@ class RxnImportConfig:
         column_for_heat: name of the column containing boolean values that indicate
             whether the reaction happens under heat. If specified, the heat token will
             be added to the precursors of the corresponding reactions.
+        keep_intermediate_columns: Whether the columns generated during preprocessing should be kept.
+        keep_original_rxn_column: if  ``keep_intermediate_columns`` is False, determines whether
+            the original column with the raw reaction SMILES is to be kept or not.
     """
 
     input_file: str = SI("${data.path}")
@@ -115,6 +120,8 @@ class RxnImportConfig:
     remove_atom_mapping: bool = True
     column_for_light: Optional[str] = None
     column_for_heat: Optional[str] = None
+    keep_intermediate_columns: bool = SI("${common.keep_intermediate_columns}")
+    keep_original_rxn_column: bool = False
 
 
 @dataclass
@@ -130,6 +137,7 @@ class StandardizeConfig:
         fragment_bond: Token used to denote a fragment bond in the reaction SMILES.
         reaction_column_name: Name of the reaction column for the data file.
         remove_stereo_if_not_defined_in_precursors: Remove chiral centers from product.
+        keep_intermediate_columns: Whether the columns generated during preprocessing should be kept.
     """
 
     input_file_path: str = SI("${rxn_import.output_csv}")
@@ -139,6 +147,7 @@ class StandardizeConfig:
     fragment_bond: FragmentBond = SI("${common.fragment_bond}")
     reaction_column_name: str = SI("${common.reaction_column_name}")
     remove_stereo_if_not_defined_in_precursors: bool = False
+    keep_intermediate_columns: bool = SI("${common.keep_intermediate_columns}")
 
 
 @dataclass
@@ -160,6 +169,7 @@ class PreprocessConfig:
         max_absolute_formal_charge: The maximum absolute formal charge.
         fragment_bond: Token used to denote a fragment bond in the reaction SMILES.
         reaction_column_name: Name of the reaction column for the data file.
+        keep_intermediate_columns: Whether the columns generated during preprocessing should be kept.
     """
 
     input_file_path: str = SI("${standardize.output_file_path}")
@@ -176,6 +186,7 @@ class PreprocessConfig:
     max_absolute_formal_charge: int = 2
     fragment_bond: FragmentBond = SI("${common.fragment_bond}")
     reaction_column_name: str = SI("${common.reaction_column_name}")
+    keep_intermediate_columns: bool = SI("${common.keep_intermediate_columns}")
 
 
 @dataclass
@@ -193,6 +204,7 @@ class AugmentConfig:
             "precursors" for augmenting only the precursors
             "products" for augmenting only the products
         fragment_bond: Token used to denote a fragment bond in the reaction SMILES.
+        keep_intermediate_columns: Whether the columns generated during preprocessing should be kept.
     """
 
     input_file_path: str = SI("${preprocess.output_file_path}")
@@ -203,6 +215,7 @@ class AugmentConfig:
     reaction_column_name: str = SI("${common.reaction_column_name}")
     rxn_section_to_augment: ReactionSection = ReactionSection.precursors
     fragment_bond: FragmentBond = SI("${common.fragment_bond}")
+    keep_intermediate_columns: bool = SI("${common.keep_intermediate_columns}")
 
 
 @dataclass
@@ -214,8 +227,9 @@ class SplitConfig:
         output_directory: The directory containing the files after splitting.
         split_ratio: The split ratio between training, and test and validation sets.
         reaction_column_name: Name of the reaction column for the data file.
-        index_column: Name of the column used to generate the hash ensuring
-            stable splitting.
+        index_column: The name of the column used to generate the hash which ensures
+            stable splitting. "products" and "precursors" are also allowed even if
+            they do not exist as columns.
         hash_seed: Seed for the hashing function used for splitting.
         shuffle_seed: Seed for shuffling the train split.
     """
@@ -224,7 +238,7 @@ class SplitConfig:
     output_directory: str = SI("${data.proc_dir}")
     split_ratio: float = 0.05
     reaction_column_name: str = SI("${common.reaction_column_name}")
-    index_column: str = SI("${split.reaction_column_name}")
+    index_column: str = "products"
     hash_seed: int = 42
     shuffle_seed: int = 42
 

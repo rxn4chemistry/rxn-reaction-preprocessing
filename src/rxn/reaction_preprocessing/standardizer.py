@@ -231,8 +231,13 @@ def standardize(cfg: StandardizeConfig) -> None:
         remove_stereo_if_not_defined_in_precursors=cfg.remove_stereo_if_not_defined_in_precursors,
     )
 
+    columns_to_keep = list(std.df.columns)
+
     # Perform standardization
     std.standardize(canonicalize=True)
+
+    if not cfg.keep_intermediate_columns:
+        std.df = std.df[columns_to_keep]
 
     # Exporting standardized samples
     std.df.to_csv(output_file_path, index=False)
