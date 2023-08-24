@@ -148,12 +148,6 @@ class Standardizer:
         if self.keep_intermediate_columns:
             return LightCsvEditor(
                 columns_in=[self.rxn_column],
-                columns_out=[self.rxn_column],
-                transformation=self.inner_standardizer.standardize_small,
-            )
-        else:
-            return LightCsvEditor(
-                columns_in=[self.rxn_column],
                 columns_out=[
                     self.rxn_column,
                     self.rxn_before_std_column,
@@ -162,6 +156,12 @@ class Standardizer:
                     self.missing_annotations_column,
                 ],
                 transformation=self.inner_standardizer.standardize_big,
+            )
+        else:
+            return LightCsvEditor(
+                columns_in=[self.rxn_column],
+                columns_out=[self.rxn_column],
+                transformation=self.inner_standardizer.standardize_small,
             )
 
 
