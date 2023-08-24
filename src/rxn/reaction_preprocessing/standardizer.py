@@ -24,6 +24,7 @@ class StandardizationOutput:
     """Contains the results and additional information for the standardization
     of one reaction SMILES."""
 
+    original_rxn_smiles: str
     standardized_rxn_smiles: str
     invalid_smiles: List[str]
     rejected_smiles: List[str]
@@ -51,8 +52,18 @@ class InnerStandardizer:
     def standardize_small(self, rxn_smiles: str) -> str:
         return self.standardize(rxn_smiles).standardized_rxn_smiles
 
+    def standardize_big(self, rxn_smiles: str) -> List[str]:
+        res = self.standardize(rxn_smiles)
+        return [
+            res.standardized_rxn_smiles,
+            res.original_rxn_smiles,
+            str(res.invalid_smiles),
+            str(res.rejected_smiles),
+            str(res.missing_annotations),
+        ]
+
     def standardize(self, rxn_smiles: str) -> StandardizationOutput:
-        """ """
+        original_rxn_smiles = rxn_smiles
 
         # Remove stereo information from products, if needed
         rxn_smiles = self._remove_stereo_if_not_defined_in_precursors(rxn_smiles)
@@ -72,6 +83,7 @@ class InnerStandardizer:
 
         standardized_smiles = standardized_reaction.to_string(self.fragment_bond)
         return StandardizationOutput(
+            original_rxn_smiles=original_rxn_smiles,
             standardized_rxn_smiles=standardized_smiles,
             invalid_smiles=invalid_smiles,
             rejected_smiles=rejected_smiles,
@@ -133,14 +145,24 @@ class Standardizer:
         editor.process(input_csv, output_csv)
 
     def _instantiate_csv_editor(self) -> LightCsvEditor:
-        if not self.keep_intermediate_columns:
-            raise ValueError("Not implemented")
-
-        return LightCsvEditor(
-            columns_in=[self.rxn_column],
-            columns_out=[self.rxn_column],
-            transformation=self.inner_standardizer.standardize_small,
-        )
+        if self.keep_intermediate_columns:
+            return LightCsvEditor(
+                columns_in=[self.rxn_column],
+                columns_out=[self.rxn_column],
+                transformation=self.inner_standardizer.standardize_small,
+            )
+        else:
+            return LightCsvEditor(
+                columns_in=[self.rxn_column],
+                columns_out=[
+                    self.rxn_column,
+                    self.rxn_before_std_column,
+                    self.invalid_smiles_column,
+                    self.rejected_smiles_column,
+                    self.missing_annotations_column,
+                ],
+                transformation=self.inner_standardizer.standardize_big,
+            )
 
 
 def standardize(cfg: StandardizeConfig) -> None:
