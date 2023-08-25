@@ -11,7 +11,7 @@ from typing import List, Optional
 from attr import define
 from rxn.chemutils.miscellaneous import remove_chiral_centers
 from rxn.chemutils.reaction_smiles import parse_any_reaction_smiles
-from rxn.utilities.light_csv_editor import LightCsvEditor
+from rxn.utilities.streaming_csv_editor import StreamingCsvEditor
 
 from rxn.reaction_preprocessing.annotations.molecule_annotation import (
     MoleculeAnnotation,
@@ -60,15 +60,15 @@ class Standardizer:
         editor = self._instantiate_csv_editor()
         editor.process(input_csv, output_csv)
 
-    def _instantiate_csv_editor(self) -> LightCsvEditor:
+    def _instantiate_csv_editor(self) -> StreamingCsvEditor:
         if self.keep_intermediate_columns:
-            return LightCsvEditor(
+            return StreamingCsvEditor(
                 columns_in=[self.rxn_column],
                 columns_out=StandardizationOutput.keys(self.rxn_column),
                 transformation=self.standardize_big,
             )
         else:
-            return LightCsvEditor(
+            return StreamingCsvEditor(
                 columns_in=[self.rxn_column],
                 columns_out=[self.rxn_column],
                 transformation=self.standardize_small,
