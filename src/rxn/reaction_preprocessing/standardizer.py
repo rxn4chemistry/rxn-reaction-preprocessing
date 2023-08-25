@@ -11,7 +11,7 @@ from typing import List, Optional
 from attr import define
 from rxn.chemutils.miscellaneous import remove_chiral_centers
 from rxn.chemutils.reaction_smiles import parse_any_reaction_smiles
-from rxn.utilities.streaming_csv_editor import StreamingCsvEditor
+from rxn.utilities.csv import StreamingCsvEditor
 
 from rxn.reaction_preprocessing.annotations.molecule_annotation import (
     MoleculeAnnotation,

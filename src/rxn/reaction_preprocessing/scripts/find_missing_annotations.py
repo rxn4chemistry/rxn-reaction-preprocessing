@@ -1,5 +1,5 @@
 import click
-from rxn.utilities.files import iterate_csv_column
+from rxn.utilities.csv import iterate_csv_column
 
 from rxn.reaction_preprocessing.annotations.molecule_annotation import (
     load_annotations_multiple,
