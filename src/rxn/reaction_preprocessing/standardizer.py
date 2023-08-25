@@ -3,7 +3,6 @@
 # (C) Copyright IBM Corp. 2021
 # ALL RIGHTS RESERVED
 """ A utility class to apply standardization to the data """
-from __future__ import annotations
 
 from pathlib import Path
 from typing import List, Optional
@@ -74,7 +73,7 @@ class Standardizer:
                 transformation=self.standardize_small,
             )
 
-    def standardize_one(self, rxn_smiles: str) -> StandardizationOutput:
+    def standardize_one(self, rxn_smiles: str) -> "StandardizationOutput":
         original_rxn_smiles = rxn_smiles
 
         # Remove stereo information from products, if needed

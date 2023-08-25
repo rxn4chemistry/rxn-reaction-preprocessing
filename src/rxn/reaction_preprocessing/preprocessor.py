@@ -3,17 +3,18 @@
 # (C) Copyright IBM Corp. 2022
 # ALL RIGHTS RESERVED
 """ The preprocessor class abstracts the workflow for preprocessing reaction data sets. """
+import collections
 import logging
-import typing
-from collections import Counter
 from pathlib import Path
-from typing import Callable, List, Optional
+from typing import Callable, List, Optional, Counter, Tuple, Iterator
 
 import numpy as np
 import pandas as pd
 from rdkit import RDLogger
 from rxn.chemutils.reaction_equation import ReactionEquation
 from rxn.chemutils.reaction_smiles import parse_any_reaction_smiles
+from rxn.utilities.containers import iterate_unique_values
+from rxn.utilities.csv import CsvIterator, StreamingCsvEditor
 from tabulate import tabulate
 
 from .config import PreprocessConfig
@@ -27,7 +28,6 @@ logger.addHandler(logging.NullHandler())
 class Preprocessor:
     def __init__(
         self,
-        df: pd.DataFrame,
         reaction_column_name: str,
         valid_column: str = "_rxn_valid",
         valid_message_column: str = "_rxn_valid_messages",
@@ -37,7 +37,6 @@ class Preprocessor:
         """Creates a new instance of the Preprocessor class.
 
         Args:
-            df: A pandas DataFrame containing the reaction SMARTS.
             reaction_column_name: The name of the DataFrame column containing the reaction SMARTS.
             valid_column: The name of the column to write the validation results to
                 (will be created if it doesn't exist). Defaults to "_rxn_valid".
@@ -49,26 +48,11 @@ class Preprocessor:
                 (naive check for valid SMARTS reactions based on the number of
                 greater-thans in the string). Defaults to True.
         """
-        self.df = df
         self.reaction_standardizer = ReactionStandardizer()
         self.__reaction_column_name = reaction_column_name
         self.__valid_column = valid_column
         self.__valid_message_column = valid_message_column
         self.__fragment_bond = fragment_bond
-
-        if clean_data:
-            self.__clean_data()
-
-    #
-    # Private Methods
-    #
-    def __clean_data(self) -> None:
-        """Drops records from the internal pandas DataFrame that do not contain valid reaction
-        SMARTS (WARNING: Very naive, just checks for two greater-thans)"""
-        self.df.drop(
-            self.df[self.df[self.__reaction_column_name].str.count(">") != 2].index,
-            inplace=True,
-        )
 
     def __filter_func(
         self,
@@ -178,6 +162,13 @@ class Preprocessor:
 
         return self
 
+    def standardize_rxn_smiles(self, rxn_smiles: str) -> str:
+        """Function standardizing the reaction SMILES directly,
+        to pass to pandas.apply()."""
+        reaction = parse_any_reaction_smiles(rxn_smiles)
+        reaction = self.reaction_standardizer(reaction)
+        return reaction.to_string(self.__fragment_bond)
+
     def reaction_standardization(self) -> None:
         """
         Reaction standardization, including merging of reactants and reactants,
@@ -235,7 +226,7 @@ class Preprocessor:
                 logger.info(f"- {counts[False]} invalid reactions removed.")
 
         if self.__valid_message_column in self.df.columns:
-            reasons: typing.Counter[str] = Counter()
+            reasons: Counter[str] = collections.Counter()
             for _, value in self.df[self.__valid_message_column].items():
                 reasons.update(value)
 
@@ -243,7 +234,7 @@ class Preprocessor:
                 headers = ["Reason", "Number of Reactions"]
                 logger.info(
                     f"- The {counts[False]} reactions were removed for the following reasons:\n"
-                    f'{tabulate(list(Counter(reasons).items()), headers, tablefmt="fancy_grid")}'
+                    f'{tabulate(list(collections.Counter(reasons).items()), headers, tablefmt="fancy_grid")}'
                 )
 
         return self
@@ -273,7 +264,101 @@ class Preprocessor:
         return Preprocessor(df, reaction_column_name, fragment_bond=fragment_bond)
 
 
+def remove_duplicate_reactions(
+    csv_iterator: CsvIterator, rxn_column: str
+) -> CsvIterator:
+    rxn_idx = csv_iterator.column_index(rxn_column)
+
+    # The key for determining what is a duplicate is the value from the rxn column
+    def key(row: List[str]) -> str:
+        return row[rxn_idx]
+
+    return CsvIterator(
+        csv_iterator.columns, iterate_unique_values(csv_iterator.rows, key=key)
+    )
+
+
+def validate(
+    csv_iterator: CsvIterator,
+    rxn_column: str,
+    mfp: MixedReactionFilter,
+    fragment_bond: str,
+) -> Tuple[CsvIterator, Counter[str]]:
+    rxn_idx = csv_iterator.column_index(rxn_column)
+    error_counter = collections.Counter()
+
+    def internal() -> Iterator[List[str]]:
+        for row in csv_iterator.rows:
+            reaction = ReactionEquation.from_string(
+                row[rxn_idx], fragment_bond=fragment_bond
+            )
+            valid, reasons = mfp.validate_reasons(reaction)
+            if valid:
+                yield row
+            else:
+                for reason in reasons:
+                    error_counter[reason] += 1
+
+    return CsvIterator(columns=csv_iterator.columns, rows=internal()), error_counter
+
+
 def preprocess(cfg: PreprocessConfig) -> None:
+    output_file_path = Path(cfg.output_file_path)
+    input_file_path = Path(cfg.input_file_path)
+    if not input_file_path.exists():
+        raise ValueError(
+            f"Input file for preprocessing does not exist: {input_file_path}"
+        )
+
+    # Create a instance of the mixed reaction filter with default values.
+    # Make arguments for all properties in script
+    mrf = MixedReactionFilter(
+        max_reactants=cfg.max_reactants,
+        max_agents=cfg.max_agents,
+        max_products=cfg.max_products,
+        min_reactants=cfg.min_reactants,
+        min_agents=cfg.min_agents,
+        min_products=cfg.min_products,
+        max_reactants_tokens=cfg.max_reactants_tokens,
+        max_agents_tokens=cfg.max_agents_tokens,
+        max_products_tokens=cfg.max_products_tokens,
+        max_absolute_formal_charge=cfg.max_absolute_formal_charge,
+    )
+
+    rxn_column = cfg.reaction_column_name
+    preprocessor = Preprocessor(
+        reaction_column_name=rxn_column, fragment_bond=cfg.fragment_bond.value
+    )  # other args TODO
+
+    with open(input_file_path, "rt") as f_in, open(output_file_path, "wt") as f_out:
+        csv_iterator = CsvIterator.from_stream(f_in)
+
+        # first deduplication
+        csv_iterator = remove_duplicate_reactions(csv_iterator, rxn_column)
+
+        # reaction standardization
+        rxn_standardization_editor = StreamingCsvEditor(
+            [rxn_column], [rxn_column], preprocessor.standardize_rxn_smiles
+        )
+        csv_iterator = rxn_standardization_editor.process(csv_iterator)
+
+        # second deduplication
+        csv_iterator = remove_duplicate_reactions(csv_iterator, rxn_column)
+
+        # filtering
+        csv_iterator, error_counter = validate(
+            csv_iterator=csv_iterator,
+            rxn_column=rxn_column,
+            mfp=mrf,
+            fragment_bond=cfg.fragment_bond.value,
+        )
+
+        csv_iterator.to_stream(f_out)
+
+        print(error_counter)
+
+
+def old_preprocess(cfg: PreprocessConfig) -> None:
     RDLogger.DisableLog("rdApp.*")
 
     output_file_path = Path(cfg.output_file_path)
