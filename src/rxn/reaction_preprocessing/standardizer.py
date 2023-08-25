@@ -58,7 +58,7 @@ class Standardizer:
 
     def standardize(self, input_csv: Path, output_csv: Path) -> None:
         editor = self._instantiate_csv_editor()
-        editor.process(input_csv, output_csv)
+        editor.process_paths(input_csv, output_csv)
 
     def _instantiate_csv_editor(self) -> StreamingCsvEditor:
         if self.keep_intermediate_columns:
