@@ -83,11 +83,17 @@ class Preprocessor:
         )
 
     def standardize_rxn_smiles(self, rxn_smiles: str) -> str:
-        """Function standardizing the reaction SMILES directly,
-        to pass to pandas.apply()."""
-        reaction = parse_any_reaction_smiles(rxn_smiles)
-        reaction = self.reaction_standardizer(reaction)
-        return reaction.to_string(self.fragment_bond)
+        """Standardizing the reaction SMILES.
+
+        If there is an error, returns ">>" instead.
+        """
+        try:
+            reaction = parse_any_reaction_smiles(rxn_smiles)
+            reaction = self.reaction_standardizer(reaction)
+            return reaction.to_string(self.fragment_bond)
+        except Exception as e:
+            logger.error(f'Cannot standardize reaction SMILES "{rxn_smiles}": {e}')
+            return ">>"
 
     def validate(
         self,
