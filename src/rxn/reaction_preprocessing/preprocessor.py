@@ -6,8 +6,10 @@
 import collections
 import logging
 from pathlib import Path
-from typing import Counter, Iterator, List, Tuple
+from typing import Callable, Counter, Iterable, Iterator, List
 
+import attr
+from attr import define
 from rxn.chemutils.reaction_equation import ReactionEquation
 from rxn.chemutils.reaction_smiles import parse_any_reaction_smiles
 from rxn.utilities.containers import iterate_unique_values
@@ -21,6 +23,15 @@ from .reaction_standardizer import ReactionStandardizer
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
+
+
+@define
+class _Stats:
+    initial_count: int = 0
+    first_dedup_count: int = 0
+    second_dedup_count: int = 0
+    final_count: int = 0
+    error_counter: Counter[str] = attr.Factory(collections.Counter)
 
 
 class Preprocessor:
@@ -40,38 +51,81 @@ class Preprocessor:
         self.mixed_reaction_filter = mixed_reaction_filter
         self.rxn_column = reaction_column_name
         self.fragment_bond = fragment_bond
+        self.stats = _Stats()
 
     def process(self, input_file_path: PathLike, output_file_path: PathLike) -> None:
+        # Reset the stats
+        self.stats = _Stats()
+
         with open(input_file_path, "rt") as f_in, open(output_file_path, "wt") as f_out:
             csv_iterator = CsvIterator.from_stream(f_in)
+            csv_iterator = self._increment_initial_count(csv_iterator)
 
             # first deduplication
-            csv_iterator = self.remove_duplicate_reactions(csv_iterator)
+            csv_iterator = self._remove_duplicate_reactions(csv_iterator)
+            csv_iterator = self._increment_first_dedup_count(csv_iterator)
 
             # reaction standardization
             rxn_standardization_editor = StreamingCsvEditor(
-                [self.rxn_column], [self.rxn_column], self.standardize_rxn_smiles
+                [self.rxn_column], [self.rxn_column], self._standardize_rxn_smiles
             )
             csv_iterator = rxn_standardization_editor.process(csv_iterator)
 
             # second deduplication
-            csv_iterator = self.remove_duplicate_reactions(csv_iterator)
+            csv_iterator = self._remove_duplicate_reactions(csv_iterator)
+            csv_iterator = self._increment_second_dedup_count(csv_iterator)
 
             # filtering
-            csv_iterator, error_counter = self.validate(
-                csv_iterator=csv_iterator,
-            )
+            csv_iterator = self._validate(csv_iterator=csv_iterator)
 
+            csv_iterator = self._increment_final_count(csv_iterator)
             csv_iterator.to_stream(f_out)
 
-            self.print_stats(
-                error_counter=error_counter,
-                original_count=-1,
-                valid_count=-1,
-                invalid_count=-1,
-            )
+            self._print_stats()
 
-    def remove_duplicate_reactions(self, csv_iterator: CsvIterator) -> CsvIterator:
+    def _increment_initial_count(self, csv_iterator: CsvIterator) -> CsvIterator:
+        def fn() -> None:
+            self.stats.initial_count += 1
+
+        return self._call_for_each(csv_iterator, fn)
+
+    def _increment_first_dedup_count(self, csv_iterator: CsvIterator) -> CsvIterator:
+        def fn() -> None:
+            self.stats.first_dedup_count += 1
+
+        return self._call_for_each(csv_iterator, fn)
+
+    def _increment_second_dedup_count(self, csv_iterator: CsvIterator) -> CsvIterator:
+        def fn() -> None:
+            self.stats.second_dedup_count += 1
+
+        return self._call_for_each(csv_iterator, fn)
+
+    def _increment_final_count(self, csv_iterator: CsvIterator) -> CsvIterator:
+        def fn() -> None:
+            self.stats.final_count += 1
+
+        return self._call_for_each(csv_iterator, fn)
+
+    def _call_for_each(
+        self, csv_iterator: CsvIterator, fn: Callable[[], None]
+    ) -> CsvIterator:
+        """Allows to call a callback before accessing the CSV row.
+
+        Useful for counting, for instance.
+        """
+
+        def iterate(values: Iterable[List[str]]) -> Iterator[List[str]]:
+            for value in values:
+                fn()
+                yield value
+
+        return CsvIterator(
+            columns=csv_iterator.columns,
+            rows=iterate(csv_iterator.rows),
+        )
+
+    def _remove_duplicate_reactions(self, csv_iterator: CsvIterator) -> CsvIterator:
         rxn_idx = csv_iterator.column_index(self.rxn_column)
 
         # The key for determining what is a duplicate is the value from the rxn column
@@ -82,7 +136,7 @@ class Preprocessor:
             csv_iterator.columns, iterate_unique_values(csv_iterator.rows, key=key)
         )
 
-    def standardize_rxn_smiles(self, rxn_smiles: str) -> str:
+    def _standardize_rxn_smiles(self, rxn_smiles: str) -> str:
         """Standardizing the reaction SMILES.
 
         If there is an error, returns ">>" instead.
@@ -95,12 +149,8 @@ class Preprocessor:
             logger.error(f'Cannot standardize reaction SMILES "{rxn_smiles}": {e}')
             return ">>"
 
-    def validate(
-        self,
-        csv_iterator: CsvIterator,
-    ) -> Tuple[CsvIterator, Counter[str]]:
+    def _validate(self, csv_iterator: CsvIterator) -> CsvIterator:
         rxn_idx = csv_iterator.column_index(self.rxn_column)
-        error_counter: Counter[str] = collections.Counter()
 
         def internal() -> Iterator[List[str]]:
             for row in csv_iterator.rows:
@@ -112,29 +162,29 @@ class Preprocessor:
                     yield row
                 else:
                     for reason in reasons:
-                        error_counter[reason] += 1
+                        self.stats.error_counter[reason] += 1
 
-        return CsvIterator(columns=csv_iterator.columns, rows=internal()), error_counter
+        return CsvIterator(columns=csv_iterator.columns, rows=internal())
 
-    def print_stats(
-        self,
-        error_counter: Counter[str],
-        original_count: int,
-        valid_count: int,
-        invalid_count: int,
-    ) -> None:
+    def _print_stats(self) -> None:
         """Prints statistics of the filtration to the logger."""
-        logger.info(f"- {original_count} total reactions.")
-        logger.info(f"- {valid_count} valid reactions.")
+        # define "s" to make expressions shorter
+        s = self.stats
+
+        logger.info(f"- {s.initial_count} total reactions.")
+        logger.info(f"- {s.first_dedup_count} reactions after first deduplication.")
+        logger.info(f"- {s.second_dedup_count} reactions after second deduplication.")
+        logger.info(f"- {s.final_count} valid reactions.")
+        invalid_count = s.second_dedup_count - s.final_count
         logger.info(f"- {invalid_count} invalid reactions removed.")
 
-        if sum(error_counter.values()) == 0:
+        if sum(s.error_counter.values()) == 0:
             return
 
         headers = ["Reason", "Number of Reactions"]
         logger.info(
             f"- The {invalid_count} reactions were removed for the following reasons:\n"
-            f'{tabulate(list(error_counter.items()), headers, tablefmt="fancy_grid")}'
+            f'{tabulate(list(s.error_counter.items()), headers, tablefmt="fancy_grid")}'
         )
 
 

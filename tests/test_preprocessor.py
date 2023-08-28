@@ -27,8 +27,8 @@ def test_preprocessor(tmp_dir: Path) -> None:
     dump_list_to_file(
         [
             "rxn,class",
-            "C.O.O>C>CO",
-            "C~N.N>>CNN",
+            "C.O.O>C>CO,11",
+            "C~N.N>>CNN,0",
             "[14C]Cl.O[Na]>O>[Na]Cl.[14C]O,2",
             "[14C]Cl.O[Na]>>[Na]Cl,2",
             "[C].C.[O--].[O--].O.O=[N+]([O-])c1cc(-c2nc3ccccc3o2)ccc1F.C.C>O>O.C,6",
@@ -63,8 +63,8 @@ def test_preprocessor(tmp_dir: Path) -> None:
 
     assert load_list_from_file(output_path) == [
         "rxn,class",
-        "C.O>>CO",  # removed the duplicated O and C
-        "C~N.N>>CNN",  # kept it as such
+        "C.O>>CO,11",  # removed the duplicated O and C
+        "C~N.N>>CNN,0",  # kept it as such
         "O[Na].[14C]Cl>>[Na]Cl,2",  # sorted the compounds
         "C123C45C16C21C34C561.c1ccccc1>>CC,1",
     ]
