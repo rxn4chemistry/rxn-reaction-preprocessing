@@ -152,8 +152,8 @@ class Preprocessor:
     def _validate(self, csv_iterator: CsvIterator) -> CsvIterator:
         rxn_idx = csv_iterator.column_index(self.rxn_column)
 
-        def internal() -> Iterator[List[str]]:
-            for row in csv_iterator.rows:
+        def filter_invalid(rows: Iterable[List[str]]) -> Iterator[List[str]]:
+            for row in rows:
                 reaction = ReactionEquation.from_string(
                     row[rxn_idx], fragment_bond=self.fragment_bond
                 )
@@ -164,7 +164,9 @@ class Preprocessor:
                     for reason in reasons:
                         self.stats.error_counter[reason] += 1
 
-        return CsvIterator(columns=csv_iterator.columns, rows=internal())
+        return CsvIterator(
+            columns=csv_iterator.columns, rows=filter_invalid(csv_iterator.rows)
+        )
 
     def _print_stats(self) -> None:
         """Prints statistics of the filtration to the logger."""
@@ -184,7 +186,7 @@ class Preprocessor:
         headers = ["Reason", "Number of Reactions"]
         logger.info(
             f"- The {invalid_count} reactions were removed for the following reasons:\n"
-            f'{tabulate(list(s.error_counter.items()), headers, tablefmt="fancy_grid")}'
+            f'{tabulate(s.error_counter.most_common(), headers, tablefmt="fancy_grid")}'
         )
 
 
