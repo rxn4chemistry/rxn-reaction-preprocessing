@@ -11,7 +11,7 @@ from rxn.reaction_preprocessing.config import (
     InitialDataFormat,
     RxnImportConfig,
 )
-from rxn.reaction_preprocessing.importer import InvalidColumn, InvalidType, rxn_import
+from rxn.reaction_preprocessing.importer import InvalidColumn, rxn_import
 from rxn.reaction_preprocessing.special_tokens import HEAT_TOKEN, LIGHT_TOKEN
 
 
@@ -230,8 +230,8 @@ def test_raises_when_column_name_is_incorrect(
 
 def test_light_and_heat(input_file: str, output_file: str) -> None:
     reactions = ["CC>>CC", "OO>>OO", "C.C.O>>CCO", "C=C>>CC"]
-    has_light = [False, True, True, False]
-    has_heat = [False, True, False, True]
+    has_light = [False, True, "yes", "no"]
+    has_heat = [False, True, "no", "yes"]
     # Add light token to second and third reactions, heat token to second and fourth
     expected = [
         "CC>>CC",
@@ -283,30 +283,6 @@ def test_light_and_heat_with_inexisting_column(
     )
 
     with pytest.raises(InvalidColumn):
-        rxn_import(cfg)
-
-
-def test_light_and_heat_with_non_boolean_type(
-    input_file: str, output_file: str
-) -> None:
-    reactions = ["CC>>CC", "OO>>OO", "C.C.O>>CCO", "C=C>>CC"]
-    has_light = ["no", "yes", "no", "yes"]  # Not valid - must be boolean
-    pd.DataFrame({"smiles": reactions, "light": has_light}).to_csv(
-        input_file, index=False
-    )
-
-    # Note that the input column name does not exist in the created CSV
-    cfg = RxnImportConfig(
-        input_file=input_file,
-        output_csv=output_file,
-        data_format=InitialDataFormat.CSV,
-        input_csv_column_name="smiles",
-        reaction_column_name="rxn",
-        fragment_bond=FragmentBond.TILDE,
-        column_for_light="light",
-    )
-
-    with pytest.raises(InvalidType):
         rxn_import(cfg)
 
 
