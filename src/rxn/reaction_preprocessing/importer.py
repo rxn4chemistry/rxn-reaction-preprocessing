@@ -50,6 +50,7 @@ class RxnImporter:
         self.remove_atom_maps = remove_atom_maps
         self.column_for_light = column_for_light
         self.column_for_heat = column_for_heat
+        self.original_column_name = self._final_column_name_for_original()
 
     def import_rxns(self, input_file: PathLike, output_csv: PathLike) -> None:
         with open(input_file, "rt") as f_in, open(output_csv, "wt") as f_out:
@@ -70,7 +71,7 @@ class RxnImporter:
 
         This functions (and the ones it calls) make sure to rename the column
         containing the data if it would be overwritten when transforming. The
-        column with the data ends up with the name `_final_column_name_for_original`.
+        column with the data ends up with the name `original_column_name`.
         """
 
         if self.data_format is InitialDataFormat.TXT:
@@ -82,7 +83,7 @@ class RxnImporter:
         raise ValueError(f"Unsupported data type: {self.data_format}")
 
     def _load_from_txt(self, input_stream: TextIO) -> CsvIterator:
-        column_original = self._final_column_name_for_original()
+        column_original = self.original_column_name
         return CsvIterator(
             columns=[column_original],
             rows=([line.rstrip("\r\n")] for line in input_stream),
@@ -97,9 +98,7 @@ class RxnImporter:
         # if the name of the import column and of the output column collide: rename it.
         if self.input_csv_column_name == self.reaction_column_name:
             csv_iterator.columns = [
-                self._final_column_name_for_original()
-                if c == self.input_csv_column_name
-                else c
+                self.original_column_name if c == self.input_csv_column_name else c
                 for c in csv_iterator.columns
             ]
 
@@ -120,7 +119,7 @@ class RxnImporter:
 
     def _parse_reaction_smiles(self, csv_iterator: CsvIterator) -> CsvIterator:
         editor = StreamingCsvEditor(
-            [self._final_column_name_for_original()],
+            [self.original_column_name],
             [self.reaction_column_name],
             self._reformat_smiles,
         )
