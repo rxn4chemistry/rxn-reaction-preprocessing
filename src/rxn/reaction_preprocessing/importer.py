@@ -54,9 +54,14 @@ class RxnImporter:
         self.keep_original_rxn_column = keep_original_rxn_column
 
     def import_rxns(self, input_file: PathLike, output_csv: PathLike) -> None:
-        with open(input_file, "rt") as f_in, open(output_csv, "wt") as f_out:
-            csv_iterator = self._load_initial(f_in)
+        """Function to import the reactions from one file and write them
+        to another file.
 
+        Goes through all the steps involved in the import: parsing of the
+        reaction SMILES, removal of the atom mapping, addition of special tokens.
+        """
+        with open(input_file, "rt") as f_in, open(output_csv, "wt") as f_out:
+            csv_iterator = self._load_into_iterator(f_in)
             csv_iterator = self._handle_original_rxn_column(csv_iterator)
 
             csv_iterator = self._parse_reaction_smiles(csv_iterator)
@@ -68,7 +73,7 @@ class RxnImporter:
             csv_iterator = self._maybe_remove_atom_mapping(csv_iterator)
             csv_iterator.to_stream(f_out)
 
-    def _load_initial(self, input_stream: TextIO) -> CsvIterator:
+    def _load_into_iterator(self, input_stream: TextIO) -> CsvIterator:
         """
         Load the initial dataframe.
 
@@ -86,6 +91,7 @@ class RxnImporter:
         raise ValueError(f"Unsupported data type: {self.data_format}")
 
     def _load_from_txt(self, input_stream: TextIO) -> CsvIterator:
+        # We just get the iterator, and associate the final column name to it
         return CsvIterator(
             columns=[self.rxn_column],
             rows=([line.rstrip("\r\n")] for line in input_stream),
@@ -119,16 +125,17 @@ class RxnImporter:
         return self.input_csv_column_name
 
     def _handle_original_rxn_column(self, csv_iterator: CsvIterator) -> CsvIterator:
+        """Make sure that the original reaction SMILES is kept (if required)."""
         if not self.keep_original_rxn_column:
             return csv_iterator
 
         # To keep the original column: we apply a fake transformation that
         # just adds the column
-        def fn(v: str) -> str:
+        def identity(v: str) -> str:
             return v
 
         editor = StreamingCsvEditor(
-            [self.rxn_column], [self._column_name_to_store_original_rxn()], fn
+            [self.rxn_column], [self._column_name_to_store_original_rxn()], identity
         )
         return editor.process(csv_iterator)
 
