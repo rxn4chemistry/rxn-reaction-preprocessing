@@ -42,19 +42,22 @@ class RxnImporter:
         remove_atom_maps: bool,
         column_for_light: Optional[str],
         column_for_heat: Optional[str],
+        keep_original_rxn_column: bool,
     ):
         self.data_format = data_format
         self.input_csv_column_name = input_csv_column_name
-        self.reaction_column_name = reaction_column_name
+        self.rxn_column = reaction_column_name
         self.fragment_bond = fragment_bond
         self.remove_atom_maps = remove_atom_maps
         self.column_for_light = column_for_light
         self.column_for_heat = column_for_heat
-        self.original_column_name = self._final_column_name_for_original()
+        self.keep_original_rxn_column = keep_original_rxn_column
 
     def import_rxns(self, input_file: PathLike, output_csv: PathLike) -> None:
         with open(input_file, "rt") as f_in, open(output_csv, "wt") as f_out:
             csv_iterator = self._load_initial(f_in)
+
+            csv_iterator = self._handle_original_rxn_column(csv_iterator)
 
             csv_iterator = self._parse_reaction_smiles(csv_iterator)
 
@@ -83,9 +86,8 @@ class RxnImporter:
         raise ValueError(f"Unsupported data type: {self.data_format}")
 
     def _load_from_txt(self, input_stream: TextIO) -> CsvIterator:
-        column_original = self.original_column_name
         return CsvIterator(
-            columns=[column_original],
+            columns=[self.rxn_column],
             rows=([line.rstrip("\r\n")] for line in input_stream),
         )
 
@@ -95,32 +97,45 @@ class RxnImporter:
         if self.input_csv_column_name not in csv_iterator.columns:
             raise InvalidColumn(self.input_csv_column_name)
 
-        # if the name of the import column and of the output column collide: rename it.
-        if self.input_csv_column_name == self.reaction_column_name:
-            csv_iterator.columns = [
-                self.original_column_name if c == self.input_csv_column_name else c
-                for c in csv_iterator.columns
-            ]
+        # Rename the input column, if needed
+        csv_iterator.columns = [
+            self.rxn_column if c == self.input_csv_column_name else c
+            for c in csv_iterator.columns
+        ]
 
         return csv_iterator
 
-    def _final_column_name_for_original(self) -> str:
+    def _column_name_to_store_original_rxn(self) -> str:
         """Name of the column where the original data will end up."""
 
         # For txt: always with "_original" postfix
         if self.data_format is InitialDataFormat.TXT:
-            return f"{self.reaction_column_name}_original"
+            return f"{self.rxn_column}_original"
 
         # For csv: only add "_original" postfix if the input and output columns are identical
-        if self.input_csv_column_name == self.reaction_column_name:
-            return f"{self.reaction_column_name}_original"
+        if self.input_csv_column_name == self.rxn_column:
+            return f"{self.rxn_column}_original"
 
         return self.input_csv_column_name
 
+    def _handle_original_rxn_column(self, csv_iterator: CsvIterator) -> CsvIterator:
+        if not self.keep_original_rxn_column:
+            return csv_iterator
+
+        # To keep the original column: we apply a fake transformation that
+        # just adds the column
+        def fn(v: str) -> str:
+            return v
+
+        editor = StreamingCsvEditor(
+            [self.rxn_column], [self._column_name_to_store_original_rxn()], fn
+        )
+        return editor.process(csv_iterator)
+
     def _parse_reaction_smiles(self, csv_iterator: CsvIterator) -> CsvIterator:
         editor = StreamingCsvEditor(
-            [self.original_column_name],
-            [self.reaction_column_name],
+            [self.rxn_column],
+            [self.rxn_column],
             self._reformat_smiles,
         )
         csv_iterator = editor.process(csv_iterator)
@@ -141,7 +156,7 @@ class RxnImporter:
             return ""
 
     def _remove_invalid(self, csv_iterator: CsvIterator) -> CsvIterator:
-        rxn_idx = csv_iterator.column_index(self.reaction_column_name)
+        rxn_idx = csv_iterator.column_index(self.rxn_column)
 
         # Filter out the ones that have an empty SMILES string (note: is empty
         # if the import was unsuccessful).
@@ -176,8 +191,8 @@ class RxnImporter:
             return self._add_token(reaction_smiles, special_token, add_special_token_fn)
 
         editor = StreamingCsvEditor(
-            [self.reaction_column_name, special_token_column],
-            [self.reaction_column_name],
+            [self.rxn_column, special_token_column],
+            [self.rxn_column],
             fn,
         )
         return editor.process(csv_iterator)
@@ -211,8 +226,8 @@ class RxnImporter:
             return csv_iterator
 
         editor = StreamingCsvEditor(
-            [self.reaction_column_name],
-            [self.reaction_column_name],
+            [self.rxn_column],
+            [self.rxn_column],
             remove_atom_mapping,
         )
         return editor.process(csv_iterator)
@@ -241,10 +256,6 @@ def rxn_import(cfg: RxnImportConfig) -> None:
     """
     Initial import of reaction data, as a first step of the reaction preprocessing.
     """
-    # TODO:
-    # keep_intermediate_columns: bool = SI("${common.keep_intermediate_columns}")
-    # keep_original_rxn_column: bool = False
-
     importer = RxnImporter(
         data_format=cfg.data_format,
         input_csv_column_name=cfg.input_csv_column_name,
@@ -253,17 +264,7 @@ def rxn_import(cfg: RxnImportConfig) -> None:
         remove_atom_maps=cfg.remove_atom_mapping,
         column_for_light=cfg.column_for_light,
         column_for_heat=cfg.column_for_heat,
+        keep_original_rxn_column=cfg.keep_original_rxn_column,
     )
-
-    # # Define which columns are to keep when cfg.keep_intermediate_columns is False:
-    # # The ones in the input file, except the one that is converted to the final rxn column
-    # raw_rxn_column = [cfg.input_csv_column_name, f"{cfg.reaction_column_name}_original"]
-    # if cfg.keep_original_rxn_column:
-    #     raw_rxn_column = []
-    # columns_to_keep = [c for c in df.columns if c not in raw_rxn_column]
-    # columns_to_keep = remove_duplicates(columns_to_keep + [cfg.reaction_column_name])
-    #
-    # if not cfg.keep_intermediate_columns:
-    #     df = df[columns_to_keep]
 
     importer.import_rxns(input_file=cfg.input_file, output_csv=cfg.output_csv)

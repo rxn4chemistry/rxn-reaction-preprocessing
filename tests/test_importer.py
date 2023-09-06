@@ -47,6 +47,7 @@ def test_import_from_txt(input_file: str, output_file: str) -> None:
         data_format=InitialDataFormat.TXT,
         reaction_column_name="rxn",
         fragment_bond=FragmentBond.TILDE,
+        keep_original_rxn_column=True,
     )
     rxn_import(cfg)
 
@@ -72,6 +73,7 @@ def test_import_from_csv(input_file: str, output_file: str) -> None:
         input_csv_column_name="smiles",
         reaction_column_name="rxn",
         fragment_bond=FragmentBond.TILDE,
+        keep_original_rxn_column=True,
     )
     rxn_import(cfg)
 
@@ -97,6 +99,7 @@ def test_import_from_tsv(input_file: str, output_file: str) -> None:
         input_csv_column_name="smiles",
         reaction_column_name="rxn",
         fragment_bond=FragmentBond.TILDE,
+        keep_original_rxn_column=True,
     )
     rxn_import(cfg)
 
@@ -135,6 +138,7 @@ def test_smiles_format_is_updated(input_file: str, output_file: str) -> None:
         input_csv_column_name="smiles",
         reaction_column_name="rxn",
         fragment_bond=FragmentBond.TILDE,
+        keep_original_rxn_column=True,
     )
     rxn_import(cfg)
 
@@ -173,6 +177,7 @@ def test_dot_as_fragment_bond(input_file: str, output_file: str) -> None:
         input_csv_column_name="smiles",
         reaction_column_name="rxn",
         fragment_bond=FragmentBond.DOT,
+        keep_original_rxn_column=True,
     )
     rxn_import(cfg)
 
@@ -198,6 +203,7 @@ def test_rename_column_to_avoid_overwrite(input_file: str, output_file: str) -> 
         input_csv_column_name="rxn",
         reaction_column_name="rxn",
         fragment_bond=FragmentBond.TILDE,
+        keep_original_rxn_column=True,
     )
     rxn_import(cfg)
 
@@ -255,6 +261,7 @@ def test_light_and_heat(input_file: str, output_file: str) -> None:
         fragment_bond=FragmentBond.TILDE,
         column_for_light="light",
         column_for_heat="heat",
+        keep_original_rxn_column=True,
     )
 
     rxn_import(cfg)
@@ -280,6 +287,7 @@ def test_light_and_heat_with_inexisting_column(
         reaction_column_name="rxn",
         fragment_bond=FragmentBond.TILDE,
         column_for_light="non_exising_column",
+        keep_original_rxn_column=True,
     )
 
     with pytest.raises(InvalidColumn):
@@ -300,6 +308,7 @@ def test_atom_mapping_removal(input_file: str, output_file: str) -> None:
         reaction_column_name="rxn",
         remove_atom_mapping=True,
         fragment_bond=FragmentBond.TILDE,
+        keep_original_rxn_column=True,
     )
     rxn_import(cfg)
     assert pd.read_csv(output_file)["rxn"].tolist() == expected
@@ -331,6 +340,7 @@ def test_invalid_reactions_are_ignored(input_file: str, output_file: str) -> Non
         input_csv_column_name="smiles",
         reaction_column_name="rxn",
         fragment_bond=FragmentBond.TILDE,
+        keep_original_rxn_column=True,
     )
     rxn_import(cfg)
 
@@ -338,3 +348,49 @@ def test_invalid_reactions_are_ignored(input_file: str, output_file: str) -> Non
     df = pd.read_csv(output_file)
     assert df["rxn"].tolist() == valid_reactions
     assert df["smiles"].tolist() == valid_reactions
+
+
+def test_remove_original_column_txt(input_file: str, output_file: str) -> None:
+    # Write some reactions to a TXT file
+    reactions = ["CC>>CC", "OO>>OO", "C.C.O>>CCO", "C.[Na+].[Cl-]>>C"]
+    dump_list_to_file(reactions, input_file)
+
+    # Do the initial import
+    cfg = RxnImportConfig(
+        input_file=input_file,
+        output_csv=output_file,
+        data_format=InitialDataFormat.TXT,
+        reaction_column_name="rxn",
+        fragment_bond=FragmentBond.TILDE,
+        keep_original_rxn_column=False,
+    )
+    rxn_import(cfg)
+
+    # Verify that there is only one column
+    df = pd.read_csv(output_file)
+    assert list(df.columns) == ["rxn"]
+
+
+def test_remove_original_column_csv(input_file: str, output_file: str) -> None:
+    # Write some reactions to a CSV file
+    reactions = ["CC>>CC", "OO>>OO", "C.C.O>>CCO", "C.[Na+].[Cl-]>>C"]
+    dummy_data = ["A", "B", "C", "D"]
+    pd.DataFrame({"smiles": reactions, "dummy": dummy_data}).to_csv(
+        input_file, index=False
+    )
+
+    # Do the initial import
+    cfg = RxnImportConfig(
+        input_file=input_file,
+        output_csv=output_file,
+        data_format=InitialDataFormat.CSV,
+        input_csv_column_name="smiles",
+        reaction_column_name="rxn",
+        fragment_bond=FragmentBond.TILDE,
+        keep_original_rxn_column=False,
+    )
+    rxn_import(cfg)
+
+    # Verify that there is only the two required columns - no "smiles" anymore
+    df = pd.read_csv(output_file)
+    assert set(df.columns) == {"rxn", "dummy"}
