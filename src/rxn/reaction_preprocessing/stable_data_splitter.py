@@ -183,11 +183,10 @@ def split(cfg: SplitConfig) -> None:
 
     # Get the file name without the extension
     stem = Path(cfg.input_file_path).stem
-    train_csv = output_directory / (stem + ".train.csv")
 
     splitter.split_file(
         input_csv=cfg.input_file_path,
-        train_csv=train_csv,
+        train_csv=output_directory / (stem + ".train.csv"),
         valid_csv=output_directory / (stem + ".validation.csv"),
         test_csv=output_directory / (stem + ".test.csv"),
     )
