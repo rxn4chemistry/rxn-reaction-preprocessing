@@ -3,16 +3,27 @@
 # (C) Copyright IBM Corp. 2022
 # ALL RIGHTS RESERVED
 """ A utility class to split data sets in a stable manner. """
+import csv
 import functools
-import os
 from pathlib import Path
-from typing import Hashable, Optional, Tuple
+from typing import Callable, Hashable, Iterable, List, Protocol
 
-import pandas as pd
+from rxn.utilities.csv import CsvIterator
+from rxn.utilities.files import PathLike, stable_shuffle
 from xxhash import xxh64_intdigest
 
 from rxn.reaction_preprocessing.config import SplitConfig
 from rxn.reaction_preprocessing.utils import DataSplit
+
+
+class _CsvWriter(Protocol):
+    """Useful because csv.writer can't be used as a type annotation."""
+
+    def writerow(self, row: List[str]) -> None:
+        ...
+
+    def writerows(self, rows: Iterable[List[str]]) -> None:
+        ...
 
 
 class StableSplitter:
@@ -29,14 +40,11 @@ class StableSplitter:
     def __init__(
         self,
         split_ratio: float,
-        total_size: Optional[int] = None,
         seed: int = 0,
     ):
         """
         Args:
             split_ratio: The approximate split ratio for test and validation set.
-            total_size: Total size of the dataset, must be provided only if
-                max_if_valid is not None.
             seed: seed to use for hashing. The default of 0 corresponds to the
                 default value in the xxhash implementation.
         """
@@ -62,20 +70,16 @@ class StableSplitter:
 
 
 class StableDataSplitter:
-    @staticmethod
-    def split(
-        df: pd.DataFrame,
+    def __init__(
+        self,
         reaction_column_name: str,
         index_column: str,
         split_ratio: float = 0.05,
         hash_seed: int = 0,
         shuffle_seed: int = 42,
-    ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-        """Creates a stable split into training, validation, and test sets. Returns a boolean mask
-        for each set, to not duplicate the DataFrame while preserving the original.
-
+    ):
+        """
         Args:
-            df: The pandas DataFrame to be split into training, validation, and test sets.
             reaction_column_name: Name of the reaction column for the data file.
             index_column: The name of the column used to generate the hash which ensures
                 stable splitting. "products" and "precursors" are also allowed even if
@@ -84,44 +88,82 @@ class StableDataSplitter:
             hash_seed: seed to use for hashing. The default of 0 corresponds to
                 the default value in the xxhash implementation.
             shuffle_seed: Seed for shuffling the train split.
-
-        Returns:
-            A tuple of three pandas DataFrames for the three splits.
         """
-        splitter = StableSplitter(
-            split_ratio=split_ratio,
-            total_size=len(df),
-            seed=hash_seed,
-        )
+        self.rxn_column = reaction_column_name
+        self.index_column = index_column
+        self.split_ratio = split_ratio
+        self.hash_seed = hash_seed
+        self.shuffle_seed = shuffle_seed
 
-        # Get a pandas Series for the splits by first getting a pandas Series
-        # for the values to hash, and then do the actual hashing / split attribution.
-        pre_hash_series = StableDataSplitter._pre_hashing_series(
-            df, index_column=index_column, reaction_column_name=reaction_column_name
-        )
-        data_split = pre_hash_series.apply(splitter.get_split)
+    def split_file(
+        self,
+        input_csv: PathLike,
+        train_csv: PathLike,
+        valid_csv: PathLike,
+        test_csv: PathLike,
+    ) -> None:
+        """
+        Split an input file into train, validation, and test CSVs.
+        """
+        with open(input_csv, "rt") as f_input, open(train_csv, "wt") as f_train, open(
+            valid_csv, "wt"
+        ) as f_valid, open(test_csv, "wt") as f_test:
+            input_iterator = CsvIterator.from_stream(f_input)
 
-        train_df = df[data_split == DataSplit.TRAIN]
-        validation_df = df[data_split == DataSplit.VALIDATION]
-        test_df = df[data_split == DataSplit.TEST]
+            # initialize the writers
+            writers = []
+            for f in [f_train, f_valid, f_test]:
+                writer = csv.writer(f)
+                writer.writerow(input_iterator.columns)
+                writers.append(writer)
+
+            self._split_iterator(input_iterator, *writers)
 
         # Shuffle the training split
-        train_df = train_df.sample(frac=1, random_state=shuffle_seed)
+        stable_shuffle(train_csv, train_csv, seed=self.shuffle_seed, is_csv=True)
 
-        return train_df, validation_df, test_df
+    def _split_iterator(
+        self,
+        input_iterator: CsvIterator,
+        train_writer: _CsvWriter,
+        valid_writer: _CsvWriter,
+        test_writer: _CsvWriter,
+    ) -> None:
+        """
+        Split an input CSV iterator into train, validation, and test iterators,
+        by writing immediately to the corresponding CSV writers.
+        """
+        fn = self._callable_for_value_to_hash(input_iterator)
+        splitter = StableSplitter(
+            split_ratio=self.split_ratio,
+            seed=self.hash_seed,
+        )
 
-    @staticmethod
-    def _pre_hashing_series(
-        df: pd.DataFrame, index_column: str, reaction_column_name: str
-    ) -> pd.Series:
-        if index_column == "products":
-            return df[reaction_column_name].apply(lambda value: value.split(">>")[1])
-        elif index_column == "precursors":
-            return df[reaction_column_name].apply(lambda value: value.split(">>")[0])
-        elif index_column in df.columns:
-            return df[index_column]
-        else:
-            raise KeyError(index_column)
+        for row in input_iterator.rows:
+            value_to_hash = fn(row)
+            split = splitter.get_split(value_to_hash)
+            if split is DataSplit.TRAIN:
+                train_writer.writerow(row)
+            elif split is DataSplit.VALIDATION:
+                valid_writer.writerow(row)
+            elif split is DataSplit.TEST:
+                test_writer.writerow(row)
+
+    def _callable_for_value_to_hash(
+        self, csv_iterator: CsvIterator
+    ) -> Callable[[List[str]], Hashable]:
+        if self.index_column == "products":
+            rxn_column = csv_iterator.column_index(self.rxn_column)
+            return lambda x: x[rxn_column].split(">>")[1]
+        elif self.index_column == "precursors":
+            rxn_column = csv_iterator.column_index(self.rxn_column)
+            return lambda x: x[rxn_column].split(">>")[0]
+        elif self.index_column in csv_iterator.columns:
+            column_index = csv_iterator.column_index(self.index_column)
+            return lambda x: x[column_index]
+        raise RuntimeError(
+            f'Can\'t determine what value to hash from index_column "{self.index_column}".'
+        )
 
 
 def split(cfg: SplitConfig) -> None:
@@ -131,23 +173,21 @@ def split(cfg: SplitConfig) -> None:
             f"Input file for standardization does not exist: {cfg.input_file_path}"
         )
 
-    df = pd.read_csv(cfg.input_file_path, lineterminator="\n")
-    # Split into train, validation, and test sets, but do not export yet
-    train, validation, test = StableDataSplitter.split(
-        df,
+    splitter = StableDataSplitter(
         reaction_column_name=cfg.reaction_column_name,
         index_column=cfg.index_column,
-        split_ratio=cfg.split_ratio,
         hash_seed=cfg.hash_seed,
+        split_ratio=cfg.split_ratio,
         shuffle_seed=cfg.shuffle_seed,
     )
 
     # Get the file name without the extension
     stem = Path(cfg.input_file_path).stem
+    train_csv = output_directory / (stem + ".train.csv")
 
-    # Example of exporting one of the sets
-    train.to_csv(os.path.join(output_directory, stem + ".train.csv"), index=False)
-    validation.to_csv(
-        os.path.join(output_directory, stem + ".validation.csv"), index=False
+    splitter.split_file(
+        input_csv=cfg.input_file_path,
+        train_csv=train_csv,
+        valid_csv=output_directory / (stem + ".validation.csv"),
+        test_csv=output_directory / (stem + ".test.csv"),
     )
-    test.to_csv(os.path.join(output_directory, stem + ".test.csv"), index=False)
