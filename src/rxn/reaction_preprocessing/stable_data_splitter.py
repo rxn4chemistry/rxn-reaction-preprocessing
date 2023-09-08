@@ -6,10 +6,11 @@
 import csv
 import functools
 from pathlib import Path
-from typing import Callable, Hashable, Iterable, List, Protocol
+from typing import Callable, Hashable, Iterable, List
 
 from rxn.utilities.csv import CsvIterator
 from rxn.utilities.files import PathLike, stable_shuffle
+from typing_extensions import Protocol
 from xxhash import xxh64_intdigest
 
 from rxn.reaction_preprocessing.config import SplitConfig
