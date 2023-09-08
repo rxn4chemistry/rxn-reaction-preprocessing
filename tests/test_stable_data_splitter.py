@@ -24,11 +24,6 @@ def random_strings(n: int) -> List[str]:
     ]
 
 
-@pytest.fixture
-def data() -> pd.DataFrame:
-    return pd.DataFrame(data={"col_1": random_strings(1000)})
-
-
 class SplitsDirectory:
     """Class to return as a fixture, determines paths to use in the tests, and
     populates the "input" data file."""
