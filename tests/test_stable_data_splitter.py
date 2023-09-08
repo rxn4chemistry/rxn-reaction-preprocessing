@@ -15,6 +15,8 @@ from rxn.utilities.files import named_temporary_directory
 from rxn.reaction_preprocessing import StableDataSplitter
 from rxn.reaction_preprocessing.utils import reset_random_seed
 
+RXN_COLUMN = "col_1"
+
 
 def random_strings(n: int) -> List[str]:
     reset_random_seed()
@@ -37,7 +39,7 @@ class SplitsDirectory:
 
         # Write random data to the input
         input_df = pd.DataFrame(
-            data={"col_1": content, "idx": list(range(len(content)))}
+            data={RXN_COLUMN: content, "idx": list(range(len(content)))}
         )
         input_df.to_csv(self.input_csv, index=False)
 
@@ -75,10 +77,10 @@ def test_split(data_directory: SplitsDirectory) -> None:
     # for conciseness
     d = data_directory
 
-    splitter = StableDataSplitter("rxn", "col_1", split_ratio=0.05)
+    splitter = StableDataSplitter("rxn", RXN_COLUMN, split_ratio=0.05)
     splitter.split_file(d.input_csv, d.train_csv, d.valid_csv, d.test_csv)
 
-    train, valid, test = d.contents("col_1")
+    train, valid, test = d.contents(RXN_COLUMN)
     assert len(train) == 889
     assert len(valid) == 48
     assert len(test) == 63
@@ -139,14 +141,14 @@ def test_split_with_different_hash_seed(data_directory: SplitsDirectory) -> None
     d = data_directory
 
     # First: use default value for the hash seed
-    splitter = StableDataSplitter("rxn", "col_1")
+    splitter = StableDataSplitter("rxn", RXN_COLUMN)
     splitter.split_file(d.input_csv, d.train_csv, d.valid_csv, d.test_csv)
-    train1, valid1, test1 = d.contents("col_1")
+    train1, valid1, test1 = d.contents(RXN_COLUMN)
 
     # Second: Change the hash seed
     splitter.hash_seed = 123
     splitter.split_file(d.input_csv, d.train_csv, d.valid_csv, d.test_csv)
-    train2, valid2, test2 = d.contents("col_1")
+    train2, valid2, test2 = d.contents(RXN_COLUMN)
 
     # The generated splits must be different if the seed was different
     assert train1 != train2
@@ -168,7 +170,7 @@ def all_samples_in_one_split(test_directory: SplitsDirectory, column: str) -> bo
 
 
 def test_split_on_products() -> None:
-    splitter = StableDataSplitter(reaction_column_name="col_1", index_column="tbd")
+    splitter = StableDataSplitter(reaction_column_name=RXN_COLUMN, index_column="tbd")
 
     with named_temporary_directory() as path:
         d = SplitsDirectory(
@@ -178,21 +180,21 @@ def test_split_on_products() -> None:
         # With products splitting, all the reactions end up in the same split
         splitter.index_column = "products"
         splitter.split_file(d.input_csv, d.train_csv, d.valid_csv, d.test_csv)
-        assert all_samples_in_one_split(d, "col_1")
+        assert all_samples_in_one_split(d, RXN_COLUMN)
 
         # With normal splitting, does not all end up in the same split
-        splitter.index_column = "col_1"
+        splitter.index_column = RXN_COLUMN
         splitter.split_file(d.input_csv, d.train_csv, d.valid_csv, d.test_csv)
-        assert not all_samples_in_one_split(d, "col_1")
+        assert not all_samples_in_one_split(d, RXN_COLUMN)
 
         # With precursors splitting, does not all end up in the same split
         splitter.index_column = "precursors"
         splitter.split_file(d.input_csv, d.train_csv, d.valid_csv, d.test_csv)
-        assert not all_samples_in_one_split(d, "col_1")
+        assert not all_samples_in_one_split(d, RXN_COLUMN)
 
 
 def test_split_on_reactants() -> None:
-    splitter = StableDataSplitter(reaction_column_name="col_1", index_column="tbd")
+    splitter = StableDataSplitter(reaction_column_name=RXN_COLUMN, index_column="tbd")
 
     with named_temporary_directory() as path:
         d = SplitsDirectory(
@@ -209,24 +211,24 @@ def test_split_on_reactants() -> None:
         # With precursors splitting, all the reactions end up in the same split
         splitter.index_column = "precursors"
         splitter.split_file(d.input_csv, d.train_csv, d.valid_csv, d.test_csv)
-        assert all_samples_in_one_split(d, "col_1")
+        assert all_samples_in_one_split(d, RXN_COLUMN)
 
         # With normal splitting, does not all end up in the same split
-        splitter.index_column = "col_1"
+        splitter.index_column = RXN_COLUMN
         splitter.split_file(d.input_csv, d.train_csv, d.valid_csv, d.test_csv)
-        assert not all_samples_in_one_split(d, "col_1")
+        assert not all_samples_in_one_split(d, RXN_COLUMN)
 
         # With products splitting, does not all end up in the same split
         splitter.index_column = "products"
         splitter.split_file(d.input_csv, d.train_csv, d.valid_csv, d.test_csv)
-        assert not all_samples_in_one_split(d, "col_1")
+        assert not all_samples_in_one_split(d, RXN_COLUMN)
 
 
 def test_train_split_is_shuffled(data_directory: SplitsDirectory) -> None:
     # for conciseness
     d = data_directory
 
-    splitter = StableDataSplitter("rxn", "col_1", shuffle_seed=123)
+    splitter = StableDataSplitter("rxn", RXN_COLUMN, shuffle_seed=123)
     splitter.split_file(d.input_csv, d.train_csv, d.valid_csv, d.test_csv)
 
     train, valid, test = d.contents_as_ints("idx")
