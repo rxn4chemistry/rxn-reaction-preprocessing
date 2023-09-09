@@ -106,9 +106,8 @@ class RxnImportConfig:
         column_for_heat: name of the column containing boolean values that indicate
             whether the reaction happens under heat. If specified, the heat token will
             be added to the precursors of the corresponding reactions.
-        keep_intermediate_columns: Whether the columns generated during preprocessing should be kept.
-        keep_original_rxn_column: if  ``keep_intermediate_columns`` is False, determines whether
-            the original column with the raw reaction SMILES is to be kept or not.
+        keep_original_rxn_column: determines whether the original column with the
+            raw reaction SMILES is to be kept or not.
     """
 
     input_file: str = SI("${data.path}")
@@ -120,7 +119,6 @@ class RxnImportConfig:
     remove_atom_mapping: bool = True
     column_for_light: Optional[str] = None
     column_for_heat: Optional[str] = None
-    keep_intermediate_columns: bool = SI("${common.keep_intermediate_columns}")
     keep_original_rxn_column: bool = False
 
 

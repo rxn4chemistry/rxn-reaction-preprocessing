@@ -2,8 +2,8 @@
 # IBM Research Zurich Licensed Internal Code
 # (C) Copyright IBM Corp. 2022
 # ALL RIGHTS RESERVED
-import pandas as pd
 from rxn.chemutils.tokenization import tokenize_smiles
+from rxn.utilities.csv import iterate_csv_column
 
 from rxn.reaction_preprocessing.config import TokenizeConfig
 
@@ -28,23 +28,13 @@ class SmilesTokenizer:
 def tokenize(cfg: TokenizeConfig) -> None:
     # Tokenize the reactions
     tokenizer = SmilesTokenizer()
+    tokenize_fn = tokenizer.tokenize
 
     for pair in cfg.input_output_pairs:
-        df = pd.read_csv(pair.inp, lineterminator="\n")
-        if pair.reaction_column_name not in df.columns:
-            raise SystemExit(
-                f"The following file does not contain an rxn column:\n{pair.inp}"
-            )
-
-        df["rxn_precursors"] = df[pair.reaction_column_name].str.split(">>").str[0]
-        df["rxn_products"] = df[pair.reaction_column_name].str.split(">>").str[1]
-
-        df.rxn_precursors = df.rxn_precursors.apply(tokenizer.tokenize)
-        df.rxn_products = df.rxn_products.apply(tokenizer.tokenize)
-
-        df[["rxn_precursors"]].to_csv(
-            f"{pair.out}.precursors_tokens", header=False, index=False
-        )
-        df[["rxn_products"]].to_csv(
-            f"{pair.out}.products_tokens", header=False, index=False
-        )
+        precursors = f"{pair.out}.precursors_tokens"
+        products = f"{pair.out}.products_tokens"
+        with open(precursors, "wt") as f_precursors, open(products, "wt") as f_products:
+            for rxn in iterate_csv_column(pair.inp, pair.reaction_column_name):
+                precursors_smiles, products_smiles = rxn.split(">>")
+                f_precursors.write(f"{tokenize_fn(precursors_smiles)}\n")
+                f_products.write(f"{tokenize_fn(products_smiles)}\n")

@@ -37,6 +37,12 @@ def molecules_permutation_given_index(
 
 
 class Augmenter:
+    """Augmenter.
+
+    Note: Unlike the other classes, which are memory-efficient, this one loads the
+    whole data in a pandas DataFrame for processing.
+    """
+
     def __init__(
         self, df: pd.DataFrame, reaction_column_name: str, fragment_bond: str = "."
     ):

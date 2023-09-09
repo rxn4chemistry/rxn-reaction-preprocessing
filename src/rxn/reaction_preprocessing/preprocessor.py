@@ -3,17 +3,18 @@
 # (C) Copyright IBM Corp. 2022
 # ALL RIGHTS RESERVED
 """ The preprocessor class abstracts the workflow for preprocessing reaction data sets. """
+import collections
 import logging
-import typing
-from collections import Counter
 from pathlib import Path
-from typing import Callable, List, Optional
+from typing import Callable, Counter, Iterable, Iterator, List
 
-import numpy as np
-import pandas as pd
-from rdkit import RDLogger
+import attr
+from attr import define
 from rxn.chemutils.reaction_equation import ReactionEquation
 from rxn.chemutils.reaction_smiles import parse_any_reaction_smiles
+from rxn.utilities.containers import iterate_unique_values
+from rxn.utilities.csv import CsvIterator, StreamingCsvEditor
+from rxn.utilities.files import PathLike
 from tabulate import tabulate
 
 from .config import PreprocessConfig
@@ -24,262 +25,177 @@ logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
 
+@define
+class _Stats:
+    initial_count: int = 0
+    first_dedup_count: int = 0
+    second_dedup_count: int = 0
+    final_count: int = 0
+    error_counter: Counter[str] = attr.Factory(collections.Counter)
+
+
 class Preprocessor:
     def __init__(
         self,
-        df: pd.DataFrame,
+        mixed_reaction_filter: MixedReactionFilter,
         reaction_column_name: str,
-        valid_column: str = "_rxn_valid",
-        valid_message_column: str = "_rxn_valid_messages",
         fragment_bond: str = ".",
-        clean_data: bool = True,
     ):
-        """Creates a new instance of the Preprocessor class.
-
+        """
         Args:
-            df: A pandas DataFrame containing the reaction SMARTS.
+            mixed_reaction_filter: mixed reaction filter.
             reaction_column_name: The name of the DataFrame column containing the reaction SMARTS.
-            valid_column: The name of the column to write the validation results to
-                (will be created if it doesn't exist). Defaults to "_rxn_valid".
-            valid_message_column: The name of the column to write the validation
-                messages to in verbose mode (will be created if it doesn't
-                exist). Defaults to "_rxn_valid_messages".
             fragment_bond: The token that represents fragment bonds in the reaction SMILES.
-            clean_data: Whether to run a simple pre-cleaning of the input data
-                (naive check for valid SMARTS reactions based on the number of
-                greater-thans in the string). Defaults to True.
         """
-        self.df = df
         self.reaction_standardizer = ReactionStandardizer()
-        self.__reaction_column_name = reaction_column_name
-        self.__valid_column = valid_column
-        self.__valid_message_column = valid_message_column
-        self.__fragment_bond = fragment_bond
+        self.mixed_reaction_filter = mixed_reaction_filter
+        self.rxn_column = reaction_column_name
+        self.fragment_bond = fragment_bond
+        self.stats = _Stats()
 
-        if clean_data:
-            self.__clean_data()
+    def process(self, input_file_path: PathLike, output_file_path: PathLike) -> None:
+        # Reset the stats
+        self.stats = _Stats()
 
-    #
-    # Private Methods
-    #
-    def __clean_data(self) -> None:
-        """Drops records from the internal pandas DataFrame that do not contain valid reaction
-        SMARTS (WARNING: Very naive, just checks for two greater-thans)"""
-        self.df.drop(
-            self.df[self.df[self.__reaction_column_name].str.count(">") != 2].index,
-            inplace=True,
+        with open(input_file_path, "rt") as f_in, open(output_file_path, "wt") as f_out:
+            csv_iterator = CsvIterator.from_stream(f_in)
+            csv_iterator = self._increment_initial_count(csv_iterator)
+
+            # first deduplication
+            csv_iterator = self._remove_duplicate_reactions(csv_iterator)
+            csv_iterator = self._increment_first_dedup_count(csv_iterator)
+
+            # reaction standardization
+            rxn_standardization_editor = StreamingCsvEditor(
+                [self.rxn_column], [self.rxn_column], self._standardize_rxn_smiles
+            )
+            csv_iterator = rxn_standardization_editor.process(csv_iterator)
+
+            # second deduplication
+            csv_iterator = self._remove_duplicate_reactions(csv_iterator)
+            csv_iterator = self._increment_second_dedup_count(csv_iterator)
+
+            # filtering
+            csv_iterator = self._validate(csv_iterator=csv_iterator)
+
+            csv_iterator = self._increment_final_count(csv_iterator)
+            csv_iterator.to_stream(f_out)
+
+            self._print_stats()
+
+    def _increment_initial_count(self, csv_iterator: CsvIterator) -> CsvIterator:
+        def fn() -> None:
+            self.stats.initial_count += 1
+
+        return self._call_for_each(csv_iterator, fn)
+
+    def _increment_first_dedup_count(self, csv_iterator: CsvIterator) -> CsvIterator:
+        def fn() -> None:
+            self.stats.first_dedup_count += 1
+
+        return self._call_for_each(csv_iterator, fn)
+
+    def _increment_second_dedup_count(self, csv_iterator: CsvIterator) -> CsvIterator:
+        def fn() -> None:
+            self.stats.second_dedup_count += 1
+
+        return self._call_for_each(csv_iterator, fn)
+
+    def _increment_final_count(self, csv_iterator: CsvIterator) -> CsvIterator:
+        def fn() -> None:
+            self.stats.final_count += 1
+
+        return self._call_for_each(csv_iterator, fn)
+
+    def _call_for_each(
+        self, csv_iterator: CsvIterator, fn: Callable[[], None]
+    ) -> CsvIterator:
+        """Allows to call a callback before accessing the CSV row.
+
+        Useful for counting, for instance.
+        """
+
+        def iterate(values: Iterable[List[str]]) -> Iterator[List[str]]:
+            for value in values:
+                fn()
+                yield value
+
+        return CsvIterator(
+            columns=csv_iterator.columns,
+            rows=iterate(csv_iterator.rows),
         )
 
-    def __filter_func(
-        self,
-        reaction_smiles: str,
-        filter: MixedReactionFilter,
-    ) -> bool:
-        """The default filter function.
+    def _remove_duplicate_reactions(self, csv_iterator: CsvIterator) -> CsvIterator:
+        rxn_idx = csv_iterator.column_index(self.rxn_column)
 
-        Args:
-            reaction_smiles: An input reaction SMILES.
-            filter: An instance of MixedReactionFilter to test the reaction against.
+        # The key for determining what is a duplicate is the value from the rxn column
+        def key(row: List[str]) -> str:
+            return row[rxn_idx]
 
-        Returns:
-            A boolean indicating whether or not the reaction is valid according
-            to the supplied parameters.
-        """
-
-        reaction = ReactionEquation.from_string(
-            reaction_smiles, fragment_bond=self.__fragment_bond
+        return CsvIterator(
+            csv_iterator.columns, iterate_unique_values(csv_iterator.rows, key=key)
         )
-        return filter.is_valid(reaction)
 
-    def __filter_func_verbose(
-        self,
-        reaction_smiles: str,
-        filter: MixedReactionFilter,
-    ) -> List[str]:
-        """The default verbose filter function.
+    def _standardize_rxn_smiles(self, rxn_smiles: str) -> str:
+        """Standardizing the reaction SMILES.
 
-        Args:
-            reaction_smiles: An input reaction SMILES.
-            filter: An instance of MixedReactionFilter to test the reaction against.
-
-        Returns:
-            A list of reasons for an invalid reaction. An empty list for a valid reaction.
+        If there is an error, returns ">>" instead.
         """
-        invalid_reasons = []
-
-        reaction = ReactionEquation.from_string(
-            reaction_smiles, fragment_bond=self.__fragment_bond
-        )
-        _, filter_reasons = filter.validate_reasons(reaction)
-        invalid_reasons.extend(filter_reasons)
-
-        return invalid_reasons
-
-    #
-    # Public Methods
-    #
-    def filter(
-        self,
-        filter: MixedReactionFilter,
-        verbose: bool = False,
-        filter_func: Optional[Callable[[str, MixedReactionFilter], bool]] = None,
-        filter_func_verbose: Optional[
-            Callable[[str, MixedReactionFilter], List[str]]
-        ] = None,
-    ) -> "Preprocessor":
-        """Applies filter functions to the reaction. Alternatives for the default filter functions
-        can be supplied. The default filters remove reactions containing molecules that could not
-        be parse by rdkit's MolFromSmiles.
-
-        Args:
-            filter: An instance of MixedReactionFilter to be applied to each reaction.
-            verbose: Whether or not to report the reasons for a reaction being
-                deemed invalid. Defaults to False.
-            filter_func: A custom filter function. Defaults to None.
-            filter_func_verbose: A custom verbose filter function. Defaults to None.
-
-        Returns:
-            Itself.
-        """
-        if filter_func is None:
-            filter_func = self.__filter_func
-
-        if filter_func_verbose is None:
-            filter_func_verbose = self.__filter_func_verbose
-
-        if self.__valid_column not in self.df.columns:
-            self.df[self.__valid_column] = True
-
-        if verbose:
-            if self.__valid_message_column not in self.df.columns:
-                self.df[self.__valid_message_column] = np.empty(
-                    (len(self.df), 0)
-                ).tolist()
-
-            self.df[self.__valid_message_column] += self.df.apply(
-                lambda row: filter_func_verbose(
-                    row[self.__reaction_column_name], filter
-                ),
-                axis=1,
-            )
-
-            self.df[self.__valid_column] = np.logical_and(
-                np.where(self.df[self.__valid_message_column], False, True),
-                self.df[self.__valid_column],
-            )
-        else:
-            self.df[self.__valid_column] = np.logical_and(
-                self.df.apply(
-                    lambda row: filter_func(row[self.__reaction_column_name], filter),
-                    axis=1,
-                ),
-                self.df[self.__valid_column],
-            )
-
-        return self
-
-    def reaction_standardization(self) -> None:
-        """
-        Reaction standardization, including merging of reactants and reactants,
-        removal of duplicates, sorting, etc.
-
-        Note that this standardization relies on the molecules in the reaction
-        SMILES to be canonical - which is the case when this function is
-        called as part of the full data processing pipeline.
-        """
-
-        def standardize_smiles(rxn_smiles: str) -> str:
-            """Function standardizing the reaction SMILES directly,
-            to pass to pandas.apply()."""
+        try:
             reaction = parse_any_reaction_smiles(rxn_smiles)
             reaction = self.reaction_standardizer(reaction)
-            return reaction.to_string(self.__fragment_bond)
+            return reaction.to_string(self.fragment_bond)
+        except Exception as e:
+            logger.error(f'Cannot standardize reaction SMILES "{rxn_smiles}": {e}')
+            return ">>"
 
-        rxn_column = self.__reaction_column_name
-        self.df[rxn_column] = self.df[rxn_column].apply(standardize_smiles)
+    def _validate(self, csv_iterator: CsvIterator) -> CsvIterator:
+        rxn_idx = csv_iterator.column_index(self.rxn_column)
 
-    def remove_duplicates(self) -> "Preprocessor":
-        """A wrapper around pandas' drop_duplicates with the argument subset
-        set to the reaction column name.
-
-        Returns:
-            Itself.
-        """
-        self.df.drop_duplicates(subset=[self.__reaction_column_name], inplace=True)
-        return self
-
-    def remove_invalids(self) -> "Preprocessor":
-        """A wrapper around removing invalid options from pandas DataFrame.
-
-        Returns:
-            Itself.
-        """
-        self.df.drop(
-            self.df[self.df[self.__valid_column] == False].index,  # noqa: E712
-            inplace=True,
-        )
-        return self
-
-    def print_stats(self) -> "Preprocessor":
-        """Prints statistics of the filtration to stdout.
-
-        Returns:
-            Itself.
-        """
-        logger.info(f"- {len(self.df)} total reactions.")
-        if self.__valid_column in self.df.columns:
-            counts = self.df[self.__valid_column].value_counts()
-            if True in counts:
-                logger.info(f"- {counts[True]} valid reactions.")
-            if False in counts:
-                logger.info(f"- {counts[False]} invalid reactions removed.")
-
-        if self.__valid_message_column in self.df.columns:
-            reasons: typing.Counter[str] = Counter()
-            for _, value in self.df[self.__valid_message_column].items():
-                reasons.update(value)
-
-            if len(reasons) > 0:
-                headers = ["Reason", "Number of Reactions"]
-                logger.info(
-                    f"- The {counts[False]} reactions were removed for the following reasons:\n"
-                    f'{tabulate(list(Counter(reasons).items()), headers, tablefmt="fancy_grid")}'
+        def filter_invalid(rows: Iterable[List[str]]) -> Iterator[List[str]]:
+            for row in rows:
+                reaction = ReactionEquation.from_string(
+                    row[rxn_idx], fragment_bond=self.fragment_bond
                 )
+                valid, reasons = self.mixed_reaction_filter.validate_reasons(reaction)
+                if valid:
+                    yield row
+                else:
+                    for reason in reasons:
+                        self.stats.error_counter[reason] += 1
 
-        return self
+        return CsvIterator(
+            columns=csv_iterator.columns, rows=filter_invalid(csv_iterator.rows)
+        )
 
-    #
-    # Static Methods
-    #
-    @staticmethod
-    def read_csv(
-        filepath: str, reaction_column_name: str, fragment_bond: str = "."
-    ) -> "Preprocessor":
-        """A helper function to read a list or csv of reactions.
+    def _print_stats(self) -> None:
+        """Prints statistics of the filtration to the logger."""
+        # define "s" to make expressions shorter
+        s = self.stats
 
-        Args:
-            filepath: The path to the text file containing the reactions.
-            reaction_column_name: The name of the reaction column (or the name that
-                wil be given to the reaction column if the input file has no headers).
-            fragment_bond: The token that represents fragment bonds in the raction SMILES.
+        logger.info(f"- {s.initial_count} total reactions.")
+        logger.info(f"- {s.first_dedup_count} reactions after first deduplication.")
+        logger.info(f"- {s.second_dedup_count} reactions after second deduplication.")
+        logger.info(f"- {s.final_count} valid reactions.")
+        invalid_count = s.second_dedup_count - s.final_count
+        logger.info(f"- {invalid_count} invalid reactions removed.")
 
-        Returns:
-            Preprocessor: A new preprocessor instance.
-        """
-        df = pd.read_csv(filepath, lineterminator="\n")
-        if len(df.columns) == 1:
-            df.rename(columns={df.columns[0]: reaction_column_name}, inplace=True)
+        if sum(s.error_counter.values()) == 0:
+            return
 
-        return Preprocessor(df, reaction_column_name, fragment_bond=fragment_bond)
+        headers = ["Reason", "Number of Reactions"]
+        logger.info(
+            f"- The {invalid_count} reactions were removed for the following reasons:\n"
+            f'{tabulate(s.error_counter.most_common(), headers, tablefmt="fancy_grid")}'
+        )
 
 
 def preprocess(cfg: PreprocessConfig) -> None:
-    RDLogger.DisableLog("rdApp.*")
-
     output_file_path = Path(cfg.output_file_path)
-    if not Path(cfg.input_file_path).exists():
+    input_file_path = Path(cfg.input_file_path)
+    if not input_file_path.exists():
         raise ValueError(
-            f"Input file for preprocessing does not exist: {cfg.input_file_path}"
+            f"Input file for preprocessing does not exist: {input_file_path}"
         )
 
     # Create a instance of the mixed reaction filter with default values.
@@ -297,37 +213,11 @@ def preprocess(cfg: PreprocessConfig) -> None:
         max_absolute_formal_charge=cfg.max_absolute_formal_charge,
     )
 
-    pp = Preprocessor.read_csv(
-        cfg.input_file_path,
-        cfg.reaction_column_name,
+    rxn_column = cfg.reaction_column_name
+    preprocessor = Preprocessor(
+        mixed_reaction_filter=mrf,
+        reaction_column_name=rxn_column,
         fragment_bond=cfg.fragment_bond.value,
     )
-    columns_to_keep = list(pp.df.columns)
 
-    # Remove duplicate reactions (useful for large dataset, this step is repeated later)
-    logger.info(f"- {len(pp.df)} initial reactions.")
-    pp.remove_duplicates()
-    logger.info(f"- {len(pp.df)} reactions after first deduplication.")
-
-    # Remove duplicate molecules, sort, etc.
-    # NB: this relies on molecules in the reaction SMILES to be canonical already!
-    pp.reaction_standardization()
-
-    # Remove duplicate reactions
-    pp.remove_duplicates()
-    logger.info(f"- {len(pp.df)} reactions after second deduplication.")
-
-    # Apply the mixed reaction filter instance defined above, enable verbose mode
-    pp.filter(mrf, True)
-
-    # Print the detailed stats
-    pp.print_stats()
-
-    # Drop the invalid reactions
-    pp.remove_invalids()
-
-    if not cfg.keep_intermediate_columns:
-        pp.df = pp.df[columns_to_keep]
-
-    # After dropping invalid columns, display stats again (as an example)
-    pp.df.to_csv(output_file_path, index=False)
+    preprocessor.process(input_file_path, output_file_path)
