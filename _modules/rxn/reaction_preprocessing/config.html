@@ -173,9 +173,8 @@
 <span class="sd">        column_for_heat: name of the column containing boolean values that indicate</span>
 <span class="sd">            whether the reaction happens under heat. If specified, the heat token will</span>
 <span class="sd">            be added to the precursors of the corresponding reactions.</span>
-<span class="sd">        keep_intermediate_columns: Whether the columns generated during preprocessing should be kept.</span>
-<span class="sd">        keep_original_rxn_column: if  ``keep_intermediate_columns`` is False, determines whether</span>
-<span class="sd">            the original column with the raw reaction SMILES is to be kept or not.</span>
+<span class="sd">        keep_original_rxn_column: determines whether the original column with the</span>
+<span class="sd">            raw reaction SMILES is to be kept or not.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">input_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{data.path}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -187,7 +186,6 @@
     <span class="n">remove_atom_mapping</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">column_for_light</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">column_for_heat</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">keep_intermediate_columns</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">SI</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{common.keep_intermediate_columns}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="n">keep_original_rxn_column</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 

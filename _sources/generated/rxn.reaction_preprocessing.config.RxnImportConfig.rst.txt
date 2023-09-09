@@ -32,7 +32,6 @@ rxn.reaction\_preprocessing.config.RxnImportConfig
       ~RxnImportConfig.fragment_bond
       ~RxnImportConfig.input_csv_column_name
       ~RxnImportConfig.input_file
-      ~RxnImportConfig.keep_intermediate_columns
       ~RxnImportConfig.keep_original_rxn_column
       ~RxnImportConfig.output_csv
       ~RxnImportConfig.reaction_column_name

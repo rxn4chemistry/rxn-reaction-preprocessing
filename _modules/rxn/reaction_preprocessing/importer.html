@@ -66,14 +66,13 @@
              
   <h1>Source code for rxn.reaction_preprocessing.importer</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TextIO</span>
 
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">rxn.chemutils.reaction_equation</span> <span class="kn">import</span> <span class="n">ReactionEquation</span>
 <span class="kn">from</span> <span class="nn">rxn.chemutils.reaction_smiles</span> <span class="kn">import</span> <span class="n">parse_any_reaction_smiles</span>
 <span class="kn">from</span> <span class="nn">rxn.chemutils.utils</span> <span class="kn">import</span> <span class="n">remove_atom_mapping</span>
-<span class="kn">from</span> <span class="nn">rxn.utilities.containers</span> <span class="kn">import</span> <span class="n">remove_duplicates</span>
+<span class="kn">from</span> <span class="nn">rxn.utilities.csv</span> <span class="kn">import</span> <span class="n">CsvIterator</span><span class="p">,</span> <span class="n">StreamingCsvEditor</span>
+<span class="kn">from</span> <span class="nn">rxn.utilities.files</span> <span class="kn">import</span> <span class="n">PathLike</span>
 
 <span class="kn">from</span> <span class="nn">rxn.reaction_preprocessing.config</span> <span class="kn">import</span> <span class="n">InitialDataFormat</span><span class="p">,</span> <span class="n">RxnImportConfig</span>
 <span class="kn">from</span> <span class="nn">rxn.reaction_preprocessing.special_tokens</span> <span class="kn">import</span> <span class="n">add_heat_token</span><span class="p">,</span> <span class="n">add_light_token</span>
@@ -92,222 +91,257 @@
 <div class="viewcode-block" id="InvalidColumn"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.importer.InvalidColumn.html#rxn.reaction_preprocessing.importer.InvalidColumn">[docs]</a><span class="k">class</span> <span class="nc">InvalidColumn</span><span class="p">(</span><span class="n">RxnImportError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception when a required column does not exist.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No column named &quot;</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s1">&quot; in the file &quot;</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s1">&quot;.&#39;</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No column named &quot;</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s1">&quot; in the input file.&#39;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="InvalidType"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.importer.InvalidType.html#rxn.reaction_preprocessing.importer.InvalidType">[docs]</a><span class="k">class</span> <span class="nc">InvalidType</span><span class="p">(</span><span class="n">RxnImportError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception when a column contains data of the incorrect type.&quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">expected_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">actual_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;The column &quot;</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s1">&quot; is expected to contain &#39;</span>
-            <span class="sa">f</span><span class="s2">&quot;values of type </span><span class="si">{</span><span class="n">expected_type</span><span class="si">}</span><span class="s2"> (actual: </span><span class="si">{</span><span class="n">actual_type</span><span class="si">}</span><span class="s2">).&quot;</span>
-        <span class="p">)</span></div>
+<span class="k">def</span> <span class="nf">_str2bool</span><span class="p">(</span><span class="n">v</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">v</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;yes&quot;</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">,</span> <span class="s2">&quot;t&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_final_column_name_for_original</span><span class="p">(</span><span class="n">cfg</span><span class="p">:</span> <span class="n">RxnImportConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Name of the column where the original data will end up.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="RxnImporter"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.importer.RxnImporter.html#rxn.reaction_preprocessing.importer.RxnImporter">[docs]</a><span class="k">class</span> <span class="nc">RxnImporter</span><span class="p">:</span>
+<div class="viewcode-block" id="RxnImporter.__init__"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.importer.RxnImporter.html#rxn.reaction_preprocessing.importer.RxnImporter.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">data_format</span><span class="p">:</span> <span class="n">InitialDataFormat</span><span class="p">,</span>
+        <span class="n">input_csv_column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">reaction_column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">fragment_bond</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">remove_atom_maps</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="n">column_for_light</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">column_for_heat</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">keep_original_rxn_column</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span> <span class="o">=</span> <span class="n">data_format</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_csv_column_name</span> <span class="o">=</span> <span class="n">input_csv_column_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rxn_column</span> <span class="o">=</span> <span class="n">reaction_column_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fragment_bond</span> <span class="o">=</span> <span class="n">fragment_bond</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remove_atom_maps</span> <span class="o">=</span> <span class="n">remove_atom_maps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">column_for_light</span> <span class="o">=</span> <span class="n">column_for_light</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">column_for_heat</span> <span class="o">=</span> <span class="n">column_for_heat</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">keep_original_rxn_column</span> <span class="o">=</span> <span class="n">keep_original_rxn_column</span></div>
 
-    <span class="c1"># For txt: always with &quot;_original&quot; postfix</span>
-    <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">data_format</span> <span class="ow">is</span> <span class="n">InitialDataFormat</span><span class="o">.</span><span class="n">TXT</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">reaction_column_name</span><span class="si">}</span><span class="s2">_original&quot;</span>
+<div class="viewcode-block" id="RxnImporter.import_rxns"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.importer.RxnImporter.html#rxn.reaction_preprocessing.importer.RxnImporter.import_rxns">[docs]</a>    <span class="k">def</span> <span class="nf">import_rxns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span> <span class="n">output_csv</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Function to import the reactions from one file and write them</span>
+<span class="sd">        to another file.</span>
 
-    <span class="c1"># For csv: only add &quot;_original&quot; postfix if the input and output columns are identical</span>
-    <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">input_csv_column_name</span> <span class="o">==</span> <span class="n">cfg</span><span class="o">.</span><span class="n">reaction_column_name</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">reaction_column_name</span><span class="si">}</span><span class="s2">_original&quot;</span>
+<span class="sd">        Goes through all the steps involved in the import: parsing of the</span>
+<span class="sd">        reaction SMILES, removal of the atom mapping, addition of special tokens.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_in</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_csv</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_out</span><span class="p">:</span>
+            <span class="n">csv_iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_into_iterator</span><span class="p">(</span><span class="n">f_in</span><span class="p">)</span>
+            <span class="n">csv_iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_original_rxn_column</span><span class="p">(</span><span class="n">csv_iterator</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">cfg</span><span class="o">.</span><span class="n">input_csv_column_name</span>
+            <span class="n">csv_iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_reaction_smiles</span><span class="p">(</span><span class="n">csv_iterator</span><span class="p">)</span>
 
+            <span class="c1"># Add special tokens when necessary</span>
+            <span class="n">csv_iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_maybe_add_light_token</span><span class="p">(</span><span class="n">csv_iterator</span><span class="p">)</span>
+            <span class="n">csv_iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_maybe_add_heat_token</span><span class="p">(</span><span class="n">csv_iterator</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">_load_from_txt</span><span class="p">(</span><span class="n">cfg</span><span class="p">:</span> <span class="n">RxnImportConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-    <span class="n">column_original</span> <span class="o">=</span> <span class="n">_final_column_name_for_original</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
-    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">input_file</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="n">column_original</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">df</span>
+            <span class="n">csv_iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_maybe_remove_atom_mapping</span><span class="p">(</span><span class="n">csv_iterator</span><span class="p">)</span>
+            <span class="n">csv_iterator</span><span class="o">.</span><span class="n">to_stream</span><span class="p">(</span><span class="n">f_out</span><span class="p">)</span></div>
 
+    <span class="k">def</span> <span class="nf">_load_into_iterator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_stream</span><span class="p">:</span> <span class="n">TextIO</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CsvIterator</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load the initial dataframe.</span>
 
-<span class="k">def</span> <span class="nf">_load_from_csv</span><span class="p">(</span><span class="n">cfg</span><span class="p">:</span> <span class="n">RxnImportConfig</span><span class="p">,</span> <span class="n">separator</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">input_file</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">separator</span><span class="p">)</span>
+<span class="sd">        This functions (and the ones it calls) make sure to rename the column</span>
+<span class="sd">        containing the data if it would be overwritten when transforming. The</span>
+<span class="sd">        column with the data ends up with the name `original_column_name`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
-    <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">input_csv_column_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">InvalidColumn</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">input_csv_column_name</span><span class="p">,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">input_file</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span> <span class="ow">is</span> <span class="n">InitialDataFormat</span><span class="o">.</span><span class="n">TXT</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_from_txt</span><span class="p">(</span><span class="n">input_stream</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span> <span class="ow">is</span> <span class="n">InitialDataFormat</span><span class="o">.</span><span class="n">CSV</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_from_csv</span><span class="p">(</span><span class="n">input_stream</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span> <span class="ow">is</span> <span class="n">InitialDataFormat</span><span class="o">.</span><span class="n">TSV</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_from_csv</span><span class="p">(</span><span class="n">input_stream</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported data type: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data_format</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-    <span class="c1"># if the name of the import column and of the output column collide: rename it.</span>
-    <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">input_csv_column_name</span> <span class="o">==</span> <span class="n">cfg</span><span class="o">.</span><span class="n">reaction_column_name</span><span class="p">:</span>
-        <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
-            <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">input_csv_column_name</span><span class="p">:</span> <span class="n">_final_column_name_for_original</span><span class="p">(</span><span class="n">cfg</span><span class="p">)},</span>
-            <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">_load_from_txt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_stream</span><span class="p">:</span> <span class="n">TextIO</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CsvIterator</span><span class="p">:</span>
+        <span class="c1"># We just get the iterator, and associate the final column name to it</span>
+        <span class="k">return</span> <span class="n">CsvIterator</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">rxn_column</span><span class="p">],</span>
+            <span class="n">rows</span><span class="o">=</span><span class="p">([</span><span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r\n</span><span class="s2">&quot;</span><span class="p">)]</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">input_stream</span><span class="p">),</span>
         <span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">df</span>
+    <span class="k">def</span> <span class="nf">_load_from_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_stream</span><span class="p">:</span> <span class="n">TextIO</span><span class="p">,</span> <span class="n">separator</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CsvIterator</span><span class="p">:</span>
+        <span class="n">csv_iterator</span> <span class="o">=</span> <span class="n">CsvIterator</span><span class="o">.</span><span class="n">from_stream</span><span class="p">(</span><span class="n">input_stream</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="n">separator</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_csv_column_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">csv_iterator</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">InvalidColumn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_csv_column_name</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">_load_initial</span><span class="p">(</span><span class="n">cfg</span><span class="p">:</span> <span class="n">RxnImportConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Load the initial dataframe.</span>
+        <span class="c1"># Rename the input column, if needed</span>
+        <span class="n">csv_iterator</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rxn_column</span> <span class="k">if</span> <span class="n">c</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_csv_column_name</span> <span class="k">else</span> <span class="n">c</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">csv_iterator</span><span class="o">.</span><span class="n">columns</span>
+        <span class="p">]</span>
 
-<span class="sd">    This functions (and the ones it calls) make sure to rename the column</span>
-<span class="sd">    containing the data if it would be overwritten when transforming. The</span>
-<span class="sd">    column with the data ends up with the name `_final_column_name_for_original`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">csv_iterator</span>
 
-    <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">data_format</span> <span class="ow">is</span> <span class="n">InitialDataFormat</span><span class="o">.</span><span class="n">TXT</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">_load_from_txt</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">data_format</span> <span class="ow">is</span> <span class="n">InitialDataFormat</span><span class="o">.</span><span class="n">CSV</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">_load_from_csv</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">data_format</span> <span class="ow">is</span> <span class="n">InitialDataFormat</span><span class="o">.</span><span class="n">TSV</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">_load_from_csv</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported data type: </span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">data_format</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_column_name_to_store_original_rxn</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Name of the column where the original data will end up.&quot;&quot;&quot;</span>
 
+        <span class="c1"># For txt: always with &quot;_original&quot; postfix</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span> <span class="ow">is</span> <span class="n">InitialDataFormat</span><span class="o">.</span><span class="n">TXT</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">rxn_column</span><span class="si">}</span><span class="s2">_original&quot;</span>
 
-<div class="viewcode-block" id="reformat_smiles"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.importer.reformat_smiles.html#rxn.reaction_preprocessing.importer.reformat_smiles">[docs]</a><span class="k">def</span> <span class="nf">reformat_smiles</span><span class="p">(</span>
-    <span class="n">reaction_smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fragment_bond</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Import a reaction SMILES in any format and convert it to an &quot;IBM&quot; RXN</span>
-<span class="sd">    SMILES with the specified fragment bond.</span>
+        <span class="c1"># For csv: only add &quot;_original&quot; postfix if the input and output columns are identical</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_csv_column_name</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">rxn_column</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">rxn_column</span><span class="si">}</span><span class="s2">_original&quot;</span>
 
-<span class="sd">    `None` is returned if the reaction SMILES is not valid.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_csv_column_name</span>
 
-    <span class="k">try</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_handle_original_rxn_column</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">csv_iterator</span><span class="p">:</span> <span class="n">CsvIterator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CsvIterator</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Make sure that the original reaction SMILES is kept (if required).&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">keep_original_rxn_column</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">csv_iterator</span>
+
+        <span class="c1"># To keep the original column: we apply a fake transformation that</span>
+        <span class="c1"># just adds the column</span>
+        <span class="k">def</span> <span class="nf">identity</span><span class="p">(</span><span class="n">v</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">v</span>
+
+        <span class="n">editor</span> <span class="o">=</span> <span class="n">StreamingCsvEditor</span><span class="p">(</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">rxn_column</span><span class="p">],</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_column_name_to_store_original_rxn</span><span class="p">()],</span> <span class="n">identity</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">editor</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">csv_iterator</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_parse_reaction_smiles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">csv_iterator</span><span class="p">:</span> <span class="n">CsvIterator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CsvIterator</span><span class="p">:</span>
+        <span class="n">editor</span> <span class="o">=</span> <span class="n">StreamingCsvEditor</span><span class="p">(</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">rxn_column</span><span class="p">],</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">rxn_column</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reformat_smiles</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">csv_iterator</span> <span class="o">=</span> <span class="n">editor</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">csv_iterator</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_remove_invalid</span><span class="p">(</span><span class="n">csv_iterator</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_reformat_smiles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reaction_smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Import a reaction SMILES in any format and convert it to an &quot;IBM&quot; RXN</span>
+<span class="sd">        SMILES with the specified fragment bond.</span>
+
+<span class="sd">        An empty string is returned if the reaction SMILES is not valid.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">reaction</span> <span class="o">=</span> <span class="n">parse_any_reaction_smiles</span><span class="p">(</span><span class="n">reaction_smiles</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">reaction</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fragment_bond</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid reaction: </span><span class="si">{</span><span class="n">reaction_smiles</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_remove_invalid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">csv_iterator</span><span class="p">:</span> <span class="n">CsvIterator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CsvIterator</span><span class="p">:</span>
+        <span class="n">rxn_idx</span> <span class="o">=</span> <span class="n">csv_iterator</span><span class="o">.</span><span class="n">column_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rxn_column</span><span class="p">)</span>
+
+        <span class="c1"># Filter out the ones that have an empty SMILES string (note: is empty</span>
+        <span class="c1"># if the import was unsuccessful).</span>
+        <span class="k">return</span> <span class="n">CsvIterator</span><span class="p">(</span>
+            <span class="n">csv_iterator</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="p">(</span><span class="n">row</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">csv_iterator</span><span class="o">.</span><span class="n">rows</span> <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="n">rxn_idx</span><span class="p">])</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_maybe_add_special_token</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">csv_iterator</span><span class="p">:</span> <span class="n">CsvIterator</span><span class="p">,</span>
+        <span class="n">add_special_token_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">ReactionEquation</span><span class="p">],</span> <span class="n">ReactionEquation</span><span class="p">],</span>
+        <span class="n">special_token_column</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CsvIterator</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Common function for adding light or heat tokens.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            csv_iterator: iterator where to update the reaction SMILES.</span>
+<span class="sd">            add_special_token_fn: function to call on a ReactionEquation to add the required token.</span>
+<span class="sd">            special_token_column: column to look at in order to know when to add the special tokens.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Do nothing if no column was specified for the special token</span>
+        <span class="k">if</span> <span class="n">special_token_column</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">csv_iterator</span>
+
+        <span class="k">if</span> <span class="n">special_token_column</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">csv_iterator</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">InvalidColumn</span><span class="p">(</span><span class="n">special_token_column</span><span class="p">)</span>
+
+        <span class="c1"># &quot;partial&quot; in order to make the function compatible with pandas.apply().</span>
+        <span class="k">def</span> <span class="nf">fn</span><span class="p">(</span><span class="n">reaction_smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">special_token</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_token</span><span class="p">(</span><span class="n">reaction_smiles</span><span class="p">,</span> <span class="n">special_token</span><span class="p">,</span> <span class="n">add_special_token_fn</span><span class="p">)</span>
+
+        <span class="n">editor</span> <span class="o">=</span> <span class="n">StreamingCsvEditor</span><span class="p">(</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">rxn_column</span><span class="p">,</span> <span class="n">special_token_column</span><span class="p">],</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">rxn_column</span><span class="p">],</span>
+            <span class="n">fn</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">editor</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">csv_iterator</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_maybe_add_heat_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">csv_iterator</span><span class="p">:</span> <span class="n">CsvIterator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CsvIterator</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add the heat token to the precursors of the reaction SMILES when necessary.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_maybe_add_special_token</span><span class="p">(</span>
+            <span class="n">csv_iterator</span><span class="p">,</span>
+            <span class="n">add_special_token_fn</span><span class="o">=</span><span class="n">add_heat_token</span><span class="p">,</span>
+            <span class="n">special_token_column</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">column_for_heat</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_maybe_add_light_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">csv_iterator</span><span class="p">:</span> <span class="n">CsvIterator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CsvIterator</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add the light token to the precursors of the reaction SMILES when necessary.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_maybe_add_special_token</span><span class="p">(</span>
+            <span class="n">csv_iterator</span><span class="p">,</span>
+            <span class="n">add_special_token_fn</span><span class="o">=</span><span class="n">add_light_token</span><span class="p">,</span>
+            <span class="n">special_token_column</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">column_for_light</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_maybe_remove_atom_mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">csv_iterator</span><span class="p">:</span> <span class="n">CsvIterator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CsvIterator</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove the atom mapping if required by the config.</span>
+
+<span class="sd">        NB: This will not clean up the SMILES, i.e. &quot;[CH3:1][CH3:2]&quot; is converted</span>
+<span class="sd">        to &quot;[CH3][CH3]&quot; and not to &quot;CC&quot;. The standardization step will do that.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">remove_atom_maps</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">csv_iterator</span>
+
+        <span class="n">editor</span> <span class="o">=</span> <span class="n">StreamingCsvEditor</span><span class="p">(</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">rxn_column</span><span class="p">],</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">rxn_column</span><span class="p">],</span>
+            <span class="n">remove_atom_mapping</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">editor</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">csv_iterator</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_add_token</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">reaction_smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">special_token</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">add_special_token_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">ReactionEquation</span><span class="p">],</span> <span class="n">ReactionEquation</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Function to use with StreamingCsvEditor to update the reaction SMILES.&quot;&quot;&quot;</span>
+
+        <span class="n">special_flag_active</span> <span class="o">=</span> <span class="n">_str2bool</span><span class="p">(</span><span class="n">special_token</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">special_flag_active</span><span class="p">:</span>
+            <span class="c1"># do nothing if the reaction is not run under light / heat / etc.</span>
+            <span class="k">return</span> <span class="n">reaction_smiles</span>
+
         <span class="n">reaction</span> <span class="o">=</span> <span class="n">parse_any_reaction_smiles</span><span class="p">(</span><span class="n">reaction_smiles</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">reaction</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">fragment_bond</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid reaction: </span><span class="si">{</span><span class="n">reaction_smiles</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="kc">None</span></div>
+        <span class="n">reaction</span> <span class="o">=</span> <span class="n">add_special_token_fn</span><span class="p">(</span><span class="n">reaction</span><span class="p">)</span>
 
-
-<span class="k">def</span> <span class="nf">_add_token</span><span class="p">(</span>
-    <span class="n">row</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
-    <span class="n">add_special_token_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">ReactionEquation</span><span class="p">],</span> <span class="n">ReactionEquation</span><span class="p">],</span>
-    <span class="n">column_to_check</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">cfg</span><span class="p">:</span> <span class="n">RxnImportConfig</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Function to use in pandas.apply to update the reaction SMILES.&quot;&quot;&quot;</span>
-
-    <span class="n">reaction_smiles</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="n">cfg</span><span class="o">.</span><span class="n">reaction_column_name</span><span class="p">]</span>
-    <span class="n">special_flag_active</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="n">column_to_check</span><span class="p">]</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">special_flag_active</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">InvalidType</span><span class="p">(</span>
-            <span class="n">column_name</span><span class="o">=</span><span class="n">column_to_check</span><span class="p">,</span>
-            <span class="n">expected_type</span><span class="o">=</span><span class="s2">&quot;bool&quot;</span><span class="p">,</span>
-            <span class="n">actual_type</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">special_flag_active</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">),</span>
-        <span class="p">)</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">special_flag_active</span><span class="p">:</span>
-        <span class="c1"># do nothing if the reaction is not run under light / heat / etc.</span>
-        <span class="k">return</span> <span class="n">reaction_smiles</span>
-
-    <span class="n">reaction</span> <span class="o">=</span> <span class="n">parse_any_reaction_smiles</span><span class="p">(</span><span class="n">reaction_smiles</span><span class="p">)</span>
-    <span class="n">reaction</span> <span class="o">=</span> <span class="n">add_special_token_fn</span><span class="p">(</span><span class="n">reaction</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">reaction</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">fragment_bond</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">_maybe_add_special_token</span><span class="p">(</span>
-    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
-    <span class="n">cfg</span><span class="p">:</span> <span class="n">RxnImportConfig</span><span class="p">,</span>
-    <span class="n">add_special_token_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">ReactionEquation</span><span class="p">],</span> <span class="n">ReactionEquation</span><span class="p">],</span>
-    <span class="n">special_token_column</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Common function for adding light or heat tokens.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        df: DataFrame where to update the reaction SMILES.</span>
-<span class="sd">        cfg: config.</span>
-<span class="sd">        add_special_token_fn: function to call on a ReactionEquation to add the required token.</span>
-<span class="sd">        special_token_column: column to look at in order to know when to add the special tokens.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="c1"># Do nothing if no column was specified for the special token</span>
-    <span class="k">if</span> <span class="n">special_token_column</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span>
-
-    <span class="k">if</span> <span class="n">special_token_column</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">InvalidColumn</span><span class="p">(</span><span class="n">special_token_column</span><span class="p">,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">input_file</span><span class="p">)</span>
-
-    <span class="c1"># &quot;partial&quot; in order to make the function compatible with pandas.apply().</span>
-    <span class="n">fn</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span>
-        <span class="n">_add_token</span><span class="p">,</span>
-        <span class="n">add_special_token_fn</span><span class="o">=</span><span class="n">add_special_token_fn</span><span class="p">,</span>
-        <span class="n">column_to_check</span><span class="o">=</span><span class="n">special_token_column</span><span class="p">,</span>
-        <span class="n">cfg</span><span class="o">=</span><span class="n">cfg</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">df</span><span class="p">[</span><span class="n">cfg</span><span class="o">.</span><span class="n">reaction_column_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">_maybe_add_heat_token</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">RxnImportConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add the heat token to the precursors of the reaction SMILES when necessary.&quot;&quot;&quot;</span>
-
-    <span class="n">_maybe_add_special_token</span><span class="p">(</span>
-        <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
-        <span class="n">cfg</span><span class="o">=</span><span class="n">cfg</span><span class="p">,</span>
-        <span class="n">add_special_token_fn</span><span class="o">=</span><span class="n">add_heat_token</span><span class="p">,</span>
-        <span class="n">special_token_column</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">column_for_heat</span><span class="p">,</span>
-    <span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">_maybe_add_light_token</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">RxnImportConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add the light token to the precursors of the reaction SMILES when necessary.&quot;&quot;&quot;</span>
-
-    <span class="n">_maybe_add_special_token</span><span class="p">(</span>
-        <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
-        <span class="n">cfg</span><span class="o">=</span><span class="n">cfg</span><span class="p">,</span>
-        <span class="n">add_special_token_fn</span><span class="o">=</span><span class="n">add_light_token</span><span class="p">,</span>
-        <span class="n">special_token_column</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">column_for_light</span><span class="p">,</span>
-    <span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">_maybe_remove_atom_mapping</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">RxnImportConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove the atom mapping if required by the config.</span>
-
-<span class="sd">    NB: This will not clean up the SMILES, i.e. &quot;[CH3:1][CH3:2]&quot; is converted</span>
-<span class="sd">    to &quot;[CH3][CH3]&quot; and not to &quot;CC&quot;. The standardization step will do that.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">cfg</span><span class="o">.</span><span class="n">remove_atom_mapping</span><span class="p">:</span>
-        <span class="k">return</span>
-
-    <span class="n">df</span><span class="p">[</span><span class="n">cfg</span><span class="o">.</span><span class="n">reaction_column_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">cfg</span><span class="o">.</span><span class="n">reaction_column_name</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
-        <span class="n">remove_atom_mapping</span>
-    <span class="p">)</span>
+        <span class="k">return</span> <span class="n">reaction</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fragment_bond</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="rxn_import"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.importer.rxn_import.html#rxn.reaction_preprocessing.importer.rxn_import">[docs]</a><span class="k">def</span> <span class="nf">rxn_import</span><span class="p">(</span><span class="n">cfg</span><span class="p">:</span> <span class="n">RxnImportConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Initial import of reaction data, as a first step of the reaction preprocessing.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">importer</span> <span class="o">=</span> <span class="n">RxnImporter</span><span class="p">(</span>
+        <span class="n">data_format</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">data_format</span><span class="p">,</span>
+        <span class="n">input_csv_column_name</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">input_csv_column_name</span><span class="p">,</span>
+        <span class="n">reaction_column_name</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">reaction_column_name</span><span class="p">,</span>
+        <span class="n">fragment_bond</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">fragment_bond</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+        <span class="n">remove_atom_maps</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">remove_atom_mapping</span><span class="p">,</span>
+        <span class="n">column_for_light</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">column_for_light</span><span class="p">,</span>
+        <span class="n">column_for_heat</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">column_for_heat</span><span class="p">,</span>
+        <span class="n">keep_original_rxn_column</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">keep_original_rxn_column</span><span class="p">,</span>
+    <span class="p">)</span>
 
-    <span class="n">df</span> <span class="o">=</span> <span class="n">_load_initial</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
-
-    <span class="c1"># Define which columns are to keep when cfg.keep_intermediate_columns is False:</span>
-    <span class="c1"># The ones in the input file, except the one that is converted to the final rxn column</span>
-    <span class="n">raw_rxn_column</span> <span class="o">=</span> <span class="p">[</span><span class="n">cfg</span><span class="o">.</span><span class="n">input_csv_column_name</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">reaction_column_name</span><span class="si">}</span><span class="s2">_original&quot;</span><span class="p">]</span>
-    <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">keep_original_rxn_column</span><span class="p">:</span>
-        <span class="n">raw_rxn_column</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">columns_to_keep</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">raw_rxn_column</span><span class="p">]</span>
-    <span class="n">columns_to_keep</span> <span class="o">=</span> <span class="n">remove_duplicates</span><span class="p">(</span><span class="n">columns_to_keep</span> <span class="o">+</span> <span class="p">[</span><span class="n">cfg</span><span class="o">.</span><span class="n">reaction_column_name</span><span class="p">])</span>
-
-    <span class="c1"># Reformat the reaction SMILES</span>
-    <span class="n">fn</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">reformat_smiles</span><span class="p">,</span> <span class="n">fragment_bond</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">fragment_bond</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
-    <span class="n">df</span><span class="p">[</span><span class="n">cfg</span><span class="o">.</span><span class="n">reaction_column_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">_final_column_name_for_original</span><span class="p">(</span><span class="n">cfg</span><span class="p">)]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
-
-    <span class="c1"># Discard lines containing None (for unsuccessful reaction SMILES import)</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
-
-    <span class="c1"># Add special tokens when necessary</span>
-    <span class="n">_maybe_add_light_token</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
-    <span class="n">_maybe_add_heat_token</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
-
-    <span class="c1"># Remove atom mapping if necessary</span>
-    <span class="n">_maybe_remove_atom_mapping</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">cfg</span><span class="o">.</span><span class="n">keep_intermediate_columns</span><span class="p">:</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">columns_to_keep</span><span class="p">]</span>
-
-    <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">output_csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+    <span class="n">importer</span><span class="o">.</span><span class="n">import_rxns</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">input_file</span><span class="p">,</span> <span class="n">output_csv</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">output_csv</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

@@ -26,6 +26,7 @@ rxn.reaction\_preprocessing.standardizer
       :toctree:
       :template: custom-class-template.rst
    
+      StandardizationOutput
       Standardizer
    
    

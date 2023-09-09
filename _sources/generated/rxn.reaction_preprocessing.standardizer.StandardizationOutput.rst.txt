@@ -1,0 +1,37 @@
+rxn.reaction\_preprocessing.standardizer.StandardizationOutput
+==============================================================
+
+.. currentmodule:: rxn.reaction_preprocessing.standardizer
+
+.. autoclass:: StandardizationOutput
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~StandardizationOutput.__init__
+      ~StandardizationOutput.keys
+      ~StandardizationOutput.values
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~StandardizationOutput.standardized_rxn_smiles
+      ~StandardizationOutput.original_rxn_smiles
+      ~StandardizationOutput.invalid_smiles
+      ~StandardizationOutput.rejected_smiles
+      ~StandardizationOutput.missing_annotations
+   
+   

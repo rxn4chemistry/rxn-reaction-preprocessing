@@ -17,12 +17,7 @@ rxn.reaction\_preprocessing.preprocessor.Preprocessor
    .. autosummary::
    
       ~Preprocessor.__init__
-      ~Preprocessor.filter
-      ~Preprocessor.print_stats
-      ~Preprocessor.reaction_standardization
-      ~Preprocessor.read_csv
-      ~Preprocessor.remove_duplicates
-      ~Preprocessor.remove_invalids
+      ~Preprocessor.process
    
    
 

@@ -1,6 +1,0 @@
-rxn.reaction\_preprocessing.importer.InvalidType
-================================================
-
-.. currentmodule:: rxn.reaction_preprocessing.importer
-
-.. autoexception:: InvalidType

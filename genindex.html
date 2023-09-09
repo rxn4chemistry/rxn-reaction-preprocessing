@@ -75,6 +75,7 @@
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#I"><strong>I</strong></a>
+ | <a href="#K"><strong>K</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#O"><strong>O</strong></a>
@@ -134,6 +135,8 @@
 </li>
         <li><a href="generated/rxn.reaction_preprocessing.config.TokenizeConfig.html#rxn.reaction_preprocessing.config.TokenizeConfig.__init__">(rxn.reaction_preprocessing.config.TokenizeConfig method)</a>
 </li>
+        <li><a href="generated/rxn.reaction_preprocessing.importer.RxnImporter.html#rxn.reaction_preprocessing.importer.RxnImporter.__init__">(rxn.reaction_preprocessing.importer.RxnImporter method)</a>
+</li>
         <li><a href="generated/rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.html#rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.__init__">(rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter method)</a>
 </li>
         <li><a href="generated/rxn.reaction_preprocessing.molecule_standardizer.MoleculeStandardizer.html#rxn.reaction_preprocessing.molecule_standardizer.MoleculeStandardizer.__init__">(rxn.reaction_preprocessing.molecule_standardizer.MoleculeStandardizer method)</a>
@@ -149,6 +152,8 @@
         <li><a href="generated/rxn.reaction_preprocessing.stable_data_splitter.StableDataSplitter.html#rxn.reaction_preprocessing.stable_data_splitter.StableDataSplitter.__init__">(rxn.reaction_preprocessing.stable_data_splitter.StableDataSplitter method)</a>
 </li>
         <li><a href="generated/rxn.reaction_preprocessing.stable_data_splitter.StableSplitter.html#rxn.reaction_preprocessing.stable_data_splitter.StableSplitter.__init__">(rxn.reaction_preprocessing.stable_data_splitter.StableSplitter method)</a>
+</li>
+        <li><a href="generated/rxn.reaction_preprocessing.standardizer.StandardizationOutput.html#rxn.reaction_preprocessing.standardizer.StandardizationOutput.__init__">(rxn.reaction_preprocessing.standardizer.StandardizationOutput method)</a>
 </li>
         <li><a href="generated/rxn.reaction_preprocessing.standardizer.Standardizer.html#rxn.reaction_preprocessing.standardizer.Standardizer.__init__">(rxn.reaction_preprocessing.standardizer.Standardizer method)</a>
 </li>
@@ -243,8 +248,6 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="generated/rxn.reaction_preprocessing.preprocessor.Preprocessor.html#rxn.reaction_preprocessing.preprocessor.Preprocessor.filter">filter() (rxn.reaction_preprocessing.preprocessor.Preprocessor method)</a>
-</li>
       <li><a href="generated/rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.html#rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.formal_charge_exceeded">formal_charge_exceeded() (rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter method)</a>
 </li>
       <li><a href="generated/rxn.reaction_preprocessing.config.FragmentBond.html#rxn.reaction_preprocessing.config.FragmentBond">FragmentBond (class in rxn.reaction_preprocessing.config)</a>
@@ -277,6 +280,8 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/rxn.reaction_preprocessing.importer.RxnImporter.html#rxn.reaction_preprocessing.importer.RxnImporter.import_rxns">import_rxns() (rxn.reaction_preprocessing.importer.RxnImporter method)</a>
+</li>
       <li><a href="generated/rxn.reaction_preprocessing.config.InitialDataFormat.html#rxn.reaction_preprocessing.config.InitialDataFormat">InitialDataFormat (class in rxn.reaction_preprocessing.config)</a>
 </li>
       <li><a href="generated/rxn.reaction_preprocessing.config.InputOutputTuple.html#rxn.reaction_preprocessing.config.InputOutputTuple">InputOutputTuple (class in rxn.reaction_preprocessing.config)</a>
@@ -286,8 +291,6 @@
       <li><a href="generated/rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.html#rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.invalid_atom_type">invalid_atom_type() (rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter method)</a>
 </li>
       <li><a href="generated/rxn.reaction_preprocessing.importer.InvalidColumn.html#rxn.reaction_preprocessing.importer.InvalidColumn">InvalidColumn</a>
-</li>
-      <li><a href="generated/rxn.reaction_preprocessing.importer.InvalidType.html#rxn.reaction_preprocessing.importer.InvalidType">InvalidType</a>
 </li>
       <li><a href="generated/rxn.reaction_preprocessing.annotations.annotation_info.AnnotationInfo.html#rxn.reaction_preprocessing.annotations.annotation_info.AnnotationInfo.is_accepted">is_accepted() (rxn.reaction_preprocessing.annotations.annotation_info.AnnotationInfo method)</a>
 </li>
@@ -306,6 +309,14 @@
       <li><a href="generated/rxn.reaction_preprocessing.annotations.rejected_molecules_filter.RejectedMoleculesFilter.html#rxn.reaction_preprocessing.annotations.rejected_molecules_filter.RejectedMoleculesFilter.is_valid_reaction_smiles">is_valid_reaction_smiles() (rxn.reaction_preprocessing.annotations.rejected_molecules_filter.RejectedMoleculesFilter method)</a>
 </li>
       <li><a href="generated/rxn.reaction_preprocessing.scripts.annotation_check.iterate_rxn_smiles.html#rxn.reaction_preprocessing.scripts.annotation_check.iterate_rxn_smiles">iterate_rxn_smiles() (in module rxn.reaction_preprocessing.scripts.annotation_check)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="K">K</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/rxn.reaction_preprocessing.standardizer.StandardizationOutput.html#rxn.reaction_preprocessing.standardizer.StandardizationOutput.keys">keys() (rxn.reaction_preprocessing.standardizer.StandardizationOutput static method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -460,15 +471,11 @@
 </li>
       <li><a href="generated/rxn.reaction_preprocessing.main.preprocess_data.html#rxn.reaction_preprocessing.main.preprocess_data">preprocess_data() (in module rxn.reaction_preprocessing.main)</a>
 </li>
-      <li><a href="generated/rxn.reaction_preprocessing.config.PreprocessConfig.html#rxn.reaction_preprocessing.config.PreprocessConfig">PreprocessConfig (class in rxn.reaction_preprocessing.config)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/rxn.reaction_preprocessing.config.PreprocessConfig.html#rxn.reaction_preprocessing.config.PreprocessConfig">PreprocessConfig (class in rxn.reaction_preprocessing.config)</a>
+</li>
       <li><a href="generated/rxn.reaction_preprocessing.preprocessor.Preprocessor.html#rxn.reaction_preprocessing.preprocessor.Preprocessor">Preprocessor (class in rxn.reaction_preprocessing.preprocessor)</a>
-</li>
-      <li><a href="generated/rxn.reaction_preprocessing.preprocessor.Preprocessor.html#rxn.reaction_preprocessing.preprocessor.Preprocessor.print_stats">print_stats() (rxn.reaction_preprocessing.preprocessor.Preprocessor method)</a>
-</li>
-      <li><a href="generated/rxn.reaction_preprocessing.standardizer.Standardizer.html#rxn.reaction_preprocessing.standardizer.Standardizer.process_row">process_row() (rxn.reaction_preprocessing.standardizer.Standardizer method)</a>
 </li>
       <li><a href="generated/rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.html#rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.products_single_atoms">products_single_atoms() (rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter method)</a>
 </li>
@@ -482,8 +489,6 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/rxn.reaction_preprocessing.utils.RandomType.html#rxn.reaction_preprocessing.utils.RandomType">RandomType (class in rxn.reaction_preprocessing.utils)</a>
 </li>
-      <li><a href="generated/rxn.reaction_preprocessing.preprocessor.Preprocessor.html#rxn.reaction_preprocessing.preprocessor.Preprocessor.reaction_standardization">reaction_standardization() (rxn.reaction_preprocessing.preprocessor.Preprocessor method)</a>
-</li>
       <li><a href="generated/rxn.reaction_preprocessing.mixed_reaction_filter.ReactionFilterError.html#rxn.reaction_preprocessing.mixed_reaction_filter.ReactionFilterError">ReactionFilterError</a>
 </li>
       <li><a href="generated/rxn.reaction_preprocessing.utils.ReactionSection.html#rxn.reaction_preprocessing.utils.ReactionSection">ReactionSection (class in rxn.reaction_preprocessing.utils)</a>
@@ -491,22 +496,10 @@
       <li><a href="generated/rxn.reaction_preprocessing.reaction_standardizer.ReactionStandardizer.html#rxn.reaction_preprocessing.reaction_standardizer.ReactionStandardizer">ReactionStandardizer (class in rxn.reaction_preprocessing.reaction_standardizer)</a>
 </li>
       <li><a href="generated/rxn.reaction_preprocessing.augmenter.Augmenter.html#rxn.reaction_preprocessing.augmenter.Augmenter.read_csv">read_csv() (rxn.reaction_preprocessing.augmenter.Augmenter static method)</a>
-
-      <ul>
-        <li><a href="generated/rxn.reaction_preprocessing.preprocessor.Preprocessor.html#rxn.reaction_preprocessing.preprocessor.Preprocessor.read_csv">(rxn.reaction_preprocessing.preprocessor.Preprocessor static method)</a>
-</li>
-        <li><a href="generated/rxn.reaction_preprocessing.standardizer.Standardizer.html#rxn.reaction_preprocessing.standardizer.Standardizer.read_csv">(rxn.reaction_preprocessing.standardizer.Standardizer static method)</a>
-</li>
-      </ul></li>
-      <li><a href="generated/rxn.reaction_preprocessing.importer.reformat_smiles.html#rxn.reaction_preprocessing.importer.reformat_smiles">reformat_smiles() (in module rxn.reaction_preprocessing.importer)</a>
 </li>
       <li><a href="generated/rxn.reaction_preprocessing.molecule_standardizer.RejectedMolecule.html#rxn.reaction_preprocessing.molecule_standardizer.RejectedMolecule">RejectedMolecule</a>
 </li>
       <li><a href="generated/rxn.reaction_preprocessing.annotations.rejected_molecules_filter.RejectedMoleculesFilter.html#rxn.reaction_preprocessing.annotations.rejected_molecules_filter.RejectedMoleculesFilter">RejectedMoleculesFilter (class in rxn.reaction_preprocessing.annotations.rejected_molecules_filter)</a>
-</li>
-      <li><a href="generated/rxn.reaction_preprocessing.preprocessor.Preprocessor.html#rxn.reaction_preprocessing.preprocessor.Preprocessor.remove_duplicates">remove_duplicates() (rxn.reaction_preprocessing.preprocessor.Preprocessor method)</a>
-</li>
-      <li><a href="generated/rxn.reaction_preprocessing.preprocessor.Preprocessor.html#rxn.reaction_preprocessing.preprocessor.Preprocessor.remove_invalids">remove_invalids() (rxn.reaction_preprocessing.preprocessor.Preprocessor method)</a>
 </li>
       <li><a href="generated/rxn.reaction_preprocessing.cleaner.remove_isotope_information.html#rxn.reaction_preprocessing.cleaner.remove_isotope_information">remove_isotope_information() (in module rxn.reaction_preprocessing.cleaner)</a>
 </li>
@@ -592,8 +585,6 @@
         <li><a href="generated/rxn.reaction_preprocessing.cleaner.html#module-rxn.reaction_preprocessing.cleaner">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     rxn.reaction_preprocessing.config
 
@@ -608,6 +599,8 @@
         <li><a href="generated/rxn.reaction_preprocessing.importer.html#module-rxn.reaction_preprocessing.importer">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     rxn.reaction_preprocessing.main
 
@@ -724,6 +717,8 @@
 </li>
       <li><a href="generated/rxn.reaction_preprocessing.config.RxnImportConfig.html#rxn.reaction_preprocessing.config.RxnImportConfig">RxnImportConfig (class in rxn.reaction_preprocessing.config)</a>
 </li>
+      <li><a href="generated/rxn.reaction_preprocessing.importer.RxnImporter.html#rxn.reaction_preprocessing.importer.RxnImporter">RxnImporter (class in rxn.reaction_preprocessing.importer)</a>
+</li>
       <li><a href="generated/rxn.reaction_preprocessing.importer.RxnImportError.html#rxn.reaction_preprocessing.importer.RxnImportError">RxnImportError</a>
 </li>
   </ul></td>
@@ -735,11 +730,9 @@
       <li><a href="generated/rxn.reaction_preprocessing.smiles_tokenizer.SmilesTokenizer.html#rxn.reaction_preprocessing.smiles_tokenizer.SmilesTokenizer">SmilesTokenizer (class in rxn.reaction_preprocessing.smiles_tokenizer)</a>
 </li>
       <li><a href="generated/rxn.reaction_preprocessing.stable_data_splitter.split.html#rxn.reaction_preprocessing.stable_data_splitter.split">split() (in module rxn.reaction_preprocessing.stable_data_splitter)</a>
-
-      <ul>
-        <li><a href="generated/rxn.reaction_preprocessing.stable_data_splitter.StableDataSplitter.html#rxn.reaction_preprocessing.stable_data_splitter.StableDataSplitter.split">(rxn.reaction_preprocessing.stable_data_splitter.StableDataSplitter static method)</a>
 </li>
-      </ul></li>
+      <li><a href="generated/rxn.reaction_preprocessing.stable_data_splitter.StableDataSplitter.html#rxn.reaction_preprocessing.stable_data_splitter.StableDataSplitter.split_file">split_file() (rxn.reaction_preprocessing.stable_data_splitter.StableDataSplitter method)</a>
+</li>
       <li><a href="generated/rxn.reaction_preprocessing.config.SplitConfig.html#rxn.reaction_preprocessing.config.SplitConfig">SplitConfig (class in rxn.reaction_preprocessing.config)</a>
 </li>
       <li><a href="generated/rxn.reaction_preprocessing.stable_data_splitter.StableDataSplitter.html#rxn.reaction_preprocessing.stable_data_splitter.StableDataSplitter">StableDataSplitter (class in rxn.reaction_preprocessing.stable_data_splitter)</a>
@@ -747,6 +740,8 @@
       <li><a href="generated/rxn.reaction_preprocessing.stable_data_splitter.StableSplitter.html#rxn.reaction_preprocessing.stable_data_splitter.StableSplitter">StableSplitter (class in rxn.reaction_preprocessing.stable_data_splitter)</a>
 </li>
       <li><a href="generated/rxn.reaction_preprocessing.utils.standardization_files_directory.html#rxn.reaction_preprocessing.utils.standardization_files_directory">standardization_files_directory() (in module rxn.reaction_preprocessing.utils)</a>
+</li>
+      <li><a href="generated/rxn.reaction_preprocessing.standardizer.StandardizationOutput.html#rxn.reaction_preprocessing.standardizer.StandardizationOutput">StandardizationOutput (class in rxn.reaction_preprocessing.standardizer)</a>
 </li>
       <li><a href="generated/rxn.reaction_preprocessing.standardizer.standardize.html#rxn.reaction_preprocessing.standardizer.standardize">standardize() (in module rxn.reaction_preprocessing.standardizer)</a>
 
@@ -756,8 +751,6 @@
         <li><a href="generated/rxn.reaction_preprocessing.pistachio_record_standardizer.PistachioRecordStandardizer.html#rxn.reaction_preprocessing.pistachio_record_standardizer.PistachioRecordStandardizer.standardize">(rxn.reaction_preprocessing.pistachio_record_standardizer.PistachioRecordStandardizer method)</a>
 </li>
         <li><a href="generated/rxn.reaction_preprocessing.reaction_standardizer.ReactionStandardizer.html#rxn.reaction_preprocessing.reaction_standardizer.ReactionStandardizer.standardize">(rxn.reaction_preprocessing.reaction_standardizer.ReactionStandardizer method)</a>
-</li>
-        <li><a href="generated/rxn.reaction_preprocessing.standardizer.Standardizer.html#rxn.reaction_preprocessing.standardizer.Standardizer.standardize">(rxn.reaction_preprocessing.standardizer.Standardizer method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -809,6 +802,10 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.html#rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter.validate">validate() (rxn.reaction_preprocessing.mixed_reaction_filter.MixedReactionFilter method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/rxn.reaction_preprocessing.standardizer.StandardizationOutput.html#rxn.reaction_preprocessing.standardizer.StandardizationOutput.values">values() (rxn.reaction_preprocessing.standardizer.StandardizationOutput method)</a>
 </li>
   </ul></td>
 </tr></table>

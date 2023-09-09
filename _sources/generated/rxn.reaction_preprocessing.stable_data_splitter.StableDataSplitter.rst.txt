@@ -17,7 +17,7 @@ rxn.reaction\_preprocessing.stable\_data\_splitter.StableDataSplitter
    .. autosummary::
    
       ~StableDataSplitter.__init__
-      ~StableDataSplitter.split
+      ~StableDataSplitter.split_file
    
    
 

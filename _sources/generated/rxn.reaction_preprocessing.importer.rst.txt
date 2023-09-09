@@ -14,12 +14,19 @@ rxn.reaction\_preprocessing.importer
    .. autosummary::
       :toctree:
    
-      reformat_smiles
       rxn_import
    
    
 
    
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      RxnImporter
    
    
 
@@ -31,7 +38,6 @@ rxn.reaction\_preprocessing.importer
       :toctree:
    
       InvalidColumn
-      InvalidType
       RxnImportError
    
    

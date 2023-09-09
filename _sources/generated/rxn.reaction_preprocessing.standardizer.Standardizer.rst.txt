@@ -17,9 +17,10 @@ rxn.reaction\_preprocessing.standardizer.Standardizer
    .. autosummary::
    
       ~Standardizer.__init__
-      ~Standardizer.process_row
-      ~Standardizer.read_csv
       ~Standardizer.standardize
+      ~Standardizer.standardize_big
+      ~Standardizer.standardize_one
+      ~Standardizer.standardize_small
    
    
 

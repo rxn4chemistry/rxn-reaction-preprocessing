@@ -70,17 +70,18 @@
 <span class="c1"># (C) Copyright IBM Corp. 2022</span>
 <span class="c1"># ALL RIGHTS RESERVED</span>
 <span class="sd">&quot;&quot;&quot; The preprocessor class abstracts the workflow for preprocessing reaction data sets. &quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">collections</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">typing</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Counter</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">rdkit</span> <span class="kn">import</span> <span class="n">RDLogger</span>
+<span class="kn">import</span> <span class="nn">attr</span>
+<span class="kn">from</span> <span class="nn">attr</span> <span class="kn">import</span> <span class="n">define</span>
 <span class="kn">from</span> <span class="nn">rxn.chemutils.reaction_equation</span> <span class="kn">import</span> <span class="n">ReactionEquation</span>
 <span class="kn">from</span> <span class="nn">rxn.chemutils.reaction_smiles</span> <span class="kn">import</span> <span class="n">parse_any_reaction_smiles</span>
+<span class="kn">from</span> <span class="nn">rxn.utilities.containers</span> <span class="kn">import</span> <span class="n">iterate_unique_values</span>
+<span class="kn">from</span> <span class="nn">rxn.utilities.csv</span> <span class="kn">import</span> <span class="n">CsvIterator</span><span class="p">,</span> <span class="n">StreamingCsvEditor</span>
+<span class="kn">from</span> <span class="nn">rxn.utilities.files</span> <span class="kn">import</span> <span class="n">PathLike</span>
 <span class="kn">from</span> <span class="nn">tabulate</span> <span class="kn">import</span> <span class="n">tabulate</span>
 
 <span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">PreprocessConfig</span>
@@ -91,262 +92,177 @@
 <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
 
 
+<span class="nd">@define</span>
+<span class="k">class</span> <span class="nc">_Stats</span><span class="p">:</span>
+    <span class="n">initial_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">first_dedup_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">second_dedup_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">final_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">error_counter</span><span class="p">:</span> <span class="n">Counter</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">Factory</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">Counter</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="Preprocessor"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.preprocessor.Preprocessor.html#rxn.reaction_preprocessing.preprocessor.Preprocessor">[docs]</a><span class="k">class</span> <span class="nc">Preprocessor</span><span class="p">:</span>
 <div class="viewcode-block" id="Preprocessor.__init__"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.preprocessor.Preprocessor.html#rxn.reaction_preprocessing.preprocessor.Preprocessor.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">mixed_reaction_filter</span><span class="p">:</span> <span class="n">MixedReactionFilter</span><span class="p">,</span>
         <span class="n">reaction_column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">valid_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;_rxn_valid&quot;</span><span class="p">,</span>
-        <span class="n">valid_message_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;_rxn_valid_messages&quot;</span><span class="p">,</span>
         <span class="n">fragment_bond</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="p">,</span>
-        <span class="n">clean_data</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a new instance of the Preprocessor class.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            df: A pandas DataFrame containing the reaction SMARTS.</span>
-<span class="sd">            reaction_column_name: The name of the DataFrame column containing the reaction SMARTS.</span>
-<span class="sd">            valid_column: The name of the column to write the validation results to</span>
-<span class="sd">                (will be created if it doesn&#39;t exist). Defaults to &quot;_rxn_valid&quot;.</span>
-<span class="sd">            valid_message_column: The name of the column to write the validation</span>
-<span class="sd">                messages to in verbose mode (will be created if it doesn&#39;t</span>
-<span class="sd">                exist). Defaults to &quot;_rxn_valid_messages&quot;.</span>
-<span class="sd">            fragment_bond: The token that represents fragment bonds in the reaction SMILES.</span>
-<span class="sd">            clean_data: Whether to run a simple pre-cleaning of the input data</span>
-<span class="sd">                (naive check for valid SMARTS reactions based on the number of</span>
-<span class="sd">                greater-thans in the string). Defaults to True.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">df</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">reaction_standardizer</span> <span class="o">=</span> <span class="n">ReactionStandardizer</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__reaction_column_name</span> <span class="o">=</span> <span class="n">reaction_column_name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__valid_column</span> <span class="o">=</span> <span class="n">valid_column</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__valid_message_column</span> <span class="o">=</span> <span class="n">valid_message_column</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__fragment_bond</span> <span class="o">=</span> <span class="n">fragment_bond</span>
-
-        <span class="k">if</span> <span class="n">clean_data</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__clean_data</span><span class="p">()</span></div>
-
-    <span class="c1">#</span>
-    <span class="c1"># Private Methods</span>
-    <span class="c1">#</span>
-    <span class="k">def</span> <span class="nf">__clean_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Drops records from the internal pandas DataFrame that do not contain valid reaction</span>
-<span class="sd">        SMARTS (WARNING: Very naive, just checks for two greater-thans)&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__reaction_column_name</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;&gt;&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
-            <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">__filter_func</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">reaction_smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="nb">filter</span><span class="p">:</span> <span class="n">MixedReactionFilter</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The default filter function.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            reaction_smiles: An input reaction SMILES.</span>
-<span class="sd">            filter: An instance of MixedReactionFilter to test the reaction against.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            A boolean indicating whether or not the reaction is valid according</span>
-<span class="sd">            to the supplied parameters.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="n">reaction</span> <span class="o">=</span> <span class="n">ReactionEquation</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span>
-            <span class="n">reaction_smiles</span><span class="p">,</span> <span class="n">fragment_bond</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__fragment_bond</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="nb">filter</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="n">reaction</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">__filter_func_verbose</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">reaction_smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="nb">filter</span><span class="p">:</span> <span class="n">MixedReactionFilter</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The default verbose filter function.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            reaction_smiles: An input reaction SMILES.</span>
-<span class="sd">            filter: An instance of MixedReactionFilter to test the reaction against.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            A list of reasons for an invalid reaction. An empty list for a valid reaction.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">invalid_reasons</span> <span class="o">=</span> <span class="p">[]</span>
-
-        <span class="n">reaction</span> <span class="o">=</span> <span class="n">ReactionEquation</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span>
-            <span class="n">reaction_smiles</span><span class="p">,</span> <span class="n">fragment_bond</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__fragment_bond</span>
-        <span class="p">)</span>
-        <span class="n">_</span><span class="p">,</span> <span class="n">filter_reasons</span> <span class="o">=</span> <span class="nb">filter</span><span class="o">.</span><span class="n">validate_reasons</span><span class="p">(</span><span class="n">reaction</span><span class="p">)</span>
-        <span class="n">invalid_reasons</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">filter_reasons</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">invalid_reasons</span>
-
-    <span class="c1">#</span>
-    <span class="c1"># Public Methods</span>
-    <span class="c1">#</span>
-<div class="viewcode-block" id="Preprocessor.filter"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.preprocessor.Preprocessor.html#rxn.reaction_preprocessing.preprocessor.Preprocessor.filter">[docs]</a>    <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="nb">filter</span><span class="p">:</span> <span class="n">MixedReactionFilter</span><span class="p">,</span>
-        <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">filter_func</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MixedReactionFilter</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">filter_func_verbose</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span>
-            <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MixedReactionFilter</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Preprocessor&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Applies filter functions to the reaction. Alternatives for the default filter functions</span>
-<span class="sd">        can be supplied. The default filters remove reactions containing molecules that could not</span>
-<span class="sd">        be parse by rdkit&#39;s MolFromSmiles.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            filter: An instance of MixedReactionFilter to be applied to each reaction.</span>
-<span class="sd">            verbose: Whether or not to report the reasons for a reaction being</span>
-<span class="sd">                deemed invalid. Defaults to False.</span>
-<span class="sd">            filter_func: A custom filter function. Defaults to None.</span>
-<span class="sd">            filter_func_verbose: A custom verbose filter function. Defaults to None.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            Itself.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">filter_func</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">filter_func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__filter_func</span>
-
-        <span class="k">if</span> <span class="n">filter_func_verbose</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">filter_func_verbose</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__filter_func_verbose</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__valid_column</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__valid_column</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-
-        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__valid_message_column</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__valid_message_column</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span>
-                    <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
-                <span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__valid_message_column</span><span class="p">]</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
-                <span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="n">filter_func_verbose</span><span class="p">(</span>
-                    <span class="n">row</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__reaction_column_name</span><span class="p">],</span> <span class="nb">filter</span>
-                <span class="p">),</span>
-                <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-            <span class="p">)</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__valid_column</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
-                <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__valid_message_column</span><span class="p">],</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__valid_column</span><span class="p">],</span>
-            <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__valid_column</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
-                    <span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="n">filter_func</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__reaction_column_name</span><span class="p">],</span> <span class="nb">filter</span><span class="p">),</span>
-                    <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                <span class="p">),</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__valid_column</span><span class="p">],</span>
-            <span class="p">)</span>
-
-        <span class="k">return</span> <span class="bp">self</span></div>
-
-<div class="viewcode-block" id="Preprocessor.reaction_standardization"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.preprocessor.Preprocessor.html#rxn.reaction_preprocessing.preprocessor.Preprocessor.reaction_standardization">[docs]</a>    <span class="k">def</span> <span class="nf">reaction_standardization</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Reaction standardization, including merging of reactants and reactants,</span>
-<span class="sd">        removal of duplicates, sorting, etc.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            mixed_reaction_filter: mixed reaction filter.</span>
+<span class="sd">            reaction_column_name: The name of the DataFrame column containing the reaction SMARTS.</span>
+<span class="sd">            fragment_bond: The token that represents fragment bonds in the reaction SMILES.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reaction_standardizer</span> <span class="o">=</span> <span class="n">ReactionStandardizer</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mixed_reaction_filter</span> <span class="o">=</span> <span class="n">mixed_reaction_filter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rxn_column</span> <span class="o">=</span> <span class="n">reaction_column_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fragment_bond</span> <span class="o">=</span> <span class="n">fragment_bond</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stats</span> <span class="o">=</span> <span class="n">_Stats</span><span class="p">()</span></div>
 
-<span class="sd">        Note that this standardization relies on the molecules in the reaction</span>
-<span class="sd">        SMILES to be canonical - which is the case when this function is</span>
-<span class="sd">        called as part of the full data processing pipeline.</span>
+    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file_path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span> <span class="n">output_file_path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Reset the stats</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stats</span> <span class="o">=</span> <span class="n">_Stats</span><span class="p">()</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">input_file_path</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_in</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_file_path</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_out</span><span class="p">:</span>
+            <span class="n">csv_iterator</span> <span class="o">=</span> <span class="n">CsvIterator</span><span class="o">.</span><span class="n">from_stream</span><span class="p">(</span><span class="n">f_in</span><span class="p">)</span>
+            <span class="n">csv_iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_increment_initial_count</span><span class="p">(</span><span class="n">csv_iterator</span><span class="p">)</span>
+
+            <span class="c1"># first deduplication</span>
+            <span class="n">csv_iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_remove_duplicate_reactions</span><span class="p">(</span><span class="n">csv_iterator</span><span class="p">)</span>
+            <span class="n">csv_iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_increment_first_dedup_count</span><span class="p">(</span><span class="n">csv_iterator</span><span class="p">)</span>
+
+            <span class="c1"># reaction standardization</span>
+            <span class="n">rxn_standardization_editor</span> <span class="o">=</span> <span class="n">StreamingCsvEditor</span><span class="p">(</span>
+                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">rxn_column</span><span class="p">],</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">rxn_column</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_standardize_rxn_smiles</span>
+            <span class="p">)</span>
+            <span class="n">csv_iterator</span> <span class="o">=</span> <span class="n">rxn_standardization_editor</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">csv_iterator</span><span class="p">)</span>
+
+            <span class="c1"># second deduplication</span>
+            <span class="n">csv_iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_remove_duplicate_reactions</span><span class="p">(</span><span class="n">csv_iterator</span><span class="p">)</span>
+            <span class="n">csv_iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_increment_second_dedup_count</span><span class="p">(</span><span class="n">csv_iterator</span><span class="p">)</span>
+
+            <span class="c1"># filtering</span>
+            <span class="n">csv_iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate</span><span class="p">(</span><span class="n">csv_iterator</span><span class="o">=</span><span class="n">csv_iterator</span><span class="p">)</span>
+
+            <span class="n">csv_iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_increment_final_count</span><span class="p">(</span><span class="n">csv_iterator</span><span class="p">)</span>
+            <span class="n">csv_iterator</span><span class="o">.</span><span class="n">to_stream</span><span class="p">(</span><span class="n">f_out</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_print_stats</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_increment_initial_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">csv_iterator</span><span class="p">:</span> <span class="n">CsvIterator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CsvIterator</span><span class="p">:</span>
+        <span class="k">def</span> <span class="nf">fn</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">initial_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_for_each</span><span class="p">(</span><span class="n">csv_iterator</span><span class="p">,</span> <span class="n">fn</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_increment_first_dedup_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">csv_iterator</span><span class="p">:</span> <span class="n">CsvIterator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CsvIterator</span><span class="p">:</span>
+        <span class="k">def</span> <span class="nf">fn</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">first_dedup_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_for_each</span><span class="p">(</span><span class="n">csv_iterator</span><span class="p">,</span> <span class="n">fn</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_increment_second_dedup_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">csv_iterator</span><span class="p">:</span> <span class="n">CsvIterator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CsvIterator</span><span class="p">:</span>
+        <span class="k">def</span> <span class="nf">fn</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">second_dedup_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_for_each</span><span class="p">(</span><span class="n">csv_iterator</span><span class="p">,</span> <span class="n">fn</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_increment_final_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">csv_iterator</span><span class="p">:</span> <span class="n">CsvIterator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CsvIterator</span><span class="p">:</span>
+        <span class="k">def</span> <span class="nf">fn</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">final_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_for_each</span><span class="p">(</span><span class="n">csv_iterator</span><span class="p">,</span> <span class="n">fn</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_call_for_each</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">csv_iterator</span><span class="p">:</span> <span class="n">CsvIterator</span><span class="p">,</span> <span class="n">fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CsvIterator</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Allows to call a callback before accessing the CSV row.</span>
+
+<span class="sd">        Useful for counting, for instance.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">def</span> <span class="nf">standardize_smiles</span><span class="p">(</span><span class="n">rxn_smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Function standardizing the reaction SMILES directly,</span>
-<span class="sd">            to pass to pandas.apply().&quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="nf">iterate</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+            <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+                <span class="n">fn</span><span class="p">()</span>
+                <span class="k">yield</span> <span class="n">value</span>
+
+        <span class="k">return</span> <span class="n">CsvIterator</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="n">csv_iterator</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span>
+            <span class="n">rows</span><span class="o">=</span><span class="n">iterate</span><span class="p">(</span><span class="n">csv_iterator</span><span class="o">.</span><span class="n">rows</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_remove_duplicate_reactions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">csv_iterator</span><span class="p">:</span> <span class="n">CsvIterator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CsvIterator</span><span class="p">:</span>
+        <span class="n">rxn_idx</span> <span class="o">=</span> <span class="n">csv_iterator</span><span class="o">.</span><span class="n">column_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rxn_column</span><span class="p">)</span>
+
+        <span class="c1"># The key for determining what is a duplicate is the value from the rxn column</span>
+        <span class="k">def</span> <span class="nf">key</span><span class="p">(</span><span class="n">row</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">row</span><span class="p">[</span><span class="n">rxn_idx</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">CsvIterator</span><span class="p">(</span>
+            <span class="n">csv_iterator</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">iterate_unique_values</span><span class="p">(</span><span class="n">csv_iterator</span><span class="o">.</span><span class="n">rows</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_standardize_rxn_smiles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rxn_smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Standardizing the reaction SMILES.</span>
+
+<span class="sd">        If there is an error, returns &quot;&gt;&gt;&quot; instead.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
             <span class="n">reaction</span> <span class="o">=</span> <span class="n">parse_any_reaction_smiles</span><span class="p">(</span><span class="n">rxn_smiles</span><span class="p">)</span>
             <span class="n">reaction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reaction_standardizer</span><span class="p">(</span><span class="n">reaction</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">reaction</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__fragment_bond</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">reaction</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fragment_bond</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Cannot standardize reaction SMILES &quot;</span><span class="si">{</span><span class="n">rxn_smiles</span><span class="si">}</span><span class="s1">&quot;: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s2">&quot;&gt;&gt;&quot;</span>
 
-        <span class="n">rxn_column</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__reaction_column_name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">rxn_column</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">rxn_column</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">standardize_smiles</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="nf">_validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">csv_iterator</span><span class="p">:</span> <span class="n">CsvIterator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CsvIterator</span><span class="p">:</span>
+        <span class="n">rxn_idx</span> <span class="o">=</span> <span class="n">csv_iterator</span><span class="o">.</span><span class="n">column_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rxn_column</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Preprocessor.remove_duplicates"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.preprocessor.Preprocessor.html#rxn.reaction_preprocessing.preprocessor.Preprocessor.remove_duplicates">[docs]</a>    <span class="k">def</span> <span class="nf">remove_duplicates</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Preprocessor&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A wrapper around pandas&#39; drop_duplicates with the argument subset</span>
-<span class="sd">        set to the reaction column name.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            Itself.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__reaction_column_name</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span></div>
-
-<div class="viewcode-block" id="Preprocessor.remove_invalids"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.preprocessor.Preprocessor.html#rxn.reaction_preprocessing.preprocessor.Preprocessor.remove_invalids">[docs]</a>    <span class="k">def</span> <span class="nf">remove_invalids</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Preprocessor&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A wrapper around removing invalid options from pandas DataFrame.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            Itself.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__valid_column</span><span class="p">]</span> <span class="o">==</span> <span class="kc">False</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>  <span class="c1"># noqa: E712</span>
-            <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span></div>
-
-<div class="viewcode-block" id="Preprocessor.print_stats"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.preprocessor.Preprocessor.html#rxn.reaction_preprocessing.preprocessor.Preprocessor.print_stats">[docs]</a>    <span class="k">def</span> <span class="nf">print_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Preprocessor&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Prints statistics of the filtration to stdout.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            Itself.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">)</span><span class="si">}</span><span class="s2"> total reactions.&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__valid_column</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-            <span class="n">counts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__valid_column</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
-            <span class="k">if</span> <span class="kc">True</span> <span class="ow">in</span> <span class="n">counts</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- </span><span class="si">{</span><span class="n">counts</span><span class="p">[</span><span class="kc">True</span><span class="p">]</span><span class="si">}</span><span class="s2"> valid reactions.&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="kc">False</span> <span class="ow">in</span> <span class="n">counts</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- </span><span class="si">{</span><span class="n">counts</span><span class="p">[</span><span class="kc">False</span><span class="p">]</span><span class="si">}</span><span class="s2"> invalid reactions removed.&quot;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__valid_message_column</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-            <span class="n">reasons</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Counter</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
-            <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__valid_message_column</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="n">reasons</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">reasons</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">headers</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Reason&quot;</span><span class="p">,</span> <span class="s2">&quot;Number of Reactions&quot;</span><span class="p">]</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;- The </span><span class="si">{</span><span class="n">counts</span><span class="p">[</span><span class="kc">False</span><span class="p">]</span><span class="si">}</span><span class="s2"> reactions were removed for the following reasons:</span><span class="se">\n</span><span class="s2">&quot;</span>
-                    <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">tabulate</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">Counter</span><span class="p">(</span><span class="n">reasons</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()),</span><span class="w"> </span><span class="n">headers</span><span class="p">,</span><span class="w"> </span><span class="n">tablefmt</span><span class="o">=</span><span class="s2">&quot;fancy_grid&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="k">def</span> <span class="nf">filter_invalid</span><span class="p">(</span><span class="n">rows</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+            <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
+                <span class="n">reaction</span> <span class="o">=</span> <span class="n">ReactionEquation</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span>
+                    <span class="n">row</span><span class="p">[</span><span class="n">rxn_idx</span><span class="p">],</span> <span class="n">fragment_bond</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fragment_bond</span>
                 <span class="p">)</span>
+                <span class="n">valid</span><span class="p">,</span> <span class="n">reasons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mixed_reaction_filter</span><span class="o">.</span><span class="n">validate_reasons</span><span class="p">(</span><span class="n">reaction</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">valid</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">row</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">reason</span> <span class="ow">in</span> <span class="n">reasons</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">error_counter</span><span class="p">[</span><span class="n">reason</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
 
-        <span class="k">return</span> <span class="bp">self</span></div>
+        <span class="k">return</span> <span class="n">CsvIterator</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="n">csv_iterator</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">rows</span><span class="o">=</span><span class="n">filter_invalid</span><span class="p">(</span><span class="n">csv_iterator</span><span class="o">.</span><span class="n">rows</span><span class="p">)</span>
+        <span class="p">)</span>
 
-    <span class="c1">#</span>
-    <span class="c1"># Static Methods</span>
-    <span class="c1">#</span>
-<div class="viewcode-block" id="Preprocessor.read_csv"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.preprocessor.Preprocessor.html#rxn.reaction_preprocessing.preprocessor.Preprocessor.read_csv">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">read_csv</span><span class="p">(</span>
-        <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">reaction_column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fragment_bond</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Preprocessor&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A helper function to read a list or csv of reactions.</span>
+    <span class="k">def</span> <span class="nf">_print_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Prints statistics of the filtration to the logger.&quot;&quot;&quot;</span>
+        <span class="c1"># define &quot;s&quot; to make expressions shorter</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stats</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            filepath: The path to the text file containing the reactions.</span>
-<span class="sd">            reaction_column_name: The name of the reaction column (or the name that</span>
-<span class="sd">                wil be given to the reaction column if the input file has no headers).</span>
-<span class="sd">            fragment_bond: The token that represents fragment bonds in the raction SMILES.</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- </span><span class="si">{</span><span class="n">s</span><span class="o">.</span><span class="n">initial_count</span><span class="si">}</span><span class="s2"> total reactions.&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- </span><span class="si">{</span><span class="n">s</span><span class="o">.</span><span class="n">first_dedup_count</span><span class="si">}</span><span class="s2"> reactions after first deduplication.&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- </span><span class="si">{</span><span class="n">s</span><span class="o">.</span><span class="n">second_dedup_count</span><span class="si">}</span><span class="s2"> reactions after second deduplication.&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- </span><span class="si">{</span><span class="n">s</span><span class="o">.</span><span class="n">final_count</span><span class="si">}</span><span class="s2"> valid reactions.&quot;</span><span class="p">)</span>
+        <span class="n">invalid_count</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">second_dedup_count</span> <span class="o">-</span> <span class="n">s</span><span class="o">.</span><span class="n">final_count</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- </span><span class="si">{</span><span class="n">invalid_count</span><span class="si">}</span><span class="s2"> invalid reactions removed.&quot;</span><span class="p">)</span>
 
-<span class="sd">        Returns:</span>
-<span class="sd">            Preprocessor: A new preprocessor instance.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">lineterminator</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">reaction_column_name</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">error_counter</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span>
 
-        <span class="k">return</span> <span class="n">Preprocessor</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">reaction_column_name</span><span class="p">,</span> <span class="n">fragment_bond</span><span class="o">=</span><span class="n">fragment_bond</span><span class="p">)</span></div></div>
+        <span class="n">headers</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Reason&quot;</span><span class="p">,</span> <span class="s2">&quot;Number of Reactions&quot;</span><span class="p">]</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;- The </span><span class="si">{</span><span class="n">invalid_count</span><span class="si">}</span><span class="s2"> reactions were removed for the following reasons:</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">tabulate</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">error_counter</span><span class="o">.</span><span class="n">most_common</span><span class="p">(),</span><span class="w"> </span><span class="n">headers</span><span class="p">,</span><span class="w"> </span><span class="n">tablefmt</span><span class="o">=</span><span class="s2">&quot;fancy_grid&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="preprocess"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.preprocessor.preprocess.html#rxn.reaction_preprocessing.preprocessor.preprocess">[docs]</a><span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="n">cfg</span><span class="p">:</span> <span class="n">PreprocessConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">RDLogger</span><span class="o">.</span><span class="n">DisableLog</span><span class="p">(</span><span class="s2">&quot;rdApp.*&quot;</span><span class="p">)</span>
-
     <span class="n">output_file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">output_file_path</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">Path</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">input_file_path</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+    <span class="n">input_file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">input_file_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">input_file_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Input file for preprocessing does not exist: </span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">input_file_path</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Input file for preprocessing does not exist: </span><span class="si">{</span><span class="n">input_file_path</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
 
     <span class="c1"># Create a instance of the mixed reaction filter with default values.</span>
@@ -364,40 +280,14 @@
         <span class="n">max_absolute_formal_charge</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">max_absolute_formal_charge</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="n">pp</span> <span class="o">=</span> <span class="n">Preprocessor</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
-        <span class="n">cfg</span><span class="o">.</span><span class="n">input_file_path</span><span class="p">,</span>
-        <span class="n">cfg</span><span class="o">.</span><span class="n">reaction_column_name</span><span class="p">,</span>
+    <span class="n">rxn_column</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">reaction_column_name</span>
+    <span class="n">preprocessor</span> <span class="o">=</span> <span class="n">Preprocessor</span><span class="p">(</span>
+        <span class="n">mixed_reaction_filter</span><span class="o">=</span><span class="n">mrf</span><span class="p">,</span>
+        <span class="n">reaction_column_name</span><span class="o">=</span><span class="n">rxn_column</span><span class="p">,</span>
         <span class="n">fragment_bond</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">fragment_bond</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">columns_to_keep</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
 
-    <span class="c1"># Remove duplicate reactions (useful for large dataset, this step is repeated later)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">df</span><span class="p">)</span><span class="si">}</span><span class="s2"> initial reactions.&quot;</span><span class="p">)</span>
-    <span class="n">pp</span><span class="o">.</span><span class="n">remove_duplicates</span><span class="p">()</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">df</span><span class="p">)</span><span class="si">}</span><span class="s2"> reactions after first deduplication.&quot;</span><span class="p">)</span>
-
-    <span class="c1"># Remove duplicate molecules, sort, etc.</span>
-    <span class="c1"># NB: this relies on molecules in the reaction SMILES to be canonical already!</span>
-    <span class="n">pp</span><span class="o">.</span><span class="n">reaction_standardization</span><span class="p">()</span>
-
-    <span class="c1"># Remove duplicate reactions</span>
-    <span class="n">pp</span><span class="o">.</span><span class="n">remove_duplicates</span><span class="p">()</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">df</span><span class="p">)</span><span class="si">}</span><span class="s2"> reactions after second deduplication.&quot;</span><span class="p">)</span>
-
-    <span class="c1"># Apply the mixed reaction filter instance defined above, enable verbose mode</span>
-    <span class="n">pp</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">mrf</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-
-    <span class="c1"># Print the detailed stats</span>
-    <span class="n">pp</span><span class="o">.</span><span class="n">print_stats</span><span class="p">()</span>
-
-    <span class="c1"># Drop the invalid reactions</span>
-    <span class="n">pp</span><span class="o">.</span><span class="n">remove_invalids</span><span class="p">()</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">cfg</span><span class="o">.</span><span class="n">keep_intermediate_columns</span><span class="p">:</span>
-        <span class="n">pp</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">columns_to_keep</span><span class="p">]</span>
-
-    <span class="c1"># After dropping invalid columns, display stats again (as an example)</span>
-    <span class="n">pp</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">output_file_path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+    <span class="n">preprocessor</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">input_file_path</span><span class="p">,</span> <span class="n">output_file_path</span><span class="p">)</span></div>
 </pre></div>
 
            </div>
