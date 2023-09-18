@@ -10,7 +10,7 @@ from typing import List, Optional
 from attr import define
 from rxn.chemutils.miscellaneous import remove_chiral_centers
 from rxn.chemutils.reaction_smiles import parse_any_reaction_smiles
-from rxn.utilities.csv import StreamingCsvEditor
+from rxn.utilities.csv import CsvIterator, StreamingCsvEditor
 
 from rxn.reaction_preprocessing.annotations.molecule_annotation import (
     MoleculeAnnotation,
@@ -55,22 +55,44 @@ class Standardizer:
 
         self.rxn_column = reaction_column_name
 
-    def standardize(self, input_csv: Path, output_csv: Path) -> None:
+    def standardize_file(self, input_csv: Path, output_csv: Path) -> None:
+        """Standardize the reactions in a CSV file.
+
+        Args:
+            input_csv: CSV with the reactions to standardize.
+            output_csv: CSV where to save the standardized reactions.
+        """
+        with open(input_csv, "rt") as f_in, open(output_csv, "wt") as f_out:
+            csv_iterator = CsvIterator.from_stream(f_in)
+            csv_iterator = self.standardize_iterator(csv_iterator)
+            csv_iterator.to_stream(f_out)
+
+    def standardize_iterator(self, csv_iterator: CsvIterator) -> CsvIterator:
+        """Standardize the reactions in a CSV iterator.
+
+        Same as ``standardize_file``, except that it acts directly on the iterator.
+
+        Args:
+            csv_iterator: input CSV iterator for the reactions to standardize.
+
+        Returns:
+            CsvIterator with reactions after the standardization step.
+        """
         editor = self._instantiate_csv_editor()
-        editor.process_paths(input_csv, output_csv)
+        return editor.process(csv_iterator)
 
     def _instantiate_csv_editor(self) -> StreamingCsvEditor:
         if self.keep_intermediate_columns:
             return StreamingCsvEditor(
                 columns_in=[self.rxn_column],
                 columns_out=StandardizationOutput.keys(self.rxn_column),
-                transformation=self.standardize_big,
+                transformation=self._standardize_big,
             )
         else:
             return StreamingCsvEditor(
                 columns_in=[self.rxn_column],
                 columns_out=[self.rxn_column],
-                transformation=self.standardize_small,
+                transformation=self._standardize_small,
             )
 
     def standardize_one(self, rxn_smiles: str) -> "StandardizationOutput":
@@ -101,10 +123,10 @@ class Standardizer:
             missing_annotations=missing_annotations,
         )
 
-    def standardize_small(self, rxn_smiles: str) -> str:
+    def _standardize_small(self, rxn_smiles: str) -> str:
         return self.standardize_one(rxn_smiles).standardized_rxn_smiles
 
-    def standardize_big(self, rxn_smiles: str) -> List[str]:
+    def _standardize_big(self, rxn_smiles: str) -> List[str]:
         return self.standardize_one(rxn_smiles).values()
 
     def _remove_stereo_if_not_defined_in_precursors(self, rxn_smiles: str) -> str:
@@ -174,4 +196,4 @@ def standardize(cfg: StandardizeConfig) -> None:
         keep_intermediate_columns=cfg.keep_intermediate_columns,
     )
 
-    std.standardize(input_path, output_path)
+    std.standardize_file(input_path, output_path)

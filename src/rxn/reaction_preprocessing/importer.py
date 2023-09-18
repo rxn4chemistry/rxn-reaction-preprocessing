@@ -53,7 +53,7 @@ class RxnImporter:
         self.column_for_heat = column_for_heat
         self.keep_original_rxn_column = keep_original_rxn_column
 
-    def import_rxns(self, input_file: PathLike, output_csv: PathLike) -> None:
+    def import_from_file(self, input_file: PathLike, output_csv: PathLike) -> None:
         """Function to import the reactions from one file and write them
         to another file.
 
@@ -62,16 +62,31 @@ class RxnImporter:
         """
         with open(input_file, "rt") as f_in, open(output_csv, "wt") as f_out:
             csv_iterator = self._load_into_iterator(f_in)
-            csv_iterator = self._handle_original_rxn_column(csv_iterator)
-
-            csv_iterator = self._parse_reaction_smiles(csv_iterator)
-
-            # Add special tokens when necessary
-            csv_iterator = self._maybe_add_light_token(csv_iterator)
-            csv_iterator = self._maybe_add_heat_token(csv_iterator)
-
-            csv_iterator = self._maybe_remove_atom_mapping(csv_iterator)
+            csv_iterator = self.import_from_iterator(csv_iterator)
             csv_iterator.to_stream(f_out)
+
+    def import_from_iterator(self, csv_iterator: CsvIterator) -> CsvIterator:
+        """
+        Same as ``import_rxns``, except that it acts on ``CsvIterator``
+        instances instead of files.
+
+        Args:
+            csv_iterator: input CSV iterator for the reactions to import.
+
+        Returns:
+            CsvIterator with reactions after the import step.
+        """
+        csv_iterator = self._handle_original_rxn_column(csv_iterator)
+
+        csv_iterator = self._parse_reaction_smiles(csv_iterator)
+
+        # Add special tokens when necessary
+        csv_iterator = self._maybe_add_light_token(csv_iterator)
+        csv_iterator = self._maybe_add_heat_token(csv_iterator)
+
+        csv_iterator = self._maybe_remove_atom_mapping(csv_iterator)
+
+        return csv_iterator
 
     def _load_into_iterator(self, input_stream: TextIO) -> CsvIterator:
         """
@@ -274,4 +289,4 @@ def rxn_import(cfg: RxnImportConfig) -> None:
         keep_original_rxn_column=cfg.keep_original_rxn_column,
     )
 
-    importer.import_rxns(input_file=cfg.input_file, output_csv=cfg.output_csv)
+    importer.import_from_file(input_file=cfg.input_file, output_csv=cfg.output_csv)

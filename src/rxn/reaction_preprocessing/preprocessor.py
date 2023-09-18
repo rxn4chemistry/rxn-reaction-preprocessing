@@ -53,35 +53,57 @@ class Preprocessor:
         self.fragment_bond = fragment_bond
         self.stats = _Stats()
 
-    def process(self, input_file_path: PathLike, output_file_path: PathLike) -> None:
-        # Reset the stats
-        self.stats = _Stats()
+    def process_file(
+        self, input_file_path: PathLike, output_file_path: PathLike
+    ) -> None:
+        """Process the reactions in a CSV file.
+
+        Args:
+            input_file_path: CSV with the reactions to standardize.
+            output_file_path: CSV where to save the standardized reactions.
+        """
 
         with open(input_file_path, "rt") as f_in, open(output_file_path, "wt") as f_out:
             csv_iterator = CsvIterator.from_stream(f_in)
-            csv_iterator = self._increment_initial_count(csv_iterator)
-
-            # first deduplication
-            csv_iterator = self._remove_duplicate_reactions(csv_iterator)
-            csv_iterator = self._increment_first_dedup_count(csv_iterator)
-
-            # reaction standardization
-            rxn_standardization_editor = StreamingCsvEditor(
-                [self.rxn_column], [self.rxn_column], self._standardize_rxn_smiles
-            )
-            csv_iterator = rxn_standardization_editor.process(csv_iterator)
-
-            # second deduplication
-            csv_iterator = self._remove_duplicate_reactions(csv_iterator)
-            csv_iterator = self._increment_second_dedup_count(csv_iterator)
-
-            # filtering
-            csv_iterator = self._validate(csv_iterator=csv_iterator)
-
-            csv_iterator = self._increment_final_count(csv_iterator)
+            csv_iterator = self.process_iterator(csv_iterator)
             csv_iterator.to_stream(f_out)
 
-            self._print_stats()
+    def process_iterator(self, csv_iterator: CsvIterator) -> CsvIterator:
+        """Process the reactions in a CSV iterator.
+
+        Same as ``process_file``, except that it acts directly on the iterator.
+
+        Args:
+            csv_iterator: input CSV iterator for the reactions to process.
+
+        Returns:
+            CsvIterator with reactions after the processor step.
+        """
+        # Reset the stats
+        self.stats = _Stats()
+
+        csv_iterator = self._increment_initial_count(csv_iterator)
+
+        # first deduplication
+        csv_iterator = self._remove_duplicate_reactions(csv_iterator)
+        csv_iterator = self._increment_first_dedup_count(csv_iterator)
+
+        # reaction standardization
+        rxn_standardization_editor = StreamingCsvEditor(
+            [self.rxn_column], [self.rxn_column], self._standardize_rxn_smiles
+        )
+        csv_iterator = rxn_standardization_editor.process(csv_iterator)
+
+        # second deduplication
+        csv_iterator = self._remove_duplicate_reactions(csv_iterator)
+        csv_iterator = self._increment_second_dedup_count(csv_iterator)
+
+        # filtering
+        csv_iterator = self._validate(csv_iterator=csv_iterator)
+
+        csv_iterator = self._increment_final_count(csv_iterator)
+
+        return csv_iterator
 
     def _increment_initial_count(self, csv_iterator: CsvIterator) -> CsvIterator:
         def fn() -> None:
@@ -168,7 +190,7 @@ class Preprocessor:
             columns=csv_iterator.columns, rows=filter_invalid(csv_iterator.rows)
         )
 
-    def _print_stats(self) -> None:
+    def print_stats(self) -> None:
         """Prints statistics of the filtration to the logger."""
         # define "s" to make expressions shorter
         s = self.stats
@@ -220,4 +242,5 @@ def preprocess(cfg: PreprocessConfig) -> None:
         fragment_bond=cfg.fragment_bond.value,
     )
 
-    preprocessor.process(input_file_path, output_file_path)
+    preprocessor.process_file(input_file_path, output_file_path)
+    preprocessor.print_stats()
