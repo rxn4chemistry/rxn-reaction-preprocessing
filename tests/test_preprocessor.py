@@ -59,7 +59,7 @@ def test_preprocessor(tmp_dir: Path) -> None:
     )
 
     output_path = tmp_dir / "output.csv"
-    preprocessor.process(input_path, output_path)
+    preprocessor.process_file(input_path, output_path)
 
     assert load_list_from_file(output_path) == [
         "rxn,class",
