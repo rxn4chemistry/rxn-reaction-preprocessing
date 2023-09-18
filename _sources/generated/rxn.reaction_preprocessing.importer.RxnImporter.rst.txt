@@ -17,7 +17,8 @@ rxn.reaction\_preprocessing.importer.RxnImporter
    .. autosummary::
    
       ~RxnImporter.__init__
-      ~RxnImporter.import_rxns
+      ~RxnImporter.import_from_file
+      ~RxnImporter.import_from_iterator
    
    
 

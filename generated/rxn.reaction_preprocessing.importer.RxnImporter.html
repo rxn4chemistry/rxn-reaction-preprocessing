@@ -151,14 +151,17 @@
 </dl>
 </p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#rxn.reaction_preprocessing.importer.RxnImporter.import_rxns" title="rxn.reaction_preprocessing.importer.RxnImporter.import_rxns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">import_rxns</span></code></a>(input_file, output_csv)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#rxn.reaction_preprocessing.importer.RxnImporter.import_from_file" title="rxn.reaction_preprocessing.importer.RxnImporter.import_from_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">import_from_file</span></code></a>(input_file, output_csv)</p></td>
 <td><p>Function to import the reactions from one file and write them to another file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rxn.reaction_preprocessing.importer.RxnImporter.import_from_iterator" title="rxn.reaction_preprocessing.importer.RxnImporter.import_from_iterator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">import_from_iterator</span></code></a>(csv_iterator)</p></td>
+<td><p>Same as <code class="docutils literal notranslate"><span class="pre">import_rxns</span></code>, except that it acts on <code class="docutils literal notranslate"><span class="pre">CsvIterator</span></code> instances instead of files.</p></td>
 </tr>
 </tbody>
 </table>
 <dl class="py method">
-<dt class="sig sig-object py" id="rxn.reaction_preprocessing.importer.RxnImporter.import_rxns">
-<span class="sig-name descname"><span class="pre">import_rxns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_csv</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rxn/reaction_preprocessing/importer.html#RxnImporter.import_rxns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rxn.reaction_preprocessing.importer.RxnImporter.import_rxns" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="rxn.reaction_preprocessing.importer.RxnImporter.import_from_file">
+<span class="sig-name descname"><span class="pre">import_from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_csv</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rxn/reaction_preprocessing/importer.html#RxnImporter.import_from_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rxn.reaction_preprocessing.importer.RxnImporter.import_from_file" title="Permalink to this definition"></a></dt>
 <dd><p>Function to import the reactions from one file and write them
 to another file.</p>
 <p>Goes through all the steps involved in the import: parsing of the
@@ -172,6 +175,24 @@ reaction SMILES, removal of the atom mapping, addition of special tokens.</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rxn.reaction_preprocessing.importer.RxnImporter.import_from_iterator">
+<span class="sig-name descname"><span class="pre">import_from_iterator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csv_iterator</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rxn/reaction_preprocessing/importer.html#RxnImporter.import_from_iterator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rxn.reaction_preprocessing.importer.RxnImporter.import_from_iterator" title="Permalink to this definition"></a></dt>
+<dd><p>Same as <code class="docutils literal notranslate"><span class="pre">import_rxns</span></code>, except that it acts on <code class="docutils literal notranslate"><span class="pre">CsvIterator</span></code>
+instances instead of files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>csv_iterator</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">CsvIterator</span></code>) – input CSV iterator for the reactions to import.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">CsvIterator</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>CsvIterator with reactions after the import step.</p>
 </dd>
 </dl>
 </dd></dl>

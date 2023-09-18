@@ -77,7 +77,7 @@
 <span class="kn">from</span> <span class="nn">attr</span> <span class="kn">import</span> <span class="n">define</span>
 <span class="kn">from</span> <span class="nn">rxn.chemutils.miscellaneous</span> <span class="kn">import</span> <span class="n">remove_chiral_centers</span>
 <span class="kn">from</span> <span class="nn">rxn.chemutils.reaction_smiles</span> <span class="kn">import</span> <span class="n">parse_any_reaction_smiles</span>
-<span class="kn">from</span> <span class="nn">rxn.utilities.csv</span> <span class="kn">import</span> <span class="n">StreamingCsvEditor</span>
+<span class="kn">from</span> <span class="nn">rxn.utilities.csv</span> <span class="kn">import</span> <span class="n">CsvIterator</span><span class="p">,</span> <span class="n">StreamingCsvEditor</span>
 
 <span class="kn">from</span> <span class="nn">rxn.reaction_preprocessing.annotations.molecule_annotation</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">MoleculeAnnotation</span><span class="p">,</span>
@@ -122,22 +122,44 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">rxn_column</span> <span class="o">=</span> <span class="n">reaction_column_name</span></div>
 
-    <span class="k">def</span> <span class="nf">standardize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_csv</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">output_csv</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="Standardizer.standardize_file"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.standardizer.Standardizer.html#rxn.reaction_preprocessing.standardizer.Standardizer.standardize_file">[docs]</a>    <span class="k">def</span> <span class="nf">standardize_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_csv</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">output_csv</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Standardize the reactions in a CSV file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            input_csv: CSV with the reactions to standardize.</span>
+<span class="sd">            output_csv: CSV where to save the standardized reactions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">input_csv</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_in</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_csv</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_out</span><span class="p">:</span>
+            <span class="n">csv_iterator</span> <span class="o">=</span> <span class="n">CsvIterator</span><span class="o">.</span><span class="n">from_stream</span><span class="p">(</span><span class="n">f_in</span><span class="p">)</span>
+            <span class="n">csv_iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">standardize_iterator</span><span class="p">(</span><span class="n">csv_iterator</span><span class="p">)</span>
+            <span class="n">csv_iterator</span><span class="o">.</span><span class="n">to_stream</span><span class="p">(</span><span class="n">f_out</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Standardizer.standardize_iterator"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.standardizer.Standardizer.html#rxn.reaction_preprocessing.standardizer.Standardizer.standardize_iterator">[docs]</a>    <span class="k">def</span> <span class="nf">standardize_iterator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">csv_iterator</span><span class="p">:</span> <span class="n">CsvIterator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CsvIterator</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Standardize the reactions in a CSV iterator.</span>
+
+<span class="sd">        Same as ``standardize_file``, except that it acts directly on the iterator.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            csv_iterator: input CSV iterator for the reactions to standardize.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            CsvIterator with reactions after the standardization step.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">editor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instantiate_csv_editor</span><span class="p">()</span>
-        <span class="n">editor</span><span class="o">.</span><span class="n">process_paths</span><span class="p">(</span><span class="n">input_csv</span><span class="p">,</span> <span class="n">output_csv</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">editor</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">csv_iterator</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_instantiate_csv_editor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StreamingCsvEditor</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">keep_intermediate_columns</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">StreamingCsvEditor</span><span class="p">(</span>
                 <span class="n">columns_in</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">rxn_column</span><span class="p">],</span>
                 <span class="n">columns_out</span><span class="o">=</span><span class="n">StandardizationOutput</span><span class="o">.</span><span class="n">keys</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rxn_column</span><span class="p">),</span>
-                <span class="n">transformation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">standardize_big</span><span class="p">,</span>
+                <span class="n">transformation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_standardize_big</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">StreamingCsvEditor</span><span class="p">(</span>
                 <span class="n">columns_in</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">rxn_column</span><span class="p">],</span>
                 <span class="n">columns_out</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">rxn_column</span><span class="p">],</span>
-                <span class="n">transformation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">standardize_small</span><span class="p">,</span>
+                <span class="n">transformation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_standardize_small</span><span class="p">,</span>
             <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">standardize_one</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rxn_smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;StandardizationOutput&quot;</span><span class="p">:</span>
@@ -168,10 +190,10 @@
             <span class="n">missing_annotations</span><span class="o">=</span><span class="n">missing_annotations</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">standardize_small</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rxn_smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_standardize_small</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rxn_smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">standardize_one</span><span class="p">(</span><span class="n">rxn_smiles</span><span class="p">)</span><span class="o">.</span><span class="n">standardized_rxn_smiles</span>
 
-    <span class="k">def</span> <span class="nf">standardize_big</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rxn_smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">_standardize_big</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rxn_smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">standardize_one</span><span class="p">(</span><span class="n">rxn_smiles</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_remove_stereo_if_not_defined_in_precursors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rxn_smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -241,7 +263,7 @@
         <span class="n">keep_intermediate_columns</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">keep_intermediate_columns</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="n">std</span><span class="o">.</span><span class="n">standardize</span><span class="p">(</span><span class="n">input_path</span><span class="p">,</span> <span class="n">output_path</span><span class="p">)</span></div>
+    <span class="n">std</span><span class="o">.</span><span class="n">standardize_file</span><span class="p">(</span><span class="n">input_path</span><span class="p">,</span> <span class="n">output_path</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

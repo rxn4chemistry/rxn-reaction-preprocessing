@@ -120,7 +120,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">column_for_heat</span> <span class="o">=</span> <span class="n">column_for_heat</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">keep_original_rxn_column</span> <span class="o">=</span> <span class="n">keep_original_rxn_column</span></div>
 
-<div class="viewcode-block" id="RxnImporter.import_rxns"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.importer.RxnImporter.html#rxn.reaction_preprocessing.importer.RxnImporter.import_rxns">[docs]</a>    <span class="k">def</span> <span class="nf">import_rxns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span> <span class="n">output_csv</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="RxnImporter.import_from_file"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.importer.RxnImporter.html#rxn.reaction_preprocessing.importer.RxnImporter.import_from_file">[docs]</a>    <span class="k">def</span> <span class="nf">import_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span> <span class="n">output_csv</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Function to import the reactions from one file and write them</span>
 <span class="sd">        to another file.</span>
 
@@ -129,16 +129,31 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_in</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_csv</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_out</span><span class="p">:</span>
             <span class="n">csv_iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_into_iterator</span><span class="p">(</span><span class="n">f_in</span><span class="p">)</span>
-            <span class="n">csv_iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_original_rxn_column</span><span class="p">(</span><span class="n">csv_iterator</span><span class="p">)</span>
-
-            <span class="n">csv_iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_reaction_smiles</span><span class="p">(</span><span class="n">csv_iterator</span><span class="p">)</span>
-
-            <span class="c1"># Add special tokens when necessary</span>
-            <span class="n">csv_iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_maybe_add_light_token</span><span class="p">(</span><span class="n">csv_iterator</span><span class="p">)</span>
-            <span class="n">csv_iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_maybe_add_heat_token</span><span class="p">(</span><span class="n">csv_iterator</span><span class="p">)</span>
-
-            <span class="n">csv_iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_maybe_remove_atom_mapping</span><span class="p">(</span><span class="n">csv_iterator</span><span class="p">)</span>
+            <span class="n">csv_iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">import_from_iterator</span><span class="p">(</span><span class="n">csv_iterator</span><span class="p">)</span>
             <span class="n">csv_iterator</span><span class="o">.</span><span class="n">to_stream</span><span class="p">(</span><span class="n">f_out</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RxnImporter.import_from_iterator"><a class="viewcode-back" href="../../../generated/rxn.reaction_preprocessing.importer.RxnImporter.html#rxn.reaction_preprocessing.importer.RxnImporter.import_from_iterator">[docs]</a>    <span class="k">def</span> <span class="nf">import_from_iterator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">csv_iterator</span><span class="p">:</span> <span class="n">CsvIterator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CsvIterator</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Same as ``import_rxns``, except that it acts on ``CsvIterator``</span>
+<span class="sd">        instances instead of files.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            csv_iterator: input CSV iterator for the reactions to import.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            CsvIterator with reactions after the import step.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">csv_iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_original_rxn_column</span><span class="p">(</span><span class="n">csv_iterator</span><span class="p">)</span>
+
+        <span class="n">csv_iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_reaction_smiles</span><span class="p">(</span><span class="n">csv_iterator</span><span class="p">)</span>
+
+        <span class="c1"># Add special tokens when necessary</span>
+        <span class="n">csv_iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_maybe_add_light_token</span><span class="p">(</span><span class="n">csv_iterator</span><span class="p">)</span>
+        <span class="n">csv_iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_maybe_add_heat_token</span><span class="p">(</span><span class="n">csv_iterator</span><span class="p">)</span>
+
+        <span class="n">csv_iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_maybe_remove_atom_mapping</span><span class="p">(</span><span class="n">csv_iterator</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">csv_iterator</span></div>
 
     <span class="k">def</span> <span class="nf">_load_into_iterator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_stream</span><span class="p">:</span> <span class="n">TextIO</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CsvIterator</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -341,7 +356,7 @@
         <span class="n">keep_original_rxn_column</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">keep_original_rxn_column</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="n">importer</span><span class="o">.</span><span class="n">import_rxns</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">input_file</span><span class="p">,</span> <span class="n">output_csv</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">output_csv</span><span class="p">)</span></div>
+    <span class="n">importer</span><span class="o">.</span><span class="n">import_from_file</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">input_file</span><span class="p">,</span> <span class="n">output_csv</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">output_csv</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

@@ -144,19 +144,11 @@ molecules with transition metals must be rejected.</p></li>
 <tr class="row-odd"><td><p><a class="reference internal" href="#rxn.reaction_preprocessing.standardizer.Standardizer.__init__" title="rxn.reaction_preprocessing.standardizer.Standardizer.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(annotations, ...[, fragment_bond, ...])</p></td>
 <td><p>Creates a new instance of the Standardizer class.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">standardize</span></code>(input_csv, output_csv)</p></td>
-<td><p><dl class="field-list simple">
-<dt class="field-odd">param input_csv</dt>
-<dd class="field-odd"><p></p></dd>
-</dl>
-</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#rxn.reaction_preprocessing.standardizer.Standardizer.standardize_file" title="rxn.reaction_preprocessing.standardizer.Standardizer.standardize_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">standardize_file</span></code></a>(input_csv, output_csv)</p></td>
+<td><p>Standardize the reactions in a CSV file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">standardize_big</span></code>(rxn_smiles)</p></td>
-<td><p><dl class="field-list simple">
-<dt class="field-odd">param rxn_smiles</dt>
-<dd class="field-odd"><p></p></dd>
-</dl>
-</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rxn.reaction_preprocessing.standardizer.Standardizer.standardize_iterator" title="rxn.reaction_preprocessing.standardizer.Standardizer.standardize_iterator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">standardize_iterator</span></code></a>(csv_iterator)</p></td>
+<td><p>Standardize the reactions in a CSV iterator.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">standardize_one</span></code>(rxn_smiles)</p></td>
 <td><p><dl class="field-list simple">
@@ -165,15 +157,43 @@ molecules with transition metals must be rejected.</p></li>
 </dl>
 </p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">standardize_small</span></code>(rxn_smiles)</p></td>
-<td><p><dl class="field-list simple">
-<dt class="field-odd">param rxn_smiles</dt>
-<dd class="field-odd"><p></p></dd>
-</dl>
-</p></td>
-</tr>
 </tbody>
 </table>
+<dl class="py method">
+<dt class="sig sig-object py" id="rxn.reaction_preprocessing.standardizer.Standardizer.standardize_file">
+<span class="sig-name descname"><span class="pre">standardize_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_csv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_csv</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rxn/reaction_preprocessing/standardizer.html#Standardizer.standardize_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rxn.reaction_preprocessing.standardizer.Standardizer.standardize_file" title="Permalink to this definition"></a></dt>
+<dd><p>Standardize the reactions in a CSV file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_csv</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – CSV with the reactions to standardize.</p></li>
+<li><p><strong>output_csv</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – CSV where to save the standardized reactions.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rxn.reaction_preprocessing.standardizer.Standardizer.standardize_iterator">
+<span class="sig-name descname"><span class="pre">standardize_iterator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csv_iterator</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rxn/reaction_preprocessing/standardizer.html#Standardizer.standardize_iterator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rxn.reaction_preprocessing.standardizer.Standardizer.standardize_iterator" title="Permalink to this definition"></a></dt>
+<dd><p>Standardize the reactions in a CSV iterator.</p>
+<p>Same as <code class="docutils literal notranslate"><span class="pre">standardize_file</span></code>, except that it acts directly on the iterator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>csv_iterator</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">CsvIterator</span></code>) – input CSV iterator for the reactions to standardize.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">CsvIterator</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>CsvIterator with reactions after the standardization step.</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>

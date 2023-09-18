@@ -17,7 +17,9 @@ rxn.reaction\_preprocessing.preprocessor.Preprocessor
    .. autosummary::
    
       ~Preprocessor.__init__
-      ~Preprocessor.process
+      ~Preprocessor.print_stats
+      ~Preprocessor.process_file
+      ~Preprocessor.process_iterator
    
    
 

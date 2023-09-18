@@ -17,10 +17,9 @@ rxn.reaction\_preprocessing.standardizer.Standardizer
    .. autosummary::
    
       ~Standardizer.__init__
-      ~Standardizer.standardize
-      ~Standardizer.standardize_big
+      ~Standardizer.standardize_file
+      ~Standardizer.standardize_iterator
       ~Standardizer.standardize_one
-      ~Standardizer.standardize_small
    
    
 
