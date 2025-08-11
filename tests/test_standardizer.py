@@ -41,8 +41,8 @@ def test_standardization() -> None:
     expected_rxns = [
         "O=C1CCC2(CC1)OCCO2>>C[C@@H]1CC2(CCC1=O)OCCO2",
         "O=C1CCC2(CC1)OCCO2>>C[C@H]1CC2(CCC1=O)OCCO2",
-        ">>",  # rejected reaction
-        ">>",  # rejected reaction
+        "[Na][Cl].CC[Zn]CC.Cc1ccccc1>>[Na][Cl]",
+        "[Na][Cl].CC[Zn]CC.Cc1ccccc1>>[Na][Cl]",
         "CC.CCC>>CCO",
         ">>",  # invalid smiles
         ">>",  # rejected reaction
@@ -135,8 +135,8 @@ def test_standardization_remove_stereo_when_only_in_product() -> None:
     expected_rxns = [
         "O=C1CCC2(CC1)OCCO2>>CC1CC2(CCC1=O)OCCO2",
         "O=C1CCC2(CC1)OCCO2>>CC1CC2(CCC1=O)OCCO2",
-        ">>",  # rejected reaction
-        ">>",  # rejected reaction
+        "[Na][Cl].CC[Zn]CC.Cc1ccccc1>>[Na][Cl]",
+        "[Na][Cl].CC[Zn]CC.Cc1ccccc1>>[Na][Cl]",
         "CC.CCC>>CCO",
         ">>",  # invalid smiles
         ">>",  # rejected reaction

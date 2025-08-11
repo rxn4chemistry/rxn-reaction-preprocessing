@@ -43,5 +43,17 @@
     "categories": [],
     "comments": [],
     "metal": ""
+  },
+  {
+    "original_smiles": "C[CH2][Zn][CH2]C.Cc1ccccc1",
+    "updated_smiles": "CC[Zn]CC.Cc1ccccc1",
+    "decision": "accept",
+    "annotation_id": "c_0531",
+    "count_20200302": 5,
+    "categories": [
+      "Zn"
+    ],
+    "comments": [],
+    "metal": "Zn"
   }
 ]
