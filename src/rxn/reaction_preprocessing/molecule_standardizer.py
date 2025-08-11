@@ -190,6 +190,12 @@ class MoleculeStandardizer:
                     if propagate_exceptions:
                         raise
                     missing_annotations.append(smiles)
+                except Exception:
+                    # in case of unexpected exceptions we log the SMILES
+                    # as invalid
+                    if propagate_exceptions:
+                        raise
+                    invalid_smiles.append(smiles)
 
         # If there was any error: replace by empty reaction equation (">>")
         if invalid_smiles or rejected_smiles or missing_annotations:
