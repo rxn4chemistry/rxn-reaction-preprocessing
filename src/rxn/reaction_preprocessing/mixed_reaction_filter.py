@@ -2,7 +2,7 @@
 # IBM Research Zurich Licensed Internal Code
 # (C) Copyright IBM Corp. 2022
 # ALL RIGHTS RESERVED
-""" A class encapsulating filtering functionality for chemical reactions """
+"""A class encapsulating filtering functionality for chemical reactions"""
 import itertools
 from functools import partial
 from typing import Callable, Generator, Iterable, List, Tuple, Union

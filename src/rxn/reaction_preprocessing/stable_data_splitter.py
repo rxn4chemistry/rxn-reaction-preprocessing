@@ -2,7 +2,7 @@
 # IBM Research Zurich Licensed Internal Code
 # (C) Copyright IBM Corp. 2022
 # ALL RIGHTS RESERVED
-""" A utility class to split data sets in a stable manner. """
+"""A utility class to split data sets in a stable manner."""
 import csv
 import functools
 from pathlib import Path
@@ -20,11 +20,9 @@ from rxn.reaction_preprocessing.utils import DataSplit
 class _CsvWriter(Protocol):
     """Useful because csv.writer can't be used as a type annotation."""
 
-    def writerow(self, row: List[str]) -> None:
-        ...
+    def writerow(self, row: List[str]) -> None: ...
 
-    def writerows(self, rows: Iterable[List[str]]) -> None:
-        ...
+    def writerows(self, rows: Iterable[List[str]]) -> None: ...
 
 
 class StableSplitter:
@@ -62,7 +60,7 @@ class StableSplitter:
         ) * self.HASH_SIZE
 
     def get_split(self, split_value: Hashable) -> DataSplit:
-        value = self.hash_fn(split_value)
+        value = self.hash_fn(split_value)  # type:ignore
         if value < self._test_threshold:
             return DataSplit.TEST
         if value < self._validation_threshold:

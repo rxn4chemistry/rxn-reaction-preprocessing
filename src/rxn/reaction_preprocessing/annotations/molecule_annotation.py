@@ -92,7 +92,7 @@ def load_annotations(json_file: Union[Path, str]) -> List[MoleculeAnnotation]:
 
 
 def load_annotations_multiple(
-    json_files: Iterable[Union[Path, str]]
+    json_files: Iterable[Union[Path, str]],
 ) -> List[MoleculeAnnotation]:
     """
     Load the molecule annotations from multiple JSON files.

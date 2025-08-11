@@ -82,7 +82,7 @@ def test_annotated_as_rejected() -> None:
 
 def test_missing_annotation() -> None:
     # transition metals require an annotation
-    tm_smiles = "C[Pd]C"
+    tm_smiles = "[CH3][Pd][CH3]"
     annotations = [
         MoleculeAnnotation(
             original_smiles=tm_smiles,
@@ -163,7 +163,7 @@ def test_canonicalization_before_rejection_check() -> None:
 
 def test_missing_annotation_check_after_rejection_check() -> None:
     # The RejectedMolecule exception has priority over the MissingAnnotation one.
-    rejected_smiles = "C[Pd]C"
+    rejected_smiles = "[CH3][Pd][CH3]"
     annotations = [
         MoleculeAnnotation(
             original_smiles=rejected_smiles,

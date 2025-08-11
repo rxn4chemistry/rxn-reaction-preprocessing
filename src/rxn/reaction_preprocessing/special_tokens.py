@@ -13,6 +13,7 @@ Important comments:
    from strings should be done outside this module.
 3. The Python objects starting with an underscore are meant not to be used elsewhere.
 """
+
 import copy
 from enum import Enum
 from typing import Iterable, List, TypeVar, Union

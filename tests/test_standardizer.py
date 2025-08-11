@@ -30,8 +30,8 @@ def test_standardization() -> None:
     input_reactions = [
         "O=C1CCC2(CC1)OCCO2>>O=C1CCC2(C[C@H]1C)OCCO2",  # stereo only in product
         "O=C1CCC2(CC1)OCCO2>>O=C1CCC2(C[C@@H]1C)OCCO2",  # stereo only in product
-        "[Na]Cl.CC[Zn]CC~Cc1ccccc1>>[Na]Cl",  # substitution needed
-        "[Na]Cl.Cc1ccccc1~CC[Zn]CC>>[Na]Cl",  # substitution needed but performed only if canonicalization
+        "[Na]Cl.CC[Zn]CC~Cc1ccccc1>>[Na]Cl",
+        "[Na]Cl.Cc1ccccc1~CC[Zn]CC>>[Na]Cl",
         "CC.CCC>>CCO",
         "CC.[NaK].CC>>[Na+]~[OH-]",
         "CC(C)(C)O[K].CCO~CCO>>[Li]O",
@@ -41,8 +41,8 @@ def test_standardization() -> None:
     expected_rxns = [
         "O=C1CCC2(CC1)OCCO2>>C[C@@H]1CC2(CCC1=O)OCCO2",
         "O=C1CCC2(CC1)OCCO2>>C[C@H]1CC2(CCC1=O)OCCO2",
-        "[Na]Cl.CC[Zn]CC.Cc1ccccc1>>[Na]Cl",
-        "[Na]Cl.CC[Zn]CC.Cc1ccccc1>>[Na]Cl",
+        ">>",  # rejected reaction
+        ">>",  # rejected reaction
         "CC.CCC>>CCO",
         ">>",  # invalid smiles
         ">>",  # rejected reaction
@@ -73,7 +73,7 @@ def test_standardization_without_fragment() -> None:
         ">>",
         "CC.CCC>>CCO",
         ">>",  # invalid smiles
-        "CC(C)(C)O[K].CCO.CCO>>[Li]O",  # not rejected: the check is done at the molecule level and not at the reaction level
+        "CC(C)(C)[O][K].CCO.CCO>>[Li][OH]",  # not rejected: the check is done at the molecule level and not at the reaction level
         ">>",  # requires annotation -> '>>'
     ]
     output_iterator = standardizer.standardize_iterator(csv_iterator)
@@ -101,12 +101,12 @@ def test_standardization_without_discarding_unannotated() -> None:
 
     expected_rxns = [
         "O=C1CCC2(CC1)OCCO2>>C[C@@H]1CC2(CCC1=O)OCCO2",
-        "[Na]Cl.CC[Zn]CC.Cc1ccccc1>>[Na]Cl",
-        "[Na]Cl.Cc1ccccc1.CC[Zn]CC>>[Na]Cl",
+        "[Na][Cl].C[CH2][Zn][CH2]C.Cc1ccccc1>>[Na][Cl]",
+        "[Na][Cl].Cc1ccccc1.C[CH2][Zn][CH2]C>>[Na][Cl]",
         "CC.CCC>>CCO",
         ">>",  # invalid smiles
-        "CC(C)(C)O[K].CCO.CCO>>[Li]O",
-        r"CC(=O)/C=C(\C)O[V](=O)O/C(C)=C/C(C)=O.CCCC[N+](CCCC)(CCCC)CCCC.CCCC[N+](CCCC)(CCCC)CCCC.S=c1sc([S-])c([S-])s1.S=c1sc([S-])c([S-])s1.[Pd+2]>>O[K]",
+        "CC(C)(C)[O][K].CCO.CCO>>[Li][OH]",
+        r"CC(=O)/C=C(\C)[O][V](=[O])[O]/C(C)=C/C(C)=O.CCCC[N+](CCCC)(CCCC)CCCC.CCCC[N+](CCCC)(CCCC)CCCC.S=c1sc([S-])c([S-])s1.S=c1sc([S-])c([S-])s1.[Pd+2]>>[OH][K]",
     ]
     output_iterator = standardizer.standardize_iterator(csv_iterator)
     assert csv_iterator_to_list(output_iterator, "rxn_col") == expected_rxns
@@ -135,8 +135,8 @@ def test_standardization_remove_stereo_when_only_in_product() -> None:
     expected_rxns = [
         "O=C1CCC2(CC1)OCCO2>>CC1CC2(CCC1=O)OCCO2",
         "O=C1CCC2(CC1)OCCO2>>CC1CC2(CCC1=O)OCCO2",
-        "[Na]Cl.CC[Zn]CC.Cc1ccccc1>>[Na]Cl",
-        "[Na]Cl.CC[Zn]CC.Cc1ccccc1>>[Na]Cl",
+        ">>",  # rejected reaction
+        ">>",  # rejected reaction
         "CC.CCC>>CCO",
         ">>",  # invalid smiles
         ">>",  # rejected reaction

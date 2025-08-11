@@ -88,7 +88,7 @@ def get_formal_charge_for_mols(mols: Iterable[Mol]) -> int:
 
 def get_atoms_for_mols(mols: Iterable[Mol]) -> Set[str]:
     """Get the set of atoms for a list of RDKit Mols."""
-    return {atom.GetSymbol() for mol in mols for atom in mol.GetAtoms()}
+    return {atom.GetSymbol() for mol in mols for atom in mol.GetAtoms()}  # type:ignore
 
 
 def add_custom_logger_to_file(log_file: PathLike) -> None:
