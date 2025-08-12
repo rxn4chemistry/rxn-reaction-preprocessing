@@ -30,8 +30,8 @@ def test_standardization() -> None:
     input_reactions = [
         "O=C1CCC2(CC1)OCCO2>>O=C1CCC2(C[C@H]1C)OCCO2",  # stereo only in product
         "O=C1CCC2(CC1)OCCO2>>O=C1CCC2(C[C@@H]1C)OCCO2",  # stereo only in product
-        "[Na]Cl.CC[Zn]CC~Cc1ccccc1>>[Na]Cl",
-        "[Na]Cl.Cc1ccccc1~CC[Zn]CC>>[Na]Cl",
+        "[Na]Cl.CC[Zn]CC~Cc1ccccc1>>[Na]Cl",  # substitution needed
+        "[Na]Cl.Cc1ccccc1~CC[Zn]CC>>[Na]Cl",  # substitution needed but performed only if canonicalization
         "CC.CCC>>CCO",
         "CC.[NaK].CC>>[Na+]~[OH-]",
         "CC(C)(C)O[K].CCO~CCO>>[Li]O",
