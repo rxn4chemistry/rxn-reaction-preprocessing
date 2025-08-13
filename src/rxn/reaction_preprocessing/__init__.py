@@ -11,7 +11,7 @@ from .standardizer import Standardizer
 from .utils import RandomType
 
 __name__ = "rxn-reaction-preprocessing"
-__version__ = "2.4.0"  # managed by bump2version
+__version__ = "2.5.0"  # managed by bump2version
 __all__ = [
     "Augmenter",
     "MixedReactionFilter",
