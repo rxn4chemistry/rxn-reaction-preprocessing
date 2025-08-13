@@ -2,7 +2,7 @@
 # IBM Research Zurich Licensed Internal Code
 # (C) Copyright IBM Corp. 2022
 # ALL RIGHTS RESERVED
-""" The preprocessor class abstracts the workflow for preprocessing reaction data sets. """
+"""The preprocessor class abstracts the workflow for preprocessing reaction data sets."""
 import collections
 import logging
 from pathlib import Path

@@ -2,7 +2,7 @@
 # IBM Research Zurich Licensed Internal Code
 # (C) Copyright IBM Corp. 2021
 # ALL RIGHTS RESERVED
-""" A utility class to apply standardization to the data """
+"""A utility class to apply standardization to the data"""
 
 from pathlib import Path
 from typing import List, Optional

@@ -29,8 +29,8 @@ def test_restricted(augmenter: Augmenter) -> None:
     new_df = augmenter.augment(rrp.RandomType.restricted, permutations=1)
 
     expected = [
-        "Cl[Na]~[K+].[K+].CCCC.CN1C2=C(C(=O)N(C)C1=O)N(C)C=N2>>CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
-        "CC(C)(C)O[K]~CCC.O>>CC",
+        "[Cl][Na]~[K+].[K+].CCCC.CN1C2=C(C(=O)N(C)C1=O)N(C)C=N2>>CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+        "CC(C)(C)[O][K]~CCC.O>>CC",
         "CC>>CC",
     ]
     assert new_df["rxn_restricted"].tolist() == expected
@@ -40,8 +40,8 @@ def test_unrestricted(augmenter: Augmenter) -> None:
     new_df = augmenter.augment(rrp.RandomType.unrestricted, permutations=1)
 
     expected = [
-        "[Na]Cl~[K+].[K+].C(C)CC.O=C1N(C(=O)N(C)C2=C1N(C)C=N2)C>>CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
-        "CC(C)(O[K])C~C(C)C.O>>CC",
+        "[Na][Cl]~[K+].[K+].C(C)CC.O=C1N(C(=O)N(C)C2=C1N(C)C=N2)C>>CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+        "CC(C)([O][K])C~C(C)C.O>>CC",
         "CC>>CC",
     ]
     assert new_df["rxn_unrestricted"].tolist() == expected
@@ -51,8 +51,8 @@ def test_rotated(augmenter: Augmenter) -> None:
     new_df = augmenter.augment(rrp.RandomType.rotated, permutations=1)
 
     expected = [
-        "Cl[Na]~[K+].[K+].CCCC.C1(=O)N(C)C2=C(N(C)C=N2)C(=O)N1C>>CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
-        "[K]OC(C)(C)C~CCC.O>>CC",
+        "[Cl][Na]~[K+].[K+].CCCC.C1(=O)N(C)C2=C(N(C)C=N2)C(=O)N1C>>CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+        "[K][O]C(C)(C)C~CCC.O>>CC",
         "CC>>CC",
     ]
     assert new_df["rxn_rotated"].tolist() == expected
@@ -87,12 +87,12 @@ def test_multiple_augmentation_rotated(augmenter: Augmenter) -> None:
     new_df = augmenter.augment(rrp.RandomType.rotated, permutations=3)
 
     expected = [
-        "Cl[Na]~[K+].[K+].CCCC.C1(=O)N(C)C2=C(N(C)C=N2)C(=O)N1C>>CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
-        "Cl[Na]~[K+].[K+].C(CC)C.N1=CN(C)C2=C1N(C)C(=O)N(C)C2=O>>CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
-        "[Na]Cl~[K+].[K+].CCCC.CN1C2=C(N(C)C=N2)C(=O)N(C)C1=O>>CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
-        "[K]OC(C)(C)C~CCC.O>>CC",
-        "O([K])C(C)(C)C~CCC.O>>CC",
-        "CC(C)(C)O[K]~CCC.O>>CC",
+        "[Cl][Na]~[K+].[K+].CCCC.C1(=O)N(C)C2=C(N(C)C=N2)C(=O)N1C>>CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+        "[Cl][Na]~[K+].[K+].C(CC)C.N1=CN(C)C2=C1N(C)C(=O)N(C)C2=O>>CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+        "[Na][Cl]~[K+].[K+].CCCC.CN1C2=C(N(C)C=N2)C(=O)N(C)C1=O>>CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+        "[K][O]C(C)(C)C~CCC.O>>CC",
+        "[O]([K])C(C)(C)C~CCC.O>>CC",
+        "CC(C)(C)[O][K]~CCC.O>>CC",
         "CC>>CC",
         "CC>>CC",
         "CC>>CC",

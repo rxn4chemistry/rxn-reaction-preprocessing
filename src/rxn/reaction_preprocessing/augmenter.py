@@ -2,7 +2,7 @@
 # IBM Research Zurich Licensed Internal Code
 # (C) Copyright IBM Corp. 2021
 # ALL RIGHTS RESERVED
-""" A utility class to augment the dataset files """
+"""A utility class to augment the dataset files"""
 import math
 import random
 from pathlib import Path
