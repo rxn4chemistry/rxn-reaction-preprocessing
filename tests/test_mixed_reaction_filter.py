@@ -3,8 +3,8 @@
 # (C) Copyright IBM Corp. 2022
 # ALL RIGHTS RESERVED
 import pytest
-
 from rxn.chemutils.reaction_equation import ReactionEquation
+
 from rxn.reaction_preprocessing import MixedReactionFilter
 from rxn.reaction_preprocessing.mixed_reaction_filter import ReactionFilterError
 
