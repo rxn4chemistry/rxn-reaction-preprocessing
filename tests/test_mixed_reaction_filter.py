@@ -3,8 +3,8 @@
 # (C) Copyright IBM Corp. 2022
 # ALL RIGHTS RESERVED
 import pytest
-from rxn.chemutils.reaction_equation import ReactionEquation
 
+from rxn.chemutils.reaction_equation import ReactionEquation
 from rxn.reaction_preprocessing import MixedReactionFilter
 from rxn.reaction_preprocessing.mixed_reaction_filter import ReactionFilterError
 
@@ -197,6 +197,22 @@ def test_invalid_smiles(filter: MixedReactionFilter) -> None:
         False,
         ["rdkit_molfromsmiles_failed"],
     )
+
+
+def test_invalid_smiles_from_unexpected_error(filter: MixedReactionFilter) -> None:
+    # This does NOT raise InvalidReactionSmiles,
+    # but on tokenization TokenizationError / SmilesJoinedTokensMismatch
+    bad_reaction = ReactionEquation.from_string(
+        "CCC.C[Ni]1<-Cl[Ni](C)<-Cl1>>C[Ni]1Cl[Ni](C)Cl1"
+    )
+
+    assert not filter.is_valid(bad_reaction)
+
+    valid, reasons = filter.validate_reasons(bad_reaction)
+    assert not valid
+    # breakpoint()
+    print(reasons)
+    assert reasons[0].startswith(filter.unexpected_error_prefix)
 
 
 def test_smiles_with_asterisks(filter: MixedReactionFilter) -> None:
