@@ -199,6 +199,20 @@ def test_invalid_smiles(filter: MixedReactionFilter) -> None:
     )
 
 
+def test_invalid_smiles_from_unexpected_error(filter: MixedReactionFilter) -> None:
+    # This does NOT raise InvalidReactionSmiles,
+    # but on tokenization TokenizationError / SmilesJoinedTokensMismatch
+    reaction_with_invalid_smiles = ReactionEquation.from_string(
+        "CCC.C[Ni]1<-Cl[Ni](C)<-Cl1>>C[Ni]1Cl[Ni](C)Cl1"
+    )
+
+    assert not filter.is_valid(reaction_with_invalid_smiles)
+
+    valid, reasons = filter.validate_reasons(reaction_with_invalid_smiles)
+    assert not valid
+    assert reasons[0].startswith(filter.unexpected_error_prefix)
+
+
 def test_smiles_with_asterisks(filter: MixedReactionFilter) -> None:
     reactions_with_asterisks = [
         ReactionEquation.from_string("CCCCO.CCCCN>>CCCCOCCCCN*"),

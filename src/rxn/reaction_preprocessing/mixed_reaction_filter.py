@@ -3,7 +3,9 @@
 # (C) Copyright IBM Corp. 2022
 # ALL RIGHTS RESERVED
 """A class encapsulating filtering functionality for chemical reactions"""
+
 import itertools
+import traceback
 from functools import partial
 from typing import Callable, Generator, Iterable, List, Tuple, Union
 
@@ -31,7 +33,7 @@ class ReactionFilterError(ValueError):
 
         super().__init__(
             f'Reaction "{self.reaction.to_string("~")}" did not pass the '
-            f'filters: {"; ".join(self.reasons)}'
+            f"filters: {'; '.join(self.reasons)}"
         )
 
 
@@ -93,6 +95,7 @@ class MixedReactionFilter:
             (self.invalid_atom_type, "invalid_atom_type"),
             (self.different_atom_types, "different_atom_types"),
         ]
+        self.unexpected_error_prefix: str = "unexpected_error"
 
     def validate(self, reaction: ReactionEquation) -> None:
         """
@@ -145,23 +148,33 @@ class MixedReactionFilter:
             for mol_based_fn, _ in self.mol_based_checks:
                 yield partial(mol_based_fn, mol_equation)
 
-        return not any(callback() for callback in callbacks())
+        try:
+            return not any(callback() for callback in callbacks())
+        except Exception:
+            return False
 
     def validate_reasons(self, reaction: ReactionEquation) -> Tuple[bool, List[str]]:
         reasons = []
 
-        for smiles_based_fn, error_message in self.smiles_based_checks:
-            if smiles_based_fn(reaction):
-                reasons.append(error_message)
-
         try:
-            mol_equation = MolEquation.from_reaction_equation(reaction)
-        except InvalidSmiles:
-            reasons.append("rdkit_molfromsmiles_failed")
-        else:
-            for mol_based_fn, error_message in self.mol_based_checks:
-                if mol_based_fn(mol_equation):
+            for smiles_based_fn, error_message in self.smiles_based_checks:
+                if smiles_based_fn(reaction):
                     reasons.append(error_message)
+
+            try:
+                mol_equation = MolEquation.from_reaction_equation(reaction)
+            except InvalidSmiles:
+                reasons.append("rdkit_molfromsmiles_failed")
+            else:
+                for mol_based_fn, error_message in self.mol_based_checks:
+                    if mol_based_fn(mol_equation):
+                        reasons.append(error_message)
+        # Catch unexpected exceptions as invalid reactions instead of raising.
+        # The reason includes the last traceback in this case.
+        except Exception:
+            reasons.append(
+                f"{self.unexpected_error_prefix}{traceback.format_exc(limit=1)}"
+            )
 
         valid = len(reasons) == 0
 

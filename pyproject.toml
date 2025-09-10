@@ -6,13 +6,7 @@ build-backend = "setuptools.build_meta"
 strict = true
 
 [[tool.mypy.overrides]]
-module = [
-    "hydra.*",
-    "numpy.*",
-    "pandas.*",
-    "rdkit.*",
-    "xxhash.*",
-]
+module = ["hydra.*", "numpy.*", "pandas.*", "rdkit.*", "xxhash.*"]
 ignore_missing_imports = true
 
 [tool.isort]

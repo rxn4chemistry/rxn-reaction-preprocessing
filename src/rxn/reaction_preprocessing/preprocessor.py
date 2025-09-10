@@ -3,6 +3,7 @@
 # (C) Copyright IBM Corp. 2022
 # ALL RIGHTS RESERVED
 """The preprocessor class abstracts the workflow for preprocessing reaction data sets."""
+
 import collections
 import logging
 from pathlib import Path
@@ -175,6 +176,7 @@ class Preprocessor:
         rxn_idx = csv_iterator.column_index(self.rxn_column)
 
         def filter_invalid(rows: Iterable[List[str]]) -> Iterator[List[str]]:
+            unexpected_prefix = self.mixed_reaction_filter.unexpected_error_prefix
             for row in rows:
                 reaction = ReactionEquation.from_string(
                     row[rxn_idx], fragment_bond=self.fragment_bond
@@ -184,6 +186,14 @@ class Preprocessor:
                     yield row
                 else:
                     for reason in reasons:
+                        if reason.startswith(unexpected_prefix):
+                            logger.info(
+                                "An unexpected exception was handled as invalid reaction:"
+                            )
+                            logger.error(reason[len(unexpected_prefix) :])
+                            # to aggregate count
+                            reason = unexpected_prefix
+
                         self.stats.error_counter[reason] += 1
 
         return CsvIterator(
@@ -208,7 +218,7 @@ class Preprocessor:
         headers = ["Reason", "Number of Reactions"]
         logger.info(
             f"- The {invalid_count} reactions were removed for the following reasons:\n"
-            f'{tabulate(s.error_counter.most_common(), headers, tablefmt="fancy_grid")}'
+            f"{tabulate(s.error_counter.most_common(), headers, tablefmt='fancy_grid')}"
         )
 
 
